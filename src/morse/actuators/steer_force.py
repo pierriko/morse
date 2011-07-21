@@ -6,7 +6,8 @@ class SteerForceActuatorClass(morse.core.actuator.MorseActuatorClass):
 
     This class will read engine force and steer angle (steer, force)
     as input from an external middleware, and then apply them
-    to the parent robot.
+    to the parent robot.  Assumes the parent robot has four wheels
+    with the front two being steerable.
     """
 
     def __init__(self, obj, parent=None):
@@ -17,8 +18,6 @@ class SteerForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         self.local_data['steer'] = 0.0
         self.local_data['force'] = 0.0
         self.local_data['brake'] = 0.0
-        #self.local_data['steer'] = 0.0
-        #self.local_data['force'] = 0.0
         
         # Choose the type of function to move the object
         #self._type = 'Velocity'
@@ -41,8 +40,11 @@ class SteerForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         parent.vehicle.setSteeringValue(self.local_data['steer'],1)
 
         #Update the Force (speed) for these wheels:
-        parent.vehicle.applyEngineForce(self.local_data['force']*.4,0)
-        parent.vehicle.applyEngineForce(self.local_data['force']*.4,1)
+        # only apply force to front wheels if vehicle is 4wd
+        if (parent['4wd']):
+            parent.vehicle.applyEngineForce(self.local_data['force']*.4,0)
+            parent.vehicle.applyEngineForce(self.local_data['force']*.4,1)
+        
         parent.vehicle.applyEngineForce(self.local_data['force']*.4,2)
         parent.vehicle.applyEngineForce(self.local_data['force'] *.4,3)
 

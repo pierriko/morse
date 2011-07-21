@@ -50,13 +50,15 @@ class HummerClass(morse.core.robot.MorseRobotClass):
         #suspensionRestLength:
         #The length of the suspension when it's fully
         #extended:
-        suspensionRestLength = .3
+        suspensionRestLength = obj['suspensionRestLength']
+        #suspensionRestLength = .3
 
         #wheelRadius:
         #Radius of the Physics Wheel.
         #Turn on Game:Show Physics Visualization to see
         #a purple line representing the wheel radius.
-        wheelRadius = .5			
+        #wheelRadius = .5	
+        wheelRadius = obj['wheelRadius']		
 
         #hasSteering:
         #Determines whether or not the coming wheel
@@ -119,14 +121,14 @@ class HummerClass(morse.core.robot.MorseRobotClass):
         self.vehicle.addWheel(wheel4,wheelAttachPosLocal,wheelAttachDirLocal,wheelAxleLocal,suspensionRestLength,wheelRadius,hasSteering)
 
 
-      #The Rolling Influence:
+        #The Rolling Influence:
         #How easy it will be for the vehicle to roll over while turning:
         #0 = Little to no rolling over
         # .1 and higher easier to roll over
         #Wheels that loose contact with the ground will be unable to
         #steer the vehicle as well.
         #influence = 0.1
-        influence = 0.05
+        influence = obj['influence']
         self.vehicle.setRollInfluence(influence,0)
         self.vehicle.setRollInfluence(influence,1)
         self.vehicle.setRollInfluence(influence,2)
@@ -137,7 +139,7 @@ class HummerClass(morse.core.robot.MorseRobotClass):
         #0 = No Spring back
         # .001 and higher = faster spring back
         #stiffness = 10.0
-        stiffness = 15
+        stiffness = obj['stiffness']
         self.vehicle.setSuspensionStiffness(stiffness,0)
         self.vehicle.setSuspensionStiffness(stiffness,1)
         self.vehicle.setSuspensionStiffness(stiffness,2)
@@ -148,7 +150,7 @@ class HummerClass(morse.core.robot.MorseRobotClass):
         #compression.
         #0 = Bounce like a super ball
         #greater than 0 = less bounce
-        damping = 10
+        damping = obj['damping']
         self.vehicle.setSuspensionDamping(damping,0)
         self.vehicle.setSuspensionDamping(damping,1)
         self.vehicle.setSuspensionDamping(damping,2)
@@ -159,7 +161,7 @@ class HummerClass(morse.core.robot.MorseRobotClass):
         #0 = Compress the entire length of the suspension
         #Greater than 0 = compress less than the entire suspension length.
         #10 = almost no compression
-        compression = 2
+        compression = obj['compression']
         self.vehicle.setSuspensionCompression(compression,0)
         self.vehicle.setSuspensionCompression(compression,1)
         self.vehicle.setSuspensionCompression(compression,2)
@@ -183,6 +185,6 @@ class HummerClass(morse.core.robot.MorseRobotClass):
         """ Main function of this component. """
         #
         #  This section runs continuously after the initial set up:
-        #  Updating Speed, Friction, Braking, Suspension, etc:
+        #  Updating Speed, Braking, etc:
         #
         pass
