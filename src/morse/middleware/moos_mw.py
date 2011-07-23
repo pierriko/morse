@@ -44,6 +44,8 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         self.m.Register("cSteer")
         self.m.Register("cThrottle")
         self.m.Register("cBrake")
+        self.m.Register("cForceL")
+        self.m.Register("cForceR")
 		
         print("========== Registering component =================")
         parent_name = component_instance.robot_parent.blender_obj.name
@@ -125,3 +127,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
                 component_instance.local_data['force']=message.GetDouble() # command engine force
             elif  (message.GetKey()=="cBrake") and (message.IsDouble()):
                 component_instance.local_data['brake']=message.GetDouble() # command angular velocity [m/s]
+            elif  (message.GetKey()=="cForceL") and (message.IsDouble()):
+                component_instance.local_data['force_l']=message.GetDouble() # command engine force
+            elif  (message.GetKey()=="cForceR") and (message.IsDouble()):
+                component_instance.local_data['force_r']=message.GetDouble() # command angular velocity [m/s]
