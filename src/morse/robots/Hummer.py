@@ -182,11 +182,16 @@ class HummerClass(morse.core.robot.MorseRobotClass):
         #0 = Very Slow Acceleration:
         # .1 and higher = Faster Acceleration / more friction:
         #friction = obj['friction']
-        friction=200.0;
+        #friction=200.0;
+        friction=0.8;
         self.vehicle.setTyreFriction(friction,0)
         self.vehicle.setTyreFriction(friction,1)
         self.vehicle.setTyreFriction(friction,2)
         self.vehicle.setTyreFriction(friction,3)
+
+        #print(dir(self.vehicle))
+        #print(type(self.vehicle))
+        #print(self.vehicle.getWheelRotation(0))
               
         print('######## ROBOT INITIALIZED ########')
 
@@ -196,4 +201,5 @@ class HummerClass(morse.core.robot.MorseRobotClass):
         #  This section runs continuously after the initial set up:
         #  Updating Speed, Braking, etc:
         #
+        #print(self.vehicle.getWheelRotation(0))
         pass

@@ -30,19 +30,27 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
 		# Wheel locations from vehicle center
         #Where the wheel is attach to the car based
         #on the vehicle's Center
-        self.wheel1position=[-0.575,0.266599,-0.18881]  #fr
-        self.wheel2position=[-0.040,0.266599,-0.18445]  #fl
-        self.wheel3position=[-0.575,-0.308401,-0.18445]  #rr
-        self.wheel4position=[-0.041,-0.308401,-0.18881]  #rl
+        self.wheel1position=[0.308,0.287,0]  #fr
+        self.wheel2position=[-0.308,0.287,0]  #fl
+        self.wheel3position=[0.308,-0.287,0]  #rr
+        self.wheel4position=[-0.308,-0.287,0]  #rl
+        
+        self.wheel1position=[1.308,0.287,0]  #fr
+        self.wheel2position=[-1.308,0.287,0]  #fl
+        self.wheel3position=[1.308,-0.287,0]  #rr
+        self.wheel4position=[-1.308,-0.287,0]  #rl
+
 
         #wheelAttachDirLocal:
         #Direction the suspension is pointing
-        wheelAttachDirLocal = [0,0,-1]
+        wheelAttachDirLocal = [0,0,-1] #original
+        #wheelAttachDirLocal = [-1,0,0]
 
         #wheelAxleLocal:
         #Determines the rotational angle where the
         #wheel is mounted.
-        wheelAxleLocal = [-1,0,0]
+        #wheelAxleLocal = [0,-1,0]
+        wheelAxleLocal = [-1,0,0]  #original
 
         #suspensionRestLength:
         #The length of the suspension when it's fully
@@ -53,7 +61,8 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
         #print(self.blender_obj['suspensionRestLength'])
         
         #suspensionRestLength = obj['suspensionRestLength']
-        suspensionRestLength = .3
+        #suspensionRestLength = .3
+        suspensionRestLength = 0
 
         #wheelRadius:
         #Radius of the Physics Wheel.

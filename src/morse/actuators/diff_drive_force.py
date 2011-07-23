@@ -42,12 +42,13 @@ class DiffDriveForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         parent.vehicle.applyEngineForce(self.local_data['force_r']*.4,0)
         parent.vehicle.applyEngineForce(self.local_data['force_r'] *.4,2)
 
+
         #Brakes:
         #Applies the braking force to each wheel listed:
         #['brakes'] = the game property value for the car labeled 'brakes'
         #Default value is 0:
         parent.vehicle.applyBraking(self.local_data['brake_l'],1)
-        parent.vehicle.applyBraking(self.local_data['brake_l'].1,3)
+        parent.vehicle.applyBraking(self.local_data['brake_l'],3)
         parent.vehicle.applyBraking(self.local_data['brake_r'],0)
         parent.vehicle.applyBraking(self.local_data['brake_r'],2)
 
