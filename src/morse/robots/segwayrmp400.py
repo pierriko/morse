@@ -1,10 +1,19 @@
 import GameLogic
 import morse.core.robot
-
+import PhysicsConstraints
 
 class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
     """ Class definition for the Segway RMP400 base.
         Sub class of Morse_Object. """
+              
+    def __init__(self, obj, parent=None):
+        """ Constructor method.
+            Receives the reference to the Blender object.
+            Optionally it gets the name of the object's parent,
+            but that information is not currently used for a robot. """
+        # Call the constructor of the parent class
+        print ("######## ROBOT '%s' INITIALIZING ########" % obj.name)
+        super(self.__class__,self).__init__(obj, parent)
 
 		#
         #  This section runs only once to create the vehicle:
@@ -176,16 +185,6 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
         self.vehicle.setTyreFriction(friction,1)
         self.vehicle.setTyreFriction(friction,2)
         self.vehicle.setTyreFriction(friction,3)
-              
-
-    def __init__(self, obj, parent=None):
-        """ Constructor method.
-            Receives the reference to the Blender object.
-            Optionally it gets the name of the object's parent,
-            but that information is not currently used for a robot. """
-        # Call the constructor of the parent class
-        print ("######## ROBOT '%s' INITIALIZING ########" % obj.name)
-        super(self.__class__,self).__init__(obj, parent)
 
         print ('######## ROBOT INITIALIZED ########')
 
