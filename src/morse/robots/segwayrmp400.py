@@ -26,16 +26,14 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
         vehicle = PhysicsConstraints.createConstraint(physicsid,0,11)
         obj['cid'] = vehicle.getConstraintId()
         self.vehicle = PhysicsConstraints.getVehicleConstraint(obj['cid'])
-       
-        # Wheel location from vehicle center
-        wx = 1.3
-        wy = 1.6
-        wz = -.5
-
-        #wheelAttachPosLocal:
+		
+		# Wheel locations from vehicle center
         #Where the wheel is attach to the car based
         #on the vehicle's Center
-        wheelAttachPosLocal = [wx, wy, wz]
+        self.wheel1position=[-0.575,0.266599,-0.18881]  #fr
+        self.wheel2position=[-0.040,0.266599,-0.18445]  #fl
+        self.wheel3position=[-0.575,-0.308401,-0.18445]  #rr
+        self.wheel4position=[-0.041,-0.308401,-0.18881]  #rl
 
         #wheelAttachDirLocal:
         #Direction the suspension is pointing
@@ -79,17 +77,13 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
 
         #creates the first wheel using all of the variables 
         #created above:
-        self.vehicle.addWheel(wheel1,wheelAttachPosLocal,wheelAttachDirLocal,wheelAxleLocal,suspensionRestLength,wheelRadius,hasSteering)
+        self.vehicle.addWheel(wheel1,self.wheel1position,wheelAttachDirLocal,wheelAxleLocal,suspensionRestLength,wheelRadius,hasSteering)
         
         #locates the second wheel:
         wheel2=scene.objects["rmp_wheel_atv.002"]
 
-        #Positions this wheel on the opposite side of the car by using a
-        #negative values for the x position.
-        wheelAttachPosLocal = [-wx, wy, wz]
-
         #creates the second wheel:
-        self.vehicle.addWheel(wheel2,wheelAttachPosLocal,wheelAttachDirLocal,wheelAxleLocal,suspensionRestLength,wheelRadius,hasSteering)
+        self.vehicle.addWheel(wheel2,self.wheel2position,wheelAttachDirLocal,wheelAxleLocal,suspensionRestLength,wheelRadius,hasSteering)
 
         #
         #	Rear Wheels:
@@ -99,30 +93,17 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
         #when the steering value is changed.
         hasSteering = 0
 
-        # Adjust the location the rear wheels are attached.  
-        wx = 1.3
-        wy = 2.3
-
-        # Set the wheelAttachPosLocal to the new location for rear wheels:
-        # -y moves the position toward the back of the car
-        wheelAttachPosLocal = [wx ,-wy, wz]
-
         # locate the 3rd wheel:
         wheel3=scene.objects["rmp_wheel_atv.003"]
 
         #Creates the 3rd wheel (first rear wheel)
-        self.vehicle.addWheel(wheel3,wheelAttachPosLocal,wheelAttachDirLocal,wheelAxleLocal,suspensionRestLength,wheelRadius,hasSteering)
-
-        #Adjust the attach position for the next wheel:
-        # changed to -x to place the wheel on the opposite side of the car
-        # the same distance away from the vehicle's center
-        wheelAttachPosLocal = [-wx ,-wy, wz]
+        self.vehicle.addWheel(wheel3,self.wheel3position,wheelAttachDirLocal,wheelAxleLocal,suspensionRestLength,wheelRadius,hasSteering)
 
         #locate the fourth wheel:
         wheel4=scene.objects["rmp_wheel_atv.004"]
 
         #create the last wheel using the above variables:
-        self.vehicle.addWheel(wheel4,wheelAttachPosLocal,wheelAttachDirLocal,wheelAxleLocal,suspensionRestLength,wheelRadius,hasSteering)
+        self.vehicle.addWheel(wheel4,self.wheel4position,wheelAttachDirLocal,wheelAxleLocal,suspensionRestLength,wheelRadius,hasSteering)
 
 
         #The Rolling Influence:
