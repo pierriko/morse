@@ -32,6 +32,8 @@ class SteerForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         # Get the Blender object of the parent robot
         parent = self.robot_parent
         
+        print(self.local_data['steer'])
+        
         #Update the steering value for these wheels:
         #The number the end represents the wheel 'number' in the 
         #order they were created above.  Front wheels #0 and #1.
@@ -41,10 +43,12 @@ class SteerForceActuatorClass(morse.core.actuator.MorseActuatorClass):
 
         #Update the Force (speed) for these wheels:
         # only apply force to front wheels if vehicle is 4wd
-        if (parent['4wd']):
-            parent.vehicle.applyEngineForce(self.local_data['force']*.4,0)
-            parent.vehicle.applyEngineForce(self.local_data['force']*.4,1)
+        #if (parent['4wd']):
+            #parent.vehicle.applyEngineForce(self.local_data['force']*.4,0)
+            #parent.vehicle.applyEngineForce(self.local_data['force']*.4,1)
         
+        parent.vehicle.applyEngineForce(self.local_data['force']*.4,0)
+        parent.vehicle.applyEngineForce(self.local_data['force']*.4,1)
         parent.vehicle.applyEngineForce(self.local_data['force']*.4,2)
         parent.vehicle.applyEngineForce(self.local_data['force'] *.4,3)
 

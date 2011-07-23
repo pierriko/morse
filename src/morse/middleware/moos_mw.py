@@ -41,6 +41,9 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         # tells 
         self.m.Register("cVelocity")
         self.m.Register("cYawRate")
+        self.m.Register("cSteer")
+        self.m.Register("cThrottle")
+        self.m.Register("cBrake")
 		
         print("========== Registering component =================")
         parent_name = component_instance.robot_parent.blender_obj.name
