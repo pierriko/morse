@@ -32,7 +32,7 @@ class SteerForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         # Get the Blender object of the parent robot
         parent = self.robot_parent
         
-        print(self.local_data['steer'])
+        #print(self.local_data['steer'])
         
         #Update the steering value for these wheels:
         #The number the end represents the wheel 'number' in the 

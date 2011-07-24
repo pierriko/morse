@@ -35,4 +35,9 @@ def post_imu(self, component_instance):
     self.m.Notify('zAccelX',acc[0],curTime)
     self.m.Notify('zAccelY',acc[1],curTime)
     self.m.Notify('zAccelZ',acc[2],curTime)
-
+    
+    # post velocities
+    self.m.Notify('zVelX',vel[0],curTime)
+    self.m.Notify('zVelY',vel[1],curTime)
+    self.m.Notify('zVelZ',vel[2],curTime)
+   

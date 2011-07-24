@@ -27,5 +27,10 @@ def post_gps(self, component_instance):
     self.m.Notify('zEast',component_instance.local_data['x'],curTime)
     self.m.Notify('zNorth',component_instance.local_data['y'],curTime)
     self.m.Notify('zHeight',component_instance.local_data['z'],curTime)
+    self.m.Notify('zCourse', component_instance.local_data['course'],curTime)
+    self.m.Notify('zHorizSpeed', component_instance.local_data['speed'],curTime)
+    self.m.Notify('zVertVel', component_instance.local_data['vertSpeed'],curTime)
+    self.m.Notify('zVelXGPS',component_instance.local_data['velX'],curTime)
+    self.m.Notify('zVelYGPS',component_instance.local_data['velY'],curTime)
+    self.m.Notify('zVelZGPS',component_instance.local_data['velZ'],curTime)
     
-   
