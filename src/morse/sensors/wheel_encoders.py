@@ -22,7 +22,7 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         self.local_data['rotFL'] = 0.0
         self.local_data['rotRR'] = 0.0
         self.local_data['rotRL'] = 0.0
-        self.local_data['numWheels'] = self.robot_parent.vehicle.getNumWheels()
+        self.local_data['numWheels'] = self.robot_parent.local_data['numWheels']
         print ('######## ODOMETER INITIALIZED ########')
 
 
@@ -36,16 +36,26 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         #    3     -    RL
         
         # check to see how many wheels there are:
-        
-        
+        wheelAngularSpeeds=self.robot_parent.getWheelSpeeds()
+
         if (self.local_data['numWheels']==2):
-            self.local_data['rotFR'] = self.robot_parent.vehicle.getWheelRotation(0)
-            self.local_data['rotFL'] = self.robot_parent.vehicle.getWheelRotation(1)
+            self.local_data['rotFR'] = wheelAngularSpeeds[0]
+            self.local_data['rotFL'] = wheelAngularSpeeds[1]
         elif (self.local_data['numWheels']==4):        
-            self.local_data['rotFR'] = self.robot_parent.vehicle.getWheelRotation(0)
-            self.local_data['rotFL'] = self.robot_parent.vehicle.getWheelRotation(1)
-            self.local_data['rotRR'] = self.robot_parent.vehicle.getWheelRotation(2)
-            self.local_data['rotRL'] = self.robot_parent.vehicle.getWheelRotation(3)
+            self.local_data['rotFR'] = wheelAngularSpeeds[0]
+            self.local_data['rotFL'] = wheelAngularSpeeds[1]
+            self.local_data['rotRR'] = wheelAngularSpeeds[2]
+            self.local_data['rotRL'] = wheelAngularSpeeds[3]
+
+        
+        #if (self.local_data['numWheels']==2):
+        #    self.local_data['rotFR'] = self.robot_parent.vehicle.getWheelRotation(0)
+        #    self.local_data['rotFL'] = self.robot_parent.vehicle.getWheelRotation(1)
+        #elif (self.local_data['numWheels']==4):        
+        #    self.local_data['rotFR'] = self.robot_parent.vehicle.getWheelRotation(0)
+        #    self.local_data['rotFL'] = self.robot_parent.vehicle.getWheelRotation(1)
+        #    self.local_data['rotRR'] = self.robot_parent.vehicle.getWheelRotation(2)
+        #    self.local_data['rotRL'] = self.robot_parent.vehicle.getWheelRotation(3)
 
         
         

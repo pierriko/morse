@@ -73,10 +73,19 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
         wsRR=self.local_data['wheelRR'].getAngularVelocity(True)
         return [wsFL[2], wsFR[2], wsRL[2], wsRR[2]]
         
+    def getWheelCount(self):
+        # true parameters tell it velocities are local
+        # wheels should be rotating about local Z axis
+        wcFL=self.local_data['wheelFL'].localOrientation()
+        wcFR=self.local_data['wheelFR'].localOrientation()
+        wcRL=self.local_data['wheelRL'].localOrientation()
+        wcRR=self.local_data['wheelRR'].localOrientation()
+        return [wcFL[2], wcFR[2], wcRL[2], wcRR[2]]
 
     def default_action(self):
         """ Main function of this component. """
         pass
+        
 
     # TODO: these functions should be put in a separate module later or
     # a new robot class created
