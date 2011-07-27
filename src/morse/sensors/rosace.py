@@ -1,3 +1,4 @@
+import logging; logger = logging.getLogger("morse." + __name__)
 ######################################################
 #
 #    rosace.py        Blender 2.5x
@@ -18,6 +19,7 @@ import math
 import GameLogic
 import mathutils
 import morse.core.sensor
+from morse.core.exceptions import MorseRPCInvokationError
 from morse.core.services import service
 from morse.core.services import async_service
 from morse.core import status
@@ -35,7 +37,7 @@ class RosaceSensorClass(morse.core.sensor.MorseSensorClass):
 
     def __init__(self, obj, parent=None):
 
-        print ('######## ROSACE SENSOR INITIALIZATION ########')
+        logger.info('%s initialization' % obj.name)
         # Call the constructor of the parent class
         super(self.__class__,self).__init__(obj, parent)
 
@@ -49,7 +51,7 @@ class RosaceSensorClass(morse.core.sensor.MorseSensorClass):
         # List of victims visible from this sensor
         self.local_data['victim_dict'] = {}
 
-        print ('######## ROSACE SENSOR INITIALIZED ########')
+        logger.info('Component initialized')
 
 
 
@@ -59,15 +61,15 @@ class RosaceSensorClass(morse.core.sensor.MorseSensorClass):
 
     @service
     def get_robot_abilities(self):
-        return (status.SUCCESS, self.blender_obj['Abilities'])
+        return self.blender_obj['Abilities']
 
     @service
     def get_victim_requirements(self):
         if self._nearest_victim:
-            return (status.SUCCESS, self._nearest_victim['Requirements'])
+            return self._nearest_victim['Requirements']
         else:
             message = "No victim within range (%.2f m)" % self.blender_obj['Heal_range']
-            return (status.FAILED, message)
+            raise MorseRPCInvokationError(message)
 
     def _heal_victim(self):
         """ Change the 'Severity' property of a nearby victim
@@ -75,7 +77,7 @@ class RosaceSensorClass(morse.core.sensor.MorseSensorClass):
         When the victim is fully healed, set its status as not Injured
         """
         victim = self._nearest_victim
-        #print ("Healing victim %s at distance %d" % (victim.name, self._nearest_distance))
+        logger.debug("Healing victim %s at distance %d" % (victim.name, self._nearest_distance))
         # Check that the victim is whithing the valid range and that
         #  the robot is equiped to help the victim
         if self._nearest_distance < self.blender_obj['Heal_range']:
