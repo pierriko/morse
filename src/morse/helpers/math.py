@@ -21,7 +21,6 @@ def euler_angle(ob):
 def get_rotation_matrix(object):
     """ Return a the rotation matrix of an object.
     Used to transform another object to this one's coordinate system. """
-
     import copy
     return copy.copy(object.worldOrientation)
 
