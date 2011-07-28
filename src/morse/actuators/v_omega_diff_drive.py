@@ -36,12 +36,19 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
         #print('default action')
         
         if (abs(self.local_data['v'])<0.01)and(abs(self.local_data['w'])<0.01):
-            # try to lock a wheel
-            self.robot_parent.local_data['wheelFLJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
-            self.robot_parent.local_data['wheelFRJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
-            self.robot_parent.local_data['wheelRLJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
-            self.robot_parent.local_data['wheelRRJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
-  
+            # lock the wheel when velocity is below a given threshold
+            # get the current orientation and lock the wheels there
+            #curOrient=self.robot_parent.getWheelCount()
+            #self.robot_parent.local_data['wheelFLJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelFRJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelRLJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelRRJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
+
+            #self.robot_parent.local_data['wheelFLJoint'].setParam(3,curOrient[0],curOrient[0]) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelFRJoint'].setParam(3,curOrient[1],curOrient[1]) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelRLJoint'].setParam(3,curOrient[2],curOrient[2]) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelRRJoint'].setParam(3,curOrient[3],curOrient[3]) # no rotation about Y axis
+              
             #self.robot_parent.local_data['wheelFL'].applyRotation([0.0,0.0,0.0],True)
             #self.robot_parent.local_data['wheelFR'].applyRotation([0.0,0.0,0.0],True)
             #self.robot_parent.local_data['wheelRL'].applyRotation([0.0,0.0,0.0],True)

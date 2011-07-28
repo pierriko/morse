@@ -37,15 +37,26 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         
         # check to see how many wheels there are:
         wheelAngularSpeeds=self.robot_parent.getWheelSpeeds()
+        wheelOrientations=self.robot_parent.getWheelAngle()
 
         if (self.local_data['numWheels']==2):
-            self.local_data['rotFR'] = wheelAngularSpeeds[0]
-            self.local_data['rotFL'] = wheelAngularSpeeds[1]
+            self.local_data['velFR'] = wheelAngularSpeeds[0]
+            self.local_data['velFL'] = wheelAngularSpeeds[1]
         elif (self.local_data['numWheels']==4):        
-            self.local_data['rotFR'] = wheelAngularSpeeds[0]
-            self.local_data['rotFL'] = wheelAngularSpeeds[1]
-            self.local_data['rotRR'] = wheelAngularSpeeds[2]
-            self.local_data['rotRL'] = wheelAngularSpeeds[3]
+            self.local_data['velFR'] = wheelAngularSpeeds[0]
+            self.local_data['velFL'] = wheelAngularSpeeds[1]
+            self.local_data['velRR'] = wheelAngularSpeeds[2]
+            self.local_data['velRL'] = wheelAngularSpeeds[3]
+
+        if (self.local_data['numWheels']==2):
+            self.local_data['rotFR'] = wheelOrientations[0]
+            self.local_data['rotFL'] = wheelOrientations[1]
+        elif (self.local_data['numWheels']==4):        
+            self.local_data['rotFR'] = wheelOrientations[0]
+            self.local_data['rotFL'] = wheelOrientations[1]
+            self.local_data['rotRR'] = wheelOrientations[2]
+            self.local_data['rotRL'] = wheelOrientations[3]
+
 
         
         #if (self.local_data['numWheels']==2):

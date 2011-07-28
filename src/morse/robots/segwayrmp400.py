@@ -5,6 +5,7 @@ import morse.core.robot
 import PhysicsConstraints
 import bpy
 import math
+from morse.core.services import MorseServices
 
 class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
     """ Class definition for the Segway RMP400 base.
@@ -73,19 +74,20 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
         wsRR=self.local_data['wheelRR'].getAngularVelocity(True)
         return [wsFL[2], wsFR[2], wsRL[2], wsRR[2]]
         
-    def getWheelCount(self):
+    def getWheelAngle(self):
         # true parameters tell it velocities are local
         # wheels should be rotating about local Z axis
-        wcFL=self.local_data['wheelFL'].localOrientation()
-        wcFR=self.local_data['wheelFR'].localOrientation()
-        wcRL=self.local_data['wheelRL'].localOrientation()
-        wcRR=self.local_data['wheelRR'].localOrientation()
-        return [wcFL[2], wcFR[2], wcRL[2], wcRR[2]]
+        wcFL=self.local_data['wheelFL'].localOrientation.to_euler()
+        #print(wcFL)
+        wcFR=self.local_data['wheelFR'].localOrientation.to_euler()
+        wcRL=self.local_data['wheelRL'].localOrientation.to_euler()
+        wcRR=self.local_data['wheelRR'].localOrientation.to_euler()
+        return [wcFL[1], wcFR[1], wcRL[1], wcRR[1]]
 
     def default_action(self):
         """ Main function of this component. """
         pass
-        
+        #self.getWheelCount()
 
     # TODO: these functions should be put in a separate module later or
     # a new robot class created

@@ -31,3 +31,12 @@ def post_wheel_encoders(self, component_instance):
         self.m.Notify('zE_fl',component_instance.local_data['rotFL'],curTime)
         self.m.Notify('zE_rr',component_instance.local_data['rotRR'],curTime)
         self.m.Notify('zE_rl',component_instance.local_data['rotRL'],curTime)
+        
+    if (component_instance.local_data['numWheels']==2):
+        self.m.Notify('zWS_fr',component_instance.local_data['velFR'],curTime)
+        self.m.Notify('zWS_fl',component_instance.local_data['velFL'],curTime)
+    elif (component_instance.local_data['numWheels']==4):
+        self.m.Notify('zWS_fr',component_instance.local_data['velFR'],curTime)
+        self.m.Notify('zWS_fl',component_instance.local_data['velFL'],curTime)
+        self.m.Notify('zWS_rr',component_instance.local_data['velRR'],curTime)
+        self.m.Notify('zWS_rl',component_instance.local_data['velRL'],curTime)        
