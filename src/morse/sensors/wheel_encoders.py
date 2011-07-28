@@ -22,6 +22,10 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         self.local_data['rotFL'] = 0.0
         self.local_data['rotRR'] = 0.0
         self.local_data['rotRL'] = 0.0
+        self.local_data['velFR'] = 0.0
+        self.local_data['velFL'] = 0.0
+        self.local_data['velRR'] = 0.0
+        self.local_data['velRL'] = 0.0
         self.local_data['numWheels'] = self.robot_parent.local_data['numWheels']
         print ('######## ODOMETER INITIALIZED ########')
 
@@ -35,10 +39,8 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         #    2     -    RR
         #    3     -    RL
         
-        # check to see how many wheels there are:
+        # get angular speed
         wheelAngularSpeeds=self.robot_parent.getWheelSpeeds()
-        wheelOrientations=self.robot_parent.getWheelAngle()
-
         if (self.local_data['numWheels']==2):
             self.local_data['velFR'] = wheelAngularSpeeds[0]
             self.local_data['velFL'] = wheelAngularSpeeds[1]
@@ -48,6 +50,8 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
             self.local_data['velRR'] = wheelAngularSpeeds[2]
             self.local_data['velRL'] = wheelAngularSpeeds[3]
 
+        # get angular distance traveled
+        wheelOrientations=self.robot_parent.getWheelAngle()
         if (self.local_data['numWheels']==2):
             self.local_data['rotFR'] = wheelOrientations[0]
             self.local_data['rotFL'] = wheelOrientations[1]

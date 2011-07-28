@@ -53,7 +53,8 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
             self.local_data['wheelFRJoint']=self.AttachWheelToBody(self.local_data['wheelFR'],self.blender_obj) 
             self.local_data['wheelRLJoint']=self.AttachWheelToBody(self.local_data['wheelRL'],self.blender_obj) 
             self.local_data['wheelRRJoint']=self.AttachWheelToBody(self.local_data['wheelRR'],self.blender_obj) 
-        
+            #pass
+            
         # get wheel radius
         self.local_data['wheelRadius']=0.27  # TODO read this later from GameObjectSettings.radius
 
