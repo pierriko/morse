@@ -28,7 +28,7 @@ class VWActuatorClass(morse.core.actuator.MorseActuatorClass):
 
     def default_action(self):
         """ Apply (v, w) to the parent robot. """
-
+        
         # Reset movement variables
         vx, vy, vz = 0.0, 0.0, 0.0
         rx, ry, rz = 0.0, 0.0, 0.0
@@ -62,3 +62,5 @@ class VWActuatorClass(morse.core.actuator.MorseActuatorClass):
         elif self._type == 'Velocity':
             parent.setLinearVelocity([vx, vy, vz], True)
             parent.setAngularVelocity([rx, ry, rz], True)
+
+
