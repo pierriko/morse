@@ -773,7 +773,9 @@ def restart(contr):
 def quit(contr):
     """ Exit graciously from the simulation """
     logger.log(ENDSECTION, 'EXITING SIMULATION')
-
+    for handler in logging.getLogger('morse').handlers:
+        handler.flush()
+    
     quitActuator = contr.actuators['Quit_sim']
     contr.activate(quitActuator)
 
