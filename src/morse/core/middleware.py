@@ -41,6 +41,14 @@ class MorseMiddlewareClass(object):
         for module in self._extra_methods:
             delattr(self, module)
 
+    def action(self):
+        try:
+            self.default_action()
+        except AttributeError:
+            pass # TODO: Warn here, but only once, we need a log_once function
+        except:
+            import traceback
+            traceback.print_exc()
 
     def _check_function_exists(self, function_name):
         """ Checks if a class contains a specified function
