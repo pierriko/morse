@@ -1,8 +1,9 @@
 import logging; logger = logging.getLogger("morse." + __name__)
-import roslib; roslib.load_manifest('roscpp'); roslib.load_manifest('rospy');
-import roscpp
+import roslib; roslib.load_manifest('rospy'); roslib.load_manifest('rosgraph_msgs');
 import rospy
+from rosgraph_msgs.msg import Clock
 import array
+import GameLogic
 import morse.core.middleware
 import std_msgs
 import mathutils
@@ -17,6 +18,8 @@ class ROSClass(morse.core.middleware.MorseMiddlewareClass):
         logger.info("Middleware initialization")
         super(self.__class__,self).__init__()
         self._topics = []
+        self.clock_publisher = rospy.Publisher("/clock", Clock)
+        self.clock_msg = Clock()
         logger.info("Middleware initialized")
         
         
@@ -24,7 +27,17 @@ class ROSClass(morse.core.middleware.MorseMiddlewareClass):
         """ Close all open ROS connections. """
         logger.info("Shutting down ROSNode...")
 
-    
+    def default_action(self):
+        try:
+            if self.blender_obj['publish_clock']:
+                self.clock_msg.clock = rospy.Time.from_sec(GameLogic.current_sim_time)
+                self.clock_publisher.publish(self.clock_msg)
+        except KeyError as e:
+            pass
+        except:
+            import traceback
+            traceback.print_exc()
+
     def finalize(self):
         """ Kill the morse rosnode."""
         rospy.signal_shutdown("ROSPy Shutdown")
