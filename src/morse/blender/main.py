@@ -460,6 +460,8 @@ def init(contr):
     GameLogic.morse_initialised = False
     GameLogic.base_clock = time.clock()
     GameLogic.current_time = 0.0
+    GameLogic.current_sim_time = 0.0
+    GameLogic.sim_time_step = 1.0/GameLogic.getLogicTicRate()
     # Variable to keep trac of the camera being used
     GameLogic.current_camera_index = 0
     init_ok = True
@@ -548,6 +550,7 @@ def simulation_main(contr):
     # Update the time variable
     try:
         GameLogic.current_time = time.clock() - GameLogic.base_clock
+        GameLogic.current_sim_time += GameLogic.sim_time_step
     except AttributeError as detail:
         # If the 'base_clock' variable is not defined, there probably was
         #  a problem while doing the init, so we'll abort the simulation.
@@ -640,7 +643,9 @@ def restart(contr):
 
 def quit(contr):
     logger.log(ENDSECTION, 'EXITING SIMULATION')
-
+    for handler in logging.getLogger('morse').handlers:
+        handler.flush()
+    
     quitActuator = contr.actuators['Quit_sim']
     contr.activate(quitActuator)
 
