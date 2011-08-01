@@ -49,14 +49,22 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
             pass
         else:
             # get relative positions between wheels and chassis
-            self.local_data['wheelFLJoint']=self.AttachWheelToBody(self.local_data['wheelFL'],self.blender_obj)  
-            self.local_data['wheelFRJoint']=self.AttachWheelToBody(self.local_data['wheelFR'],self.blender_obj) 
-            self.local_data['wheelRLJoint']=self.AttachWheelToBody(self.local_data['wheelRL'],self.blender_obj) 
-            self.local_data['wheelRRJoint']=self.AttachWheelToBody(self.local_data['wheelRR'],self.blender_obj) 
-            #pass
+            #self.local_data['wheelFLJoint']=self.AttachWheelToBody(self.local_data['wheelFL'],self.blender_obj)  
+            #self.local_data['wheelFRJoint']=self.AttachWheelToBody(self.local_data['wheelFR'],self.blender_obj) 
+            #self.local_data['wheelRLJoint']=self.AttachWheelToBody(self.local_data['wheelRL'],self.blender_obj) 
+            #self.local_data['wheelRRJoint']=self.AttachWheelToBody(self.local_data['wheelRR'],self.blender_obj) 
+            pass
             
         # get wheel radius
-        self.local_data['wheelRadius']=0.27  # TODO read this later from GameObjectSettings.radius
+        try:
+            if self.blender_obj['WheelRadius']:
+                self.local_data['wheelRadius']=self.blender_obj['WheelRadius']
+        except KeyError as e:
+            self.local_data['wheelRadius']=0.27
+            logger.info('Wheel radius defaulted to 0.27m')
+        except:
+            import traceback
+            traceback.print_exc()        
 
         # get track width
         posL=self.local_data['wheelRL'].position
@@ -108,6 +116,11 @@ class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
         joint.setParam(5,0.0,0.0) # no rotation about Z axis
         return joint
     
+    def AttachWheelToWheel(self,wheel1,wheel2):
+        # add both wheels on each side to each other but with no
+        # constraints on their motion so that no collision can be set
+        # between them
+        pass
     
     def AttachWheelWithSuspension(self, wheel, parent, suspensionArm):
         pass

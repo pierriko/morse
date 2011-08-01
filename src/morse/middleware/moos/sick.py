@@ -27,7 +27,9 @@ def init_extra_module(self, component_instance, function, mw_data):
 def post_2DLaserScan(self, component_instance):
     """ Publish the data on the rostopic
 		"""
-    curTime=pymoos.MOOSCommClient.MOOSTime()
+    #curTime=pymoos.MOOSCommClient.MOOSTime()
+    curTime=self.current_MOOS_time    
+    
     num_readings = component_instance.blender_obj['scan_window'] / component_instance.blender_obj['resolution']
 
     # build string of the form: '[1x180]{4.9,29.2,...,2.98}'

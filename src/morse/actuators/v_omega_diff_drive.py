@@ -39,10 +39,10 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
             # lock the wheel when velocity is below a given threshold
             # get the current orientation and lock the wheels there
             #curOrient=self.robot_parent.getWheelCount()
-            self.robot_parent.local_data['wheelFLJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
-            self.robot_parent.local_data['wheelFRJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
-            self.robot_parent.local_data['wheelRLJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
-            self.robot_parent.local_data['wheelRRJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelFLJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelFRJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelRLJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
+            #self.robot_parent.local_data['wheelRRJoint'].setParam(3,0.0,0.0) # no rotation about Y axis
 
             #self.robot_parent.local_data['wheelFLJoint'].setParam(3,curOrient[0],curOrient[0]) # no rotation about Y axis
             #self.robot_parent.local_data['wheelFRJoint'].setParam(3,curOrient[1],curOrient[1]) # no rotation about Y axis
@@ -53,6 +53,11 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
             #self.robot_parent.local_data['wheelFR'].applyRotation([0.0,0.0,0.0],True)
             #self.robot_parent.local_data['wheelRL'].applyRotation([0.0,0.0,0.0],True)
             #self.robot_parent.local_data['wheelRR'].applyRotation([0.0,0.0,0.0],True)
+
+            self.robot_parent.local_data['wheelFLJoint'].setParam(9,0,100.0)
+            self.robot_parent.local_data['wheelFRJoint'].setParam(9,0,100.0)
+            self.robot_parent.local_data['wheelRLJoint'].setParam(9,0,100.0)
+            self.robot_parent.local_data['wheelRRJoint'].setParam(9,0,100.0)
 
             #print('stopping')
             pass
@@ -66,10 +71,10 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
             w_ws_r=v_ws_r/self.radius
             
             #unlock wheels in case we are just starting up
-            self.robot_parent.local_data['wheelFLJoint'].setParam(3,-10000.0,10000.0) # allow rotation about X axis
-            self.robot_parent.local_data['wheelFRJoint'].setParam(3,-10000.0,10000.0) # allow rotation about Y axis
-            self.robot_parent.local_data['wheelRLJoint'].setParam(3,-10000.0,10000.0) # allow rotation about Y axis
-            self.robot_parent.local_data['wheelRRJoint'].setParam(3,-10000.0,10000.0) # allow rotation about Y axis            
+            #self.robot_parent.local_data['wheelFLJoint'].setParam(3,-10000.0,10000.0) # allow rotation about X axis
+            #self.robot_parent.local_data['wheelFRJoint'].setParam(3,-10000.0,10000.0) # allow rotation about Y axis
+            #self.robot_parent.local_data['wheelRLJoint'].setParam(3,-10000.0,10000.0) # allow rotation about Y axis
+            #self.robot_parent.local_data['wheelRRJoint'].setParam(3,-10000.0,10000.0) # allow rotation about Y axis            
             
             # set wheel speeds - front and rear wheels have the same speed
             self.robot_parent.local_data['wheelFLJoint'].setParam(9,w_ws_l,100.0)

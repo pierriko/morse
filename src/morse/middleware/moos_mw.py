@@ -15,8 +15,9 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         super(self.__class__,self).__init__(obj, parent)
         logger.info("Middleware initialization")
         self.m = pymoos.MOOSCommClient.MOOSApp()
-        #self.m.SetOnConnectCallBack( self.m.DoRegistrations )
-        #self.m.SetOnMailCallBack( self.m.MailCallback )
+        # intialize MOOS and MORSE times
+        self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
+        self.current_SIM_time=GameLogic.current_sim_time
         
         logger.info("%s" % self.m.GetLocalIPAddress())
 
@@ -132,3 +133,18 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
                 component_instance.local_data['force_l']=message.GetDouble() # command engine force
             elif  (message.GetKey()=="cForceR") and (message.IsDouble()):
                 component_instance.local_data['force_r']=message.GetDouble() # command angular velocity [m/s]
+
+    def default_action(self):
+        #print('default moos')
+        self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
+        self.current_SIM_time=GameLogic.current_sim_time
+        try:
+            if self.blender_obj['publish_clock']:
+                self.m.Notify('actual_time',self.current_SIM_time,self.current_MOOS_time)
+        except KeyError as e:
+            pass
+        except:
+            import traceback
+            traceback.print_exc()
+        
+        

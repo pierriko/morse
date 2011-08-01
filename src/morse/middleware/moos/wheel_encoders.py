@@ -21,7 +21,8 @@ def init_extra_module(self, component_instance, function, mw_data):
 def post_wheel_encoders(self, component_instance):
     """ Publish the data of the Odometry-sensor as a ROS-Pose message
     """
-    curTime=pymoos.MOOSCommClient.MOOSTime()
+    #curTime=pymoos.MOOSCommClient.MOOSTime()
+    curTime=self.current_MOOS_time
 
     if (component_instance.local_data['numWheels']==2):
         self.m.Notify('zE_fr',component_instance.local_data['rotFR'],curTime)
