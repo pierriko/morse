@@ -137,10 +137,10 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
     def default_action(self):
         #print('default moos')
         self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
-        self.current_SIM_time=GameLogic.current_sim_time
+        self.current_sim_time=GameLogic.current_sim_time
         try:
             if self.blender_obj['publish_clock']:
-                self.m.Notify('actual_time',self.current_SIM_time,self.current_MOOS_time)
+                self.m.Notify('actual_time',self.current_sim_time,self.current_MOOS_time)
         except KeyError as e:
             pass
         except:

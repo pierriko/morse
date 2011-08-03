@@ -2,6 +2,8 @@ import logging; logger = logging.getLogger("morse." + __name__)
 from abc import ABCMeta
 import morse.core.object
 import math
+import PhysicsConstraints
+import GameLogic
 
 class MorseRobotClass(morse.core.object.MorseObjectClass):
     """ Basic Class for all robots
@@ -28,7 +30,7 @@ class MorseRobotClass(morse.core.object.MorseObjectClass):
 
         self.default_action()
 
-class MorseVehicleRobotClass(morse.core.robot.MorseRobotClass):
+class MorseVehicleRobotClass(MorseRobotClass):
     """ Basic Class for robots using the Bullet vehicle constraint
 
     Inherits from the base robot class.
@@ -43,54 +45,58 @@ class MorseVehicleRobotClass(morse.core.robot.MorseRobotClass):
         super(MorseVehicleRobotClass, self).__init__(obj, parent)
     
         # construct the vehicle
-        build_vehicle()
+        self.build_vehicle()
 
     def build_vehicle(self):
-        """ Apply the constraints to the vehicle parts. """d
+        """ Apply the constraints to the vehicle parts. """
+        
+        self.scene = GameLogic.getCurrentScene()
         
         # get the physics ID of the chassis to create constraint with
         self.chassis_ID = self.blender_obj.getPhysicsId()
         # set up bullet vehicle constraint - constraint type 11 = bullet vehicle
-        self.vehicle = PhysicsConstraints.createConstraint(self.chassis_ID,0,11) 
+        vehicle=PhysicsConstraints.createConstraint(self.chassis_ID,0,11)
+        cid=vehicle.getConstraintId()
+        self.vehicle = PhysicsConstraints.getVehicleConstraint(cid)
             
         # read the needed parameters from the blender object properties
-        ReadParameters()
+        self.ReadParameters()
         # get references to all of the wheels
-        GetWheels()    
-            
+        self.GetWheels()    
+        
         # add wheels
         # front wheels
-        AttachWheelToBody(self.local_data['wheelRL'], self.local_data['HasSteering'])
-        AttachWheelToBody(self.local_data['wheelFR'], self.local_data['HasSteering'])
+        self.AttachWheelToBody(self.local_data['wheelFL'], self.local_data['HasSteering'])
+        self.AttachWheelToBody(self.local_data['wheelFR'], self.local_data['HasSteering'])
         # rear wheels
-        AttachWheelToBody(self.local_data['wheelRL'], False):
-        AttachWheelToBody(self.local_data['wheelRR'], False):
+        self.AttachWheelToBody(self.local_data['wheelRL'], False)
+        self.AttachWheelToBody(self.local_data['wheelRR'], False)
             
         # set properties
-        self.vehicle.setRollInfluence(influence,0)
-        self.vehicle.setRollInfluence(influence,1)
-        self.vehicle.setRollInfluence(influence,2)
-        self.vehicle.setRollInfluence(influence,3)        
+        self.vehicle.setRollInfluence(self.local_data['Influence'],0)
+        self.vehicle.setRollInfluence(self.local_data['Influence'],1)
+        self.vehicle.setRollInfluence(self.local_data['Influence'],2)
+        self.vehicle.setRollInfluence(self.local_data['Influence'],3)        
 
-        self.vehicle.setSuspensionStiffness(stiffness,0)
-        self.vehicle.setSuspensionStiffness(stiffness,1)
-        self.vehicle.setSuspensionStiffness(stiffness,2)
-        self.vehicle.setSuspensionStiffness(stiffness,3)
+        self.vehicle.setSuspensionStiffness(self.local_data['Stiffness'],0)
+        self.vehicle.setSuspensionStiffness(self.local_data['Stiffness'],1)
+        self.vehicle.setSuspensionStiffness(self.local_data['Stiffness'],2)
+        self.vehicle.setSuspensionStiffness(self.local_data['Stiffness'],3)
 
-        self.vehicle.setSuspensionDamping(damping,0)
-        self.vehicle.setSuspensionDamping(damping,1)
-        self.vehicle.setSuspensionDamping(damping,2)
-        self.vehicle.setSuspensionDamping(damping,3)
+        self.vehicle.setSuspensionDamping(self.local_data['Damping'],0)
+        self.vehicle.setSuspensionDamping(self.local_data['Damping'],1)
+        self.vehicle.setSuspensionDamping(self.local_data['Damping'],2)
+        self.vehicle.setSuspensionDamping(self.local_data['Damping'],3)
 
-        self.vehicle.setSuspensionCompression(compression,0)
-        self.vehicle.setSuspensionCompression(compression,1)
-        self.vehicle.setSuspensionCompression(compression,2)
-        self.vehicle.setSuspensionCompression(compression,3)
+        self.vehicle.setSuspensionCompression(self.local_data['Compression'],0)
+        self.vehicle.setSuspensionCompression(self.local_data['Compression'],1)
+        self.vehicle.setSuspensionCompression(self.local_data['Compression'],2)
+        self.vehicle.setSuspensionCompression(self.local_data['Compression'],3)
 
-        self.vehicle.setTyreFriction(friction,0)
-        self.vehicle.setTyreFriction(friction,1)
-        self.vehicle.setTyreFriction(friction,2)
-        self.vehicle.setTyreFriction(friction,3)
+        self.vehicle.setTyreFriction(self.local_data['Friction'],0)
+        self.vehicle.setTyreFriction(self.local_data['Friction'],1)
+        self.vehicle.setTyreFriction(self.local_data['Friction'],2)
+        self.vehicle.setTyreFriction(self.local_data['Friction'],3)
 
     def AttachWheelToBody(self, wheel, hasSteering):
         """ Attaches the wheel to the given parent using a 6DOF constraint """
@@ -110,8 +116,9 @@ class MorseVehicleRobotClass(morse.core.robot.MorseRobotClass):
         # result is a unit vector (result[2]) and a length(result[0])
         # multiply them together to get the complete vector
         wheelAttachPosLocal=result[0]*result[2]
-        
-        joint=self.vehicle.addWheel(wheel,wheelAttachPosLocal,wheelAttachDirLocal,wheelAxleLocal,self.local_data['SuspensionRestLength'],self.local_data['wheelRadius'],hasSteering)
+        print(wheel)
+        print(wheelAttachPosLocal)
+        joint=self.vehicle.addWheel(wheel,wheelAttachPosLocal,wheelAttachDirLocal,wheelAxleLocal,self.local_data['SuspensionRestLength'],self.local_data['WheelRadius'],hasSteering)
  
         return joint # return a reference to the constraint
     
@@ -120,6 +127,7 @@ class MorseVehicleRobotClass(morse.core.robot.MorseRobotClass):
         # get wheel pointers - needed by wheel speed sensors and to
         # set up constraints
         # bullet vehicles always have 4 wheels
+        scene=self.scene
         self.local_data['numWheels']=4  
         
         # front left wheel
@@ -298,7 +306,7 @@ class MorseVehicleRobotClass(morse.core.robot.MorseRobotClass):
         """ Returns the accumulated wheel angle in radians"""
         pass
 
-class MorsePhysicsRobotClass(morse.core.robot.MorseRobotClass):
+class MorsePhysicsRobotClass(MorseRobotClass):
     """ Basic Class for robots using individual physics constraints
 
     Inherits from the base robot class.
@@ -313,39 +321,42 @@ class MorsePhysicsRobotClass(morse.core.robot.MorseRobotClass):
         super(MorsePhysicsRobotClass, self).__init__(obj, parent)
 
         # construct the vehicle
-        build_vehicle()
+        self.build_vehicle()
 
     def build_vehicle(self):
         """ Apply the constraints to the vehicle parts. """
 
         # get a link to the blender scene to look for wheel and suspension objects
-        scene = GameLogic.getCurrentScene()
- 
+        self.scene = GameLogic.getCurrentScene()
+        print('read paramters')
         # get needed parameters from the blender object
-        ReadParameters()
+        self.ReadParameters()
         
         # chassis ID - main object should be chassis model
         self.chassis_ID = self.blender_obj.getPhysicsId()
-        
+        print('get wheels')
         # get wheel references and ID's
-        GetWheels()
-        
+        self.GetWheels()
+
+        print('get track width')
         # get track width
         posL=self.local_data['wheelFL'].position
         posR=self.local_data['wheelFR'].position
         # subtract y coordinates of wheels to get width
         self.local_data['trackWidth']=posL[1]-posR[1]
-        
+
         # set up wheel constraints
         # add wheels to either suspension arms or vehicle chassis
-        if (self.hasSuspension):
-            BuildModelWithSuspension()
+        if (self.local_data['HasSuspension']):
+            self.BuildModelWithSuspension()
         else:
-            BuildModelWithoutSuspension()
+            print('build without suspension')
+            self.BuildModelWithoutSuspension()
 
     def BuildModelWithSuspension(self):
         """ Add all the constraints to attach the wheels to 
         the a-arms and then the a-arms to the body """
+        scene=self.scene
         # get suspension arm ID's
         # front left A-arm
         try:
@@ -391,10 +402,11 @@ class MorsePhysicsRobotClass(morse.core.robot.MorseRobotClass):
         
     def BuildModelWithoutSuspension(self):
         """ Add all the constraints to attach the wheels to the body """
+        print('add front wheels')
         # add front wheels
         self.local_data['wheelFLJoint']=self.AttachWheelToBody(self.local_data['wheelFL'],self.blender_obj)  
         self.local_data['wheelFRJoint']=self.AttachWheelToBody(self.local_data['wheelFR'],self.blender_obj) 
-        
+        print('add rear wheels')
         # add rear wheels if they exist
         if (self.local_data['numWheels']==4):
             self.local_data['wheelRLJoint']=self.AttachWheelToBody(self.local_data['wheelRL'],self.blender_obj) 
@@ -465,6 +477,9 @@ class MorsePhysicsRobotClass(morse.core.robot.MorseRobotClass):
         # there should be 2 or 4 wheels - if only two wheels they should
         # be the front wheels
         self.local_data['numWheels']=4  # initially assume 4 wheels
+        
+        scene=self.scene
+
         # front left wheel
         try:
             if self.blender_obj['WheelFLName']:
@@ -485,7 +500,7 @@ class MorsePhysicsRobotClass(morse.core.robot.MorseRobotClass):
         # rear left wheel
         try:
             if self.blender_obj['WheelRLName']:
-                self.local_data['wheelRL']=self.blender_obj['WheelRLName']
+                self.local_data['wheelRL']=scene.objects[self.blender_obj['WheelRLName']]
         except KeyError as e:
             self.local_data['numWheels']=2
             logger.info('WheelRLName property not found.  Assuming 2 wheels.')
@@ -496,7 +511,7 @@ class MorsePhysicsRobotClass(morse.core.robot.MorseRobotClass):
         # rear right wheel
         try:
             if self.blender_obj['WheelRRName']:
-                self.local_data['wheelRR']=self.blender_obj['WheelRRName']
+                self.local_data['wheelRR']=scene.objects[self.blender_obj['WheelRRName']]
         except KeyError as e:
             self.local_data['numWheels']=2
             logger.info('WheelRRName property not found.  Assuming 2 wheels.')
@@ -516,8 +531,7 @@ class MorsePhysicsRobotClass(morse.core.robot.MorseRobotClass):
     def ReadParameters(self):
         # determines if vehicle has suspension or just wheels
         try:
-            if self.blender_obj['HasSuspension']:
-                self.local_data['HasSuspension']=self.blender_obj['HasSuspension']
+            self.local_data['HasSuspension']=self.blender_obj['HasSuspension']
         except KeyError as e:
             self.local_data['HasSuspension']=False
             logger.info('HasSuspension property not present and defaulted to False')
@@ -528,8 +542,7 @@ class MorsePhysicsRobotClass(morse.core.robot.MorseRobotClass):
         # get wheel radius
         # TODO: read this later from the GameObjectSettings object - where is it? 
         try:
-            if self.blender_obj['WheelRadius']:
-                self.local_data['WheelRadius']=self.blender_obj['WheelRadius']
+            self.local_data['WheelRadius']=self.blender_obj['WheelRadius']
         except KeyError as e:
             self.local_data['WheelRadius']=0.27
             logger.info('Wheel radius defaulted to 0.27m')
