@@ -461,6 +461,7 @@ def init(contr):
     GameLogic.base_clock = time.clock()
     GameLogic.current_time = 0.0
     GameLogic.current_sim_time = 0.0
+    GameLogic.lastMain=False
     GameLogic.sim_time_step = 1.0/GameLogic.getLogicTicRate()
     # Variable to keep trac of the camera being used
     GameLogic.current_camera_index = 0
@@ -551,6 +552,10 @@ def simulation_main(contr):
     try:
         GameLogic.current_time = time.clock() - GameLogic.base_clock
         GameLogic.current_sim_time += GameLogic.sim_time_step
+        if (GameLogic.lastMain==True):
+            print(GameLogic.current_sim_time)
+            print('skipped')
+        GameLogic.lastMain=True
     except AttributeError as detail:
         # If the 'base_clock' variable is not defined, there probably was
         #  a problem while doing the init, so we'll abort the simulation.

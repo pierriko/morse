@@ -9,7 +9,7 @@ import mathutils
 
 class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
     """ Handle communication between Blender and MOOS."""
-      
+
     def __init__(self, obj, parent=None):
         """ Initialize the MOOS app"""
         super(self.__class__,self).__init__(obj, parent)
@@ -25,7 +25,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         self.m.Run( "127.0.0.1", 9000, "MORSE_SIM", fundamental_frequency) 
         logger.info("Middleware initialized")
         
-        
+
     def __del__(self):
         """ Kill the morse MOOS app."""
         self.m.Close();
@@ -135,7 +135,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
                 component_instance.local_data['force_r']=message.GetDouble() # command angular velocity [m/s]
 
     def default_action(self):
-        #print('default moos')
+        GameLogic.lastMain=False
         self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
         self.current_sim_time=GameLogic.current_sim_time
         try:
