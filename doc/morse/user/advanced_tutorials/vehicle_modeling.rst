@@ -90,6 +90,17 @@ body:  y out front
           z up
 
 
+problem with coordinate system is that the cylinder bounding box cannot be used for wheels because it assumes the cylinder rotates about z and bullet requires the wheels to rotate about x
+solution is to replace the physics mesh with a cylinder and set a convex hull to it
+
+on the object set up an always sensor, an and controller, and a edit object actuator
+in the edit object actuator set the type to replace mesh and type in the mesh to use for the visualization and make sure Gfx and Phys are both checked
+use delay actuator instead - always runs it constantly and runs logic time way up
+
+
+moving the cg lower on the vehicle prevents popping up when starting
+using box collision constraint with lowered cg causes box to drag the ground
+
 Setup of the robot file 
 -----------------------
 

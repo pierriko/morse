@@ -4,6 +4,7 @@ import morse.core.object
 import math
 import PhysicsConstraints
 import GameLogic
+import bpy
 
 class MorseRobotClass(morse.core.object.MorseObjectClass):
     """ Basic Class for all robots
@@ -45,32 +46,28 @@ class FourWheelRobotClass(MorseRobotClass):
         
         # front left wheel
         try:
-            if self.blender_obj['WheelFLName']:
-                self.local_data['wheelFL']=scene.objects[self.blender_obj['WheelFLName']]
+            self.local_data['wheelFL']=scene.objects[self.blender_obj['WheelFLName']]
         except:
             import traceback
             traceback.print_exc()         
  
         # front right wheel
         try:
-            if self.blender_obj['WheelFRName']:
-                self.local_data['wheelFR']=scene.objects[self.blender_obj['WheelFRName']]
+            self.local_data['wheelFR']=scene.objects[self.blender_obj['WheelFRName']]
         except:
             import traceback
             traceback.print_exc() 
         
         # rear left wheel
         try:
-            if self.blender_obj['WheelRLName']:
-                self.local_data['wheelRL']=scene.objects[self.blender_obj['WheelRLName']]
+            self.local_data['wheelRL']=scene.objects[self.blender_obj['WheelRLName']]
         except:
             import traceback
             traceback.print_exc()         
  
         # rear right wheel
         try:
-            if self.blender_obj['WheelRRName']:
-                self.local_data['wheelRR']=scene.objects[self.blender_obj['WheelRRName']]
+            self.local_data['wheelRR']=scene.objects[self.blender_obj['WheelRRName']]
         except:
             import traceback
             traceback.print_exc()          
@@ -81,6 +78,13 @@ class FourWheelRobotClass(MorseRobotClass):
             posR=self.local_data['wheelFR'].position
             # subtract y coordinates of wheels to get width
             return posL[1]-posR[1]
+
+    def GetWheelRadius(self, wheelName):
+        #import pdb
+        #pdb.set_trace()
+        dims=bpy.data.objects[wheelName].dimensions
+        # average the x and y dimension to get diameter - divide by 2 for radius
+        return (dims[1]+dims[2])/4
 
     def ReadGenericParameters(self):
         # get needed parameters from the blender object
@@ -104,15 +108,6 @@ class FourWheelRobotClass(MorseRobotClass):
             import traceback
             traceback.print_exc() 
         
-        try:
-            self.local_data['WheelRadius']=self.blender_obj['WheelRadius']
-        except KeyError as e:
-            self.local_data['WheelRadius']=1
-            logger.info('WheelRadius property not present and defaulted to 1m')
-        except:
-            import traceback
-            traceback.print_exc()  
-
     def GetTrackWidth(self):
         # get lateral positions of the wheels
         posL=self.local_data['wheelFL'].position
@@ -346,6 +341,8 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
         # get wheel references and ID's
         self.GetWheels()
 
+        self.local_data['WheelRadius']=self.GetWheelRadius(self.blender_obj['WheelFLName'])
+
         # get track width
         self.local_data['trackWidth']=self.GetTrackWidth();
 
@@ -354,7 +351,6 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
         if (self._HasSuspension):
             self.BuildModelWithSuspension()
         else:
-            print('build without suspension')
             self.BuildModelWithoutSuspension()
 
     def BuildModelWithSuspension(self):
