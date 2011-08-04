@@ -16,8 +16,8 @@ class DiffDriveForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         # Call the constructor of the parent class
         super(self.__class__,self).__init__(obj, parent)
 
-        self.local_data['force_l'] = 0.0
-        self.local_data['force_r'] = 0.0
+        self.local_data['force_l'] = 400.0
+        self.local_data['force_r'] = -400.0
         self.local_data['brake_l'] = 0.0
         self.local_data['brake_r'] = 0.0
 
@@ -31,24 +31,20 @@ class DiffDriveForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         parent = self.robot_parent
         
         #Update the Force (speed) for these wheels:
-        # only apply force to front wheels if vehicle is 4wd
-        #if (parent['4wd']):
-            #parent.vehicle.applyEngineForce(self.local_data['force']*.4,0)
-            #parent.vehicle.applyEngineForce(self.local_data['force']*.4,1)
+        # TODO: only apply force to front wheels if vehicle is 4wd
         
         # assumes left wheels are 1 & 3 and right wheels are 0 & 2
-        parent.vehicle.applyEngineForce(self.local_data['force_l']*.4,1)
-        parent.vehicle.applyEngineForce(self.local_data['force_l']*.4,3)
-        parent.vehicle.applyEngineForce(self.local_data['force_r']*.4,0)
-        parent.vehicle.applyEngineForce(self.local_data['force_r'] *.4,2)
-
+        parent.local_data['vehicle'].applyEngineForce(self.local_data['force_l'],0)
+        parent.local_data['vehicle'].applyEngineForce(self.local_data['force_l'],2)
+        parent.local_data['vehicle'].applyEngineForce(self.local_data['force_r'],1)
+        parent.local_data['vehicle'].applyEngineForce(self.local_data['force_r'],3)
 
         #Brakes:
         #Applies the braking force to each wheel listed:
         #['brakes'] = the game property value for the car labeled 'brakes'
         #Default value is 0:
-        parent.vehicle.applyBraking(self.local_data['brake_l'],1)
-        parent.vehicle.applyBraking(self.local_data['brake_l'],3)
-        parent.vehicle.applyBraking(self.local_data['brake_r'],0)
-        parent.vehicle.applyBraking(self.local_data['brake_r'],2)
+        parent.local_data['vehicle'].applyBraking(self.local_data['brake_l'],0)
+        parent.local_data['vehicle'].applyBraking(self.local_data['brake_l'],2)
+        parent.local_data['vehicle'].applyBraking(self.local_data['brake_r'],1)
+        parent.local_data['vehicle'].applyBraking(self.local_data['brake_r'],3)
 

@@ -3,6 +3,93 @@ Building a robot using physics constraints
 
 This tutorial provides instructions on how to create a robot using basic physics constraints.  This 
 
+
+bullet vehicle model does not use SAE standard - show picture
+vehicle coordinate systems shouldn't matter - just mount the sensor the right way
+
+same wheel mesh can't be used for both bullet and physics vehicle if cylinder collision box is used
+cylinder box is turned so that z is out the top of the cylinder - bullet requires x out the side of the wheel
+use convex hull, but impacts performance
+
+changes in model between vehicle types:
+---------------------------------------------------------------
+wheels set to no collision for vehicle and rigid body for physics vehicle
+body set to no sleeping for vehicle and no sleeping is off for physics vehicle
+change actuator
+
+Bullet Vehicle Constraint Robot
+-----------------------
+
+Coordinate System:
+from rotated Hummer:
+Vehicle body: y - out front of vehicle
+                     x - out passenger's side of vehicle
+                     z - up
+                     
+settings for this body frame
+	
+	#wheelAttachDirLocal:
+	#Direction the suspension is pointing
+	wheelAttachDirLocal = [0,0,-1]
+    suspension points down toward the ground (-z)
+	
+	#wheelAxleLocal:
+	#Determines the rotational angle where the
+	#wheel is mounted.
+	wheelAxleLocal = [0,1,0]
+    wheels rotate about the vehicle's y-axis
+    both of these settings are in the vehicle's frame
+                     
+Wheels:         x - out side of wheel
+                     y - out back of wheel or front?
+                     z - up
+                     only local wheel frames matter - must apply rotation
+     
+
+this setup works, but the wheels do not appear to rotate properly
+
+from documentation
+http://www.tutorialsforblender3d.com/Game_Engine/Vehicle/Vehicle_1.html
+vehicle body - movement is along y
+y-axis is length.  
+x-axis is width.  
+z-axis is height
+
+Tire model:  
+y-axis is length.  
+x-axis is width.  
+z-axis is height
+Note:  The vehicle wrapper uses the y-axis for movement. 
+
+in original hummer model
+body - y out front
+        x out driver's side
+        z up
+wheels - x out drivers side of wheel
+            y backward
+            z up
+	wheelAttachDirLocal = [0,0,-1]
+	
+	#wheelAxleLocal:
+	#Determines the rotational angle where the
+	#wheel is mounted.
+	wheelAxleLocal = [-1,0,0]
+
+
+
+Bullet Basic Physics Constraints Robot
+-----------------------
+
+Coordinate System:
+
+wheels: x out side of wheel - rotates about x
+            y and z shouldn't matter
+            
+body:  y out front
+          x out passenger's side
+          z up
+
+
 Setup of the robot file 
 -----------------------
 

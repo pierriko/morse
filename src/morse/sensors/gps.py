@@ -41,11 +41,15 @@ class GPSClass(morse.core.sensor.MorseSensorClass):
         self.local_data['y'] = float(y)
         self.local_data['z'] = float(z)
         
-        #print(dir(self))
-        vels=self.blender_obj.parent.getVelocity([0,0,0])
+        # get the global linear velocity of the gps
+        vels=self.blender_obj.getLinearVelocity(False)
+        # calculate the direction of the velocity vector
         self.local_data['course']=atan2(vels[1],vels[0])
+        # calculate the magnitude of the velocity vector
         self.local_data['speed']=sqrt(pow(vels[0],2)+pow(vels[1],2))
+        # vertical velocity component
         self.local_data['vertSpeed']=vels[2]
+        
         self.local_data['velX']=vels[0]
         self.local_data['velY']=vels[1]
         self.local_data['velZ']=vels[2]
