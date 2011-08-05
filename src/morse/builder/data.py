@@ -29,7 +29,7 @@ MORSE_MIDDLEWARE_DICT = {
     'morse_gyroscope': ['ROS', 'post_message'],
     'morse_proximity': ['ROS', 'post_message']
   },
-
+  
   'socket_empty': {
     'morse_gyroscope': ['Socket', 'post_message'],
     'morse_vw_control': ['Socket', 'read_message']
@@ -45,5 +45,18 @@ MORSE_MIDDLEWARE_DICT = {
     'morse_GPS': ['Yarp', 'post_message'],
 
     'morse_vw_control': ['Yarp', 'read_message']
+  },
+
+   'moos_empty': {
+    'morse_vw_control': ['MOOS', 'read_message'],
+    'morse_vw_diff_drive_control': ['MOOS', 'read_message'],
+    'morse_sick': ['MOOS', 'post_2DLaserScan', 'morse/middleware/moos/sick'],
+    'morse_pose': ['MOOS', 'post_pose', 'morse/middleware/moos/pose'],
+    'morse_imu': ['MOOS', 'post_imu', 'morse/middleware/moos/imu'],
+    'morse_wheel_encoders': ['MOOS', 'post_wheel_encoders', 'morse/middleware/moos/wheel_encoders'],
+    'morse_GPS': ['MOOS', 'post_gps', 'morse/middleware/moos/gpy'],
+    'morse_gyroscope': ['MOOS', 'post_gyroscope','morse/middleware/moos/gyroscope'],
+    'morse_proximity': ['MOOS', 'post_message']
   }
+  
 }

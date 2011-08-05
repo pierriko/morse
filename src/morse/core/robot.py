@@ -50,14 +50,15 @@ class FourWheelRobotClass(MorseRobotClass):
         except:
             import traceback
             traceback.print_exc()         
- 
+          
+
         # front right wheel
         try:
             self.local_data['wheelFR']=scene.objects[self.blender_obj['WheelFRName']]
         except:
             import traceback
             traceback.print_exc() 
-        
+
         # rear left wheel
         try:
             self.local_data['wheelRL']=scene.objects[self.blender_obj['WheelRLName']]
@@ -72,12 +73,16 @@ class FourWheelRobotClass(MorseRobotClass):
             import traceback
             traceback.print_exc()          
 
-        def GetWheels(self):
-            # get track width
-            posL=self.local_data['wheelFL'].position
-            posR=self.local_data['wheelFR'].position
-            # subtract y coordinates of wheels to get width
-            return posL[1]-posR[1]
+        # make sure wheels are not children of the robot
+        bpy.ops.object.select_name(name=self.blender_obj['WheelFLName'])
+        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+        bpy.ops.object.select_name(name=self.blender_obj['WheelFRName'])
+        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+        bpy.ops.object.select_name(name=self.blender_obj['WheelRLName'])
+        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+        bpy.ops.object.select_name(name=self.blender_obj['WheelRRName'])
+        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+        
 
     def GetWheelRadius(self, wheelName):
         #import pdb
@@ -143,7 +148,14 @@ class MorseVehicleRobotClass(FourWheelRobotClass):
         self.ReadGenericParameters()
         self.ReadParameters()
         # get references to all of the wheels
-        self.GetWheels()    
+        self.GetWheels() 
+
+        # get physics ID's of wheels
+        self.local_data['wheelFL_ID'] = self.local_data['wheelFL'].getPhysicsId()
+        self.local_data['wheelFR_ID'] = self.local_data['wheelFR'].getPhysicsId()
+        self.local_data['wheelRL_ID'] = self.local_data['wheelRL'].getPhysicsId()
+        self.local_data['wheelRR_ID'] = self.local_data['wheelRR'].getPhysicsId()
+ 
         
         # get track width
         self.local_data['trackWidth']=self.GetTrackWidth();
@@ -325,13 +337,16 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
         """ Constructor method. """
         # Call the constructor of the parent class
         super(MorsePhysicsRobotClass, self).__init__(obj, parent)
-
+        
         # construct the vehicle
         self.build_vehicle()
 
     def build_vehicle(self):
         """ Apply the constraints to the vehicle parts. """
 
+        #import pdb
+        #pdb.set_trace()
+        
         # get a link to the blender scene to look for wheel and suspension objectsscene = GameLogic.getCurrentScene()
         # get needed parameters from the blender object
         self.ReadGenericParameters()
@@ -457,55 +472,4 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
         # constraints on their motion so that no collision can be set
         # between them
         pass
-
-    def GetWheels(self):
-        # get pointers to and physicsIds of all objects
-        # get wheel pointers - needed by wheel speed sensors and to
-        # set up constraints
-        # there should be 2 or 4 wheels - if only two wheels they should
-        # be the front wheels
-        scene = GameLogic.getCurrentScene()
-
-        # front left wheel
-        try:
-            if self.blender_obj['WheelFLName']:
-                self.local_data['wheelFL']=scene.objects[self.blender_obj['WheelFLName']]
-        except:
-            import traceback
-            traceback.print_exc()       
-              
-        # check to see if the wheel has a parent, if so unparent it
-        #if (self.local_data['wheelFL'].parent is not None):
-        #    self.local_data['wheelFL'].removeParent()
- 
-        # front right wheel
-        try:
-            if self.blender_obj['WheelFRName']:
-                self.local_data['wheelFR']=scene.objects[self.blender_obj['WheelFRName']]
-        except:
-            import traceback
-            traceback.print_exc()          
- 
-        # see if back wheels exist - if not assume a two-wheeled vehicle
-        # rear left wheel
-        try:
-            if self.blender_obj['WheelRLName']:
-                self.local_data['wheelRL']=scene.objects[self.blender_obj['WheelRLName']]
-        except:
-            import traceback
-            traceback.print_exc()   
-
-        # rear right wheel
-        try:
-            if self.blender_obj['WheelRRName']:
-                self.local_data['wheelRR']=scene.objects[self.blender_obj['WheelRRName']]
-        except:
-            import traceback
-            traceback.print_exc() 
-        
-        # wheel ID's
-        self.local_data['wheelFL_ID'] = self.local_data['wheelFL'].getPhysicsId()
-        self.local_data['wheelFR_ID'] = self.local_data['wheelFR'].getPhysicsId()
-        self.local_data['wheelRL_ID'] = self.local_data['wheelRL'].getPhysicsId()
-        self.local_data['wheelRR_ID'] = self.local_data['wheelRR'].getPhysicsId()
- 
+    

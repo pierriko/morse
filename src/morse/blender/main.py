@@ -557,9 +557,9 @@ def simulation_main(contr):
     try:
         GameLogic.current_time = time.clock() - GameLogic.base_clock
         GameLogic.current_sim_time += GameLogic.sim_time_step
-        if (GameLogic.lastMain==True):
-            print(GameLogic.current_sim_time)
-            print('skipped')
+        #if (GameLogic.lastMain==True):
+            #print(GameLogic.current_sim_time)
+            #print('skipped')
         GameLogic.lastMain=True
     except AttributeError as detail:
         # If the 'base_clock' variable is not defined, there probably was
