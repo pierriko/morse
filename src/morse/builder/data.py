@@ -54,7 +54,7 @@ MORSE_MIDDLEWARE_DICT = {
     'morse_pose': ['MOOS', 'post_pose', 'morse/middleware/moos/pose'],
     'morse_imu': ['MOOS', 'post_imu', 'morse/middleware/moos/imu'],
     'morse_wheel_encoders': ['MOOS', 'post_wheel_encoders', 'morse/middleware/moos/wheel_encoders'],
-    'morse_GPS': ['MOOS', 'post_gps', 'morse/middleware/moos/gpy'],
+    'morse_GPS': ['MOOS', 'post_gps', 'morse/middleware/moos/gps'],
     'morse_gyroscope': ['MOOS', 'post_gyroscope','morse/middleware/moos/gyroscope'],
     'morse_proximity': ['MOOS', 'post_message']
   }
