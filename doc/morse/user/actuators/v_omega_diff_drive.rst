@@ -13,8 +13,8 @@ than that commanded.
 
 The angular wheel speeds are calculated by:
 .. math::
-	v_{ws,l}=\frac{v-\omega t_{w}}{2 R}
-	v_{ws,r}=\frac{v+\omega t_{w}}{2 R}
+	v_{ws,l}=\frac{2v-\omega t_{w}}{2 R}
+	v_{ws,r}=\frac{2v+\omega t_{w}}{2 R}
 
 where :math:`t_{w}` is the track width of the robot and R is the wheel radius.
 

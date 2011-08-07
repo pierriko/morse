@@ -95,9 +95,9 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.a[0] = (self.v[0] - self.pvx) * self.ticks
         self.a[1] = (self.v[1] - self.pvy) * self.ticks
         self.a[2] = (self.v[2] - self.pvz) * self.ticks
-        self.a[3] = (self.v[3] -self.pvroll) * self.ticks
-        self.a[4] = (self.v[4] -self.pvpitch) * self.ticks
-        self.a[5] = (self.v[5] -self.pvyaw) * self.ticks
+        self.a[3] = wrapToPi(self.v[3] -self.pvroll) * self.ticks
+        self.a[4] = wrapToPi(self.v[4] -self.pvpitch) * self.ticks
+        self.a[5] = wrapToPi(self.v[5] -self.pvyaw) * self.ticks
         logger.debug("ACCELERATION: (%.4f, %.4f, %.4f, %4f, %4f, %4f)" % (self.a[0], self.a[1], self.a[2], self.a[3], self.a[4], self.a[5]))
 
         # Update the data for the velocity
@@ -112,3 +112,5 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.local_data['velocity'] = self.v
         self.local_data['acceleration'] = self.a
 
+	def wrapToPi(self,angle):
+		angle=(angle%(2*math.pi))-math.pi
