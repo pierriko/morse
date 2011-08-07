@@ -24,20 +24,12 @@ def post_wheel_encoders(self, component_instance):
     #curTime=pymoos.MOOSCommClient.MOOSTime()
     curTime=self.current_MOOS_time
 
-    if (component_instance.local_data['numWheels']==2):
-        self.m.Notify('zE_fr',component_instance.local_data['rotFR'],curTime)
-        self.m.Notify('zE_fl',component_instance.local_data['rotFL'],curTime)
-    elif (component_instance.local_data['numWheels']==4):
-        self.m.Notify('zE_fr',component_instance.local_data['rotFR'],curTime)
-        self.m.Notify('zE_fl',component_instance.local_data['rotFL'],curTime)
-        self.m.Notify('zE_rr',component_instance.local_data['rotRR'],curTime)
-        self.m.Notify('zE_rl',component_instance.local_data['rotRL'],curTime)
-        
-    if (component_instance.local_data['numWheels']==2):
-        self.m.Notify('zWS_fr',component_instance.local_data['wFR'],curTime)
-        self.m.Notify('zWS_fl',component_instance.local_data['wFL'],curTime)
-    elif (component_instance.local_data['numWheels']==4):
-        self.m.Notify('zWS_fr',component_instance.local_data['wFR'],curTime)
-        self.m.Notify('zWS_fl',component_instance.local_data['wFL'],curTime)
-        self.m.Notify('zWS_rr',component_instance.local_data['wRR'],curTime)
-        self.m.Notify('zWS_rl',component_instance.local_data['wRL'],curTime)        
+    self.m.Notify('zE_fr',component_instance.local_data['rotFR'],curTime)
+    self.m.Notify('zE_fl',component_instance.local_data['rotFL'],curTime)
+    self.m.Notify('zE_rr',component_instance.local_data['rotRR'],curTime)
+    self.m.Notify('zE_rl',component_instance.local_data['rotRL'],curTime)
+
+    self.m.Notify('zWS_fr',component_instance.local_data['wFR'],curTime)
+    self.m.Notify('zWS_fl',component_instance.local_data['wFL'],curTime)
+    self.m.Notify('zWS_rr',component_instance.local_data['wRR'],curTime)
+    self.m.Notify('zWS_rl',component_instance.local_data['wRL'],curTime)        

@@ -17,7 +17,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         self.m = pymoos.MOOSCommClient.MOOSApp()
         # intialize MOOS and MORSE times
         self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
-        self.current_SIM_time=GameLogic.current_sim_time
+        self.current_sim_time=GameLogic.current_sim_time
         
         logger.info("%s" % self.m.GetLocalIPAddress())
 
@@ -109,7 +109,6 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
             self.m.Notify(parent_name+"_"+component_instance.blender_obj.name+"_"+variable,str(data),GameLogic.current_time)
 
                             
-    # NOTE: This is a dummy function that is executed for every actuator. Since ROS uses the concept of callbacks, it does nothing ...    
     def read_message(self, component_instance):
         """ read a command message from the database and send to the simulator???"""
         logger.debug("Read message called.")
@@ -135,16 +134,17 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
                 component_instance.local_data['force_r']=message.GetDouble() # command angular velocity [m/s]
 
     def default_action(self):
-        GameLogic.lastMain=False
         self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
+        if (GameLogic.current_sim_time-self.current_sim_time>0.017):
+            print(GameLogic.current_sim_time)
+            print('skipped')
         self.current_sim_time=GameLogic.current_sim_time
-        try:
-            if self.blender_obj['publish_clock']:
-                self.m.Notify('actual_time',self.current_sim_time,self.current_MOOS_time)
-        except KeyError as e:
-            pass
-        except:
-            import traceback
-            traceback.print_exc()
-        
-        
+        #try:
+        #    if self.blender_obj['publish_clock']:
+        #        self.m.Notify('actual_time',self.current_sim_time,self.current_MOOS_time)
+        #except KeyError as e:
+        #    pass
+        #except:
+        #    import traceback
+        #    traceback.print_exc()
+        self.m.Notify('actual_time',self.current_sim_time,self.current_MOOS_time)

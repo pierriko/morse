@@ -26,6 +26,12 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         self.local_data['wFL'] = 0.0
         self.local_data['wRR'] = 0.0
         self.local_data['wRL'] = 0.0
+        
+        # keep up with integer number of rotations to unwrap angles
+        self._counts=[0,0,0,0]
+        
+        # keep up with previous angle for unwrapping
+        self._prevRot=[0.0,0.0,0.0,0.0]
         print ('######## ODOMETER INITIALIZED ########')
 
 
@@ -49,9 +55,32 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         # get angular distance traveled
         wheelOrientations=self.robot_parent.getWheelAngle()   
 		logger.debug("WHEELANGLE: (%.4f, %.4f, %.4f, %.4f)" % (wheelOrientations[0], wheelOrientations[1], wheelOrientations[2], wheelOrientations[3]))				
+        # unwrap angles
+        #self.local_data['rotFR'] = self.unwrapAngle(wheelOrientations[0],0)+2*math.pi*self._counts[0]
+        #self.local_data['rotFL'] = self.unwrapAngle(wheelOrientations[1],1)+2*math.pi*self._counts[1]
+        #self.local_data['rotRR'] = self.unwrapAngle(wheelOrientations[2],2)+2*math.pi*self._counts[2]
+        #self.local_data['rotRL'] = self.unwrapAngle(wheelOrientations[3],3)+2*math.pi*self._counts[3]
+
         self.local_data['rotFR'] = wheelOrientations[0]
         self.local_data['rotFL'] = wheelOrientations[1]
         self.local_data['rotRR'] = wheelOrientations[2]
         self.local_data['rotRL'] = wheelOrientations[3]
 
+        #print(self._counts)
+
+    def unwrapAngle(self, curAngle, index):
+        # get current angle between 0 and pi
+        curAngle=curAngle%(2*math.pi)
         
+        # go up by 2pi
+        if (self._prevRot[index]>(300*math.pi/180+self._counts[index]*2*math.pi))and(curAngle<(60*math.pi/180)):
+            self._counts[index]=self._counts[index]+1
+        # go down by 2pi
+        elif (self._prevRot[index]<(60*math.pi/180+self._counts[index]*2*math.pi))and(curAngle>(300*math.pi/180)):
+            self._counts[index]=self._counts[index]-1
+        
+        # store previous value
+        self._prevRot[index]=curAngle
+            
+        # return angle
+        return curAngle

@@ -74,15 +74,31 @@ class FourWheelRobotClass(MorseRobotClass):
             traceback.print_exc()          
 
         # make sure wheels are not children of the robot
-        bpy.ops.object.select_name(name=self.blender_obj['WheelFLName'])
-        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-        bpy.ops.object.select_name(name=self.blender_obj['WheelFRName'])
-        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-        bpy.ops.object.select_name(name=self.blender_obj['WheelRLName'])
-        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-        bpy.ops.object.select_name(name=self.blender_obj['WheelRRName'])
-        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-        
+        needRestart=False
+        if (bpy.data.objects[self.blender_obj['WheelFLName']].parent is not None):
+            bpy.ops.object.select_name(name=self.blender_obj['WheelFLName'])
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            #self.local_data['wheelFL'].removeParent()
+            needRestart=True
+        if (bpy.data.objects[self.blender_obj['WheelFRName']].parent is not None):    
+            bpy.ops.object.select_name(name=self.blender_obj['WheelFRName'])
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            #self.local_data['wheelFR'].removeParent()
+            needRestart=True
+        if (bpy.data.objects[self.blender_obj['WheelRLName']].parent is not None):
+            bpy.ops.object.select_name(name=self.blender_obj['WheelRLName'])
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            #self.local_data['wheelRL'].removeParent()
+            needRestart=True
+        if (bpy.data.objects[self.blender_obj['WheelRRName']].parent is not None):
+            bpy.ops.object.select_name(name=self.blender_obj['WheelRRName'])
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            #self.local_data['wheelRR'].removeParent()
+            needRestart=True
+
+        # scene must be restarted for changes to parents to take effect - no clue why 
+        #if (needRestart):
+        #    scene.restart()
 
     def GetWheelRadius(self, wheelName):
         #import pdb
