@@ -16,16 +16,16 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         super(self.__class__,self).__init__(obj, parent)
 
         # Variables to store the accumulated rotation of the 4 wheels
-        # if only two wheels are present, only the front right and left 
-        # will have values
+		# wheel accumulated angle [rad]
         self.local_data['rotFR'] = 0.0
         self.local_data['rotFL'] = 0.0
         self.local_data['rotRR'] = 0.0
         self.local_data['rotRL'] = 0.0
-        self.local_data['velFR'] = 0.0
-        self.local_data['velFL'] = 0.0
-        self.local_data['velRR'] = 0.0
-        self.local_data['velRL'] = 0.0
+		# wheel angular speeds [rad/sec]
+        self.local_data['wFR'] = 0.0
+        self.local_data['wFL'] = 0.0
+        self.local_data['wRR'] = 0.0
+        self.local_data['wRL'] = 0.0
         print ('######## ODOMETER INITIALIZED ########')
 
 
@@ -39,14 +39,16 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         #    3     -    RL
         
         # get angular speed
-        wheelAngularSpeeds=self.robot_parent.getWheelSpeeds()       
-        self.local_data['velFR'] = wheelAngularSpeeds[0]
-        self.local_data['velFL'] = wheelAngularSpeeds[1]
-        self.local_data['velRR'] = wheelAngularSpeeds[2]
-        self.local_data['velRL'] = wheelAngularSpeeds[3]
+        wheelAngularSpeeds=self.robot_parent.getWheelSpeeds()
+		logger.debug("WHEELSPEED: (%.4f, %.4f, %.4f, %.4f)" % (wheelAngularSpeeds[0], wheelAngularSpeeds[1], wheelAngularSpeeds[2], wheelAngularSpeeds[3]))		
+        self.local_data['wFR'] = wheelAngularSpeeds[0]
+        self.local_data['wFL'] = wheelAngularSpeeds[1]
+        self.local_data['wRR'] = wheelAngularSpeeds[2]
+        self.local_data['wRL'] = wheelAngularSpeeds[3]
 
         # get angular distance traveled
-        wheelOrientations=self.robot_parent.getWheelAngle()       
+        wheelOrientations=self.robot_parent.getWheelAngle()   
+		logger.debug("WHEELANGLE: (%.4f, %.4f, %.4f, %.4f)" % (wheelOrientations[0], wheelOrientations[1], wheelOrientations[2], wheelOrientations[3]))				
         self.local_data['rotFR'] = wheelOrientations[0]
         self.local_data['rotFL'] = wheelOrientations[1]
         self.local_data['rotRR'] = wheelOrientations[2]

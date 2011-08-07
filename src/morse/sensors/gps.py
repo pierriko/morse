@@ -22,10 +22,12 @@ class GPSClass(morse.core.sensor.MorseSensorClass):
         self.local_data['course'] = 0.0
         self.local_data['speed'] = 0.0
         self.local_data['vertSpeed'] = 0.0
-        self.local_data['velX'] = 0.0
-        self.local_data['velY'] = 0.0
-        self.local_data['velZ'] = 0.0
 
+		# Variables to store the previous position
+        self.ppx = 0.0
+        self.ppy = 0.0
+        self.ppz = 0.0
+		
         logger.info('Component initialized')
 
 
@@ -34,7 +36,8 @@ class GPSClass(morse.core.sensor.MorseSensorClass):
         x = self.position_3d.x
         y = self.position_3d.y
         z = self.position_3d.z
-
+		logger.debug("POSITION: (%.4f, %.4f, %.4f)" % (x,y,z))
+		
         # Store the data acquired by this sensor that could be sent
         #  via a middleware.
         self.local_data['x'] = float(x)
@@ -43,6 +46,8 @@ class GPSClass(morse.core.sensor.MorseSensorClass):
         
         # get the global linear velocity of the gps
         vels=self.blender_obj.getLinearVelocity(False)
+		logger.debug("SPEED: (%.4f, %.4f, %.4f)" % (vels[0], vels[1], vels[2]))
+
         # calculate the direction of the velocity vector
         self.local_data['course']=atan2(vels[1],vels[0])
         # calculate the magnitude of the velocity vector
@@ -50,8 +55,5 @@ class GPSClass(morse.core.sensor.MorseSensorClass):
         # vertical velocity component
         self.local_data['vertSpeed']=vels[2]
         
-        self.local_data['velX']=vels[0]
-        self.local_data['velY']=vels[1]
-        self.local_data['velZ']=vels[2]
         
 

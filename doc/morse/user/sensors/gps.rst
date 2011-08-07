@@ -3,7 +3,8 @@ GPS sensor
 
 This sensor emulates a GPS, providing the exact coordinates in the Blender
 scene. The coordinates provided by the GPS are with respect to the origin of
-the Blender coordinate reference.
+the Blender coordinate reference.  In addition to position, the sensor also
+provides 
 
 Files
 -----
@@ -15,6 +16,9 @@ Local data
 - **X**: (float) X coordinate of the sensor
 - **Y**: (float) Y coordinate of the sensor
 - **Z**: (float) Z coordinate of the sensor
+- **course**: (float) course over ground, direction of the sensor's velocity vector
+- **speed**: (float) speed over ground, magnitude of the sensor's velocity vector
+- **vertSpeed**: (float) vertical speed, magnitude of the sensor's vertical velocity
 
 .. note:: Coordinates are given with respect to the origin of Blender's coordinate axis.
 
