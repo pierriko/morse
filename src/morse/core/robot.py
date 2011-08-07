@@ -43,6 +43,8 @@ class FourWheelRobotClass(MorseRobotClass):
         # bullet vehicles always have 4 wheels
         scene=GameLogic.getCurrentScene()
         self.local_data['numWheels']=4  
+
+        print(dir(scene))
         
         # front left wheel
         try:
@@ -100,12 +102,6 @@ class FourWheelRobotClass(MorseRobotClass):
         #if (needRestart):
         #    scene.restart()
 
-    def GetWheelRadius(self, wheelName):
-        #import pdb
-        #pdb.set_trace()
-        dims=bpy.data.objects[wheelName].dimensions
-        # average the x and y dimension to get diameter - divide by 2 for radius
-        return (dims[1]+dims[2])/4
 
     def ReadGenericParameters(self):
         # get needed parameters from the blender object
@@ -343,6 +339,11 @@ class MorseVehicleRobotClass(FourWheelRobotClass):
         """ Returns the accumulated wheel angle in radians"""
         return (0.0,0.0,0.0,0.0)
 
+    def GetWheelRadius(self, wheelName):
+        dims=bpy.data.objects[wheelName].dimensions
+        # average the y and z dimension to get diameter - divide by 2 for radius
+        return (dims[1]+dims[2])/4
+    
 class MorsePhysicsRobotClass(FourWheelRobotClass):
     """ Basic Class for robots using individual physics constraints
 
@@ -489,3 +490,7 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
         # between them
         pass
     
+    def GetWheelRadius(self, wheelName):
+        dims=bpy.data.objects[wheelName].dimensions
+        # average the x and y dimension to get diameter - divide by 2 for radius
+        return (dims[0]+dims[1])/4

@@ -19,6 +19,8 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
         # Call the constructor of the parent class
         super(self.__class__,self).__init__(obj, parent)
 
+        #logger.setLevel(logging.DEBUG)
+        
         self.local_data['v'] = 0.0
         self.local_data['w'] = 0.0
 
@@ -28,7 +30,7 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
         parent = self.robot_parent
         self._trackWidth = parent.local_data['trackWidth']
         self._radius = parent.local_data['WheelRadius']
-
+        #logger.debug("TrackWidth: %.4f,    WheelRadius: %.4f" % (self._trackWidth, self._radius))			
         print ('######## CONTROL INITIALIZED ########')
 
     @service

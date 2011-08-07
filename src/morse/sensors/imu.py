@@ -71,9 +71,9 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         logger.debug("DISTANCE: %.4f" % self.local_data['distance'])
 
         # Compute the difference in angles with the previous loop
-        droll = self.position_3d.roll - self.pproll
-        dpitch = self.position_3d.pitch - self.pppitch
-        dyaw = self.position_3d.yaw - self.ppyaw
+        droll = self.wrapToPi(self.position_3d.roll - self.pproll)
+        dpitch = self.wrapToPi(self.position_3d.pitch - self.pppitch)
+        dyaw = self.wrapToPi(self.position_3d.yaw - self.ppyaw)
         
          # Store the position in this instant
         self.ppx = self.p[0]
@@ -82,7 +82,7 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.pproll = self.position_3d.roll
         self.pppitch = self.position_3d.pitch
         self.ppyaw = self.position_3d.yaw
-
+        
         # Scale the speeds to the time used by Blender
         self.v[0] = dx * self.ticks
         self.v[1] = dy * self.ticks
@@ -95,9 +95,9 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.a[0] = (self.v[0] - self.pvx) * self.ticks
         self.a[1] = (self.v[1] - self.pvy) * self.ticks
         self.a[2] = (self.v[2] - self.pvz) * self.ticks
-        self.a[3] = wrapToPi(self.v[3] -self.pvroll) * self.ticks
-        self.a[4] = wrapToPi(self.v[4] -self.pvpitch) * self.ticks
-        self.a[5] = wrapToPi(self.v[5] -self.pvyaw) * self.ticks
+        self.a[3] = (self.v[3] -self.pvroll) * self.ticks
+        self.a[4] = (self.v[4] -self.pvpitch) * self.ticks
+        self.a[5] = (self.v[5] -self.pvyaw) * self.ticks
         logger.debug("ACCELERATION: (%.4f, %.4f, %.4f, %4f, %4f, %4f)" % (self.a[0], self.a[1], self.a[2], self.a[3], self.a[4], self.a[5]))
 
         # Update the data for the velocity
@@ -112,5 +112,5 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.local_data['velocity'] = self.v
         self.local_data['acceleration'] = self.a
 
-	def wrapToPi(self,angle):
-		angle=(angle%(2*math.pi))-math.pi
+    def wrapToPi(self,angle):
+        return ((angle+math.pi)%(2*math.pi))-math.pi

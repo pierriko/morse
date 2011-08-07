@@ -1,3 +1,4 @@
+import logging; logger = logging.getLogger("morse." + __name__)
 import GameLogic
 import math
 import morse.core.sensor
@@ -16,20 +17,20 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         super(self.__class__,self).__init__(obj, parent)
 
         # Variables to store the accumulated rotation of the 4 wheels
-		# wheel accumulated angle [rad]
+        # wheel accumulated angle [rad]
         self.local_data['rotFR'] = 0.0
         self.local_data['rotFL'] = 0.0
         self.local_data['rotRR'] = 0.0
         self.local_data['rotRL'] = 0.0
-		# wheel angular speeds [rad/sec]
+        # wheel angular speeds [rad/sec]
         self.local_data['wFR'] = 0.0
         self.local_data['wFL'] = 0.0
         self.local_data['wRR'] = 0.0
         self.local_data['wRL'] = 0.0
-        
+
         # keep up with integer number of rotations to unwrap angles
         self._counts=[0,0,0,0]
-        
+
         # keep up with previous angle for unwrapping
         self._prevRot=[0.0,0.0,0.0,0.0]
         print ('######## ODOMETER INITIALIZED ########')
@@ -43,10 +44,10 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         #    1     -    FL
         #    2     -    RR
         #    3     -    RL
-        
+
         # get angular speed
         wheelAngularSpeeds=self.robot_parent.getWheelSpeeds()
-		logger.debug("WHEELSPEED: (%.4f, %.4f, %.4f, %.4f)" % (wheelAngularSpeeds[0], wheelAngularSpeeds[1], wheelAngularSpeeds[2], wheelAngularSpeeds[3]))		
+        logger.debug("WHEELSPEED: (%.4f, %.4f, %.4f, %.4f)" % (wheelAngularSpeeds[0], wheelAngularSpeeds[1], wheelAngularSpeeds[2], wheelAngularSpeeds[3]))		
         self.local_data['wFR'] = wheelAngularSpeeds[0]
         self.local_data['wFL'] = wheelAngularSpeeds[1]
         self.local_data['wRR'] = wheelAngularSpeeds[2]
@@ -54,7 +55,7 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
 
         # get angular distance traveled
         wheelOrientations=self.robot_parent.getWheelAngle()   
-		logger.debug("WHEELANGLE: (%.4f, %.4f, %.4f, %.4f)" % (wheelOrientations[0], wheelOrientations[1], wheelOrientations[2], wheelOrientations[3]))				
+        logger.debug("WHEELANGLE: (%.4f, %.4f, %.4f, %.4f)" % (wheelOrientations[0], wheelOrientations[1], wheelOrientations[2], wheelOrientations[3]))				
         # unwrap angles
         #self.local_data['rotFR'] = self.unwrapAngle(wheelOrientations[0],0)+2*math.pi*self._counts[0]
         #self.local_data['rotFL'] = self.unwrapAngle(wheelOrientations[1],1)+2*math.pi*self._counts[1]
@@ -71,16 +72,17 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
     def unwrapAngle(self, curAngle, index):
         # get current angle between 0 and pi
         curAngle=curAngle%(2*math.pi)
-        
+
         # go up by 2pi
         if (self._prevRot[index]>(300*math.pi/180+self._counts[index]*2*math.pi))and(curAngle<(60*math.pi/180)):
             self._counts[index]=self._counts[index]+1
-        # go down by 2pi
+            # go down by 2pi
         elif (self._prevRot[index]<(60*math.pi/180+self._counts[index]*2*math.pi))and(curAngle>(300*math.pi/180)):
             self._counts[index]=self._counts[index]-1
-        
+
         # store previous value
         self._prevRot[index]=curAngle
-            
+
         # return angle
         return curAngle
+        
