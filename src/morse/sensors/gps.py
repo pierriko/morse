@@ -16,7 +16,7 @@ class GPSClass(morse.core.sensor.MorseSensorClass):
         # Call the constructor of the parent class
         super(self.__class__,self).__init__(obj, parent)
 
-        logger.setLevel(logging.DEBUG)
+        #logger.setLevel(logging.DEBUG)
         
         self.local_data['x'] = 0.0
         self.local_data['y'] = 0.0

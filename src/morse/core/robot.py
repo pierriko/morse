@@ -22,7 +22,7 @@ class MorseRobotClass(morse.core.object.MorseObjectClass):
         
         # Add the variable move_status to the object
         self.move_status = "Stop"
-
+        logger.setLevel(logging.DEBUG)
 
     def action(self):
         """ Call the regular action function of the component. """
@@ -43,8 +43,6 @@ class FourWheelRobotClass(MorseRobotClass):
         # bullet vehicles always have 4 wheels
         scene=GameLogic.getCurrentScene()
         self.local_data['numWheels']=4  
-
-        print(dir(scene))
         
         # front left wheel
         try:
@@ -219,11 +217,10 @@ class MorseVehicleRobotClass(FourWheelRobotClass):
         #wheelAttachPosLocal:
         #Where the wheel is attach to the car based
         #on the vehicle's center
-        # get relative position between the wheel and the parent from the model
-        result = self.blender_obj.getVectTo(wheel);
+        result = parent.getVectTo(wheel);
         # result is a unit vector (result[2]) and a length(result[0])
         # multiply them together to get the complete vector
-        wheelAttachPosLocal=result[0]*result[2]
+        wheelPos=result[0]*result[2]  
         joint=self.local_data['vehicle'].addWheel(wheel,wheelAttachPosLocal,wheelAttachDirLocal,wheelAxleLocal,self._SuspensionRestLength,self.local_data['WheelRadius'],hasSteering)
  
         return joint # return a reference to the constraint
@@ -360,9 +357,6 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
 
     def build_vehicle(self):
         """ Apply the constraints to the vehicle parts. """
-
-        #import pdb
-        #pdb.set_trace()
         
         # get a link to the blender scene to look for wheel and suspension objectsscene = GameLogic.getCurrentScene()
         # get needed parameters from the blender object
@@ -442,11 +436,11 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
 
     def AttachWheelToBody(self, wheel, parent):
         """ Attaches the wheel to the given parent using a 6DOF constraint """
-        # get relative position between the wheel and the parent from the model
         result = parent.getVectTo(wheel);
         # result is a unit vector (result[2]) and a length(result[0])
         # multiply them together to get the complete vector
         wheelPos=result[0]*result[2]
+        logger.debug("Wheel Position: (%.4f, %.4f, %.4f)" % (wheelPos[0], wheelPos[1], wheelPos[2]))
         # create a 6 DOF 
         joint = PhysicsConstraints.createConstraint( parent.getPhysicsId(),  # get physics ID of the parent object
                                      wheel.getPhysicsId(),  # get physics ID of the wheel object
