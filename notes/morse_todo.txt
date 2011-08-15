@@ -1,9 +1,0 @@
-- sensors to add:
-    * advanced GPS - pseudoranges, course, speed, vertical speed
-    * rf ranging sensor
-    * EM61 - put mesh under ground and do ray tracing to it for em data
-    
- - compare new GPS velocity and IMU velocity   
-- compare differencing position with get velocity method: http://www.tutorialsforblender3d.com/GameModule/ClassKX_GameObject_19.html    
-- compare course and heading from pose to see if sideslip is realistic
-- compare wheel encoder readings and velocity or distance moved to see if wheel slip is realistic

@@ -32,7 +32,7 @@ class DiffDriveForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         
         #Update the Force (speed) for these wheels:
         # TODO: only apply force to front wheels if vehicle is 4wd
-        
+
         # assumes left wheels are 1 & 3 and right wheels are 0 & 2
         parent.local_data['vehicle'].applyEngineForce(self.local_data['force_l'],0)
         parent.local_data['vehicle'].applyEngineForce(self.local_data['force_l'],2)
