@@ -21,6 +21,10 @@ class DiffDriveForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         self.local_data['brake_l'] = 0.0
         self.local_data['brake_r'] = 0.0
 
+        self.local_data['v'] = 0.0
+        self.local_data['w'] = 0.0
+        self._trackWidth = parent.local_data['trackWidth']
+
         print ('######## CONTROL INITIALIZED ########')
 
 
@@ -33,11 +37,22 @@ class DiffDriveForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         #Update the Force (speed) for these wheels:
         # TODO: only apply force to front wheels if vehicle is 4wd
 
+        v_ws_l=(2*self.local_data['v']-self.local_data['w']*self._trackWidth)/2
+        v_ws_r=(2*self.local_data['v']+self.local_data['w']*self._trackWidth)/2
+        print(v_ws_l*10)
+        print(v_ws_r*10)
+
+        parent.local_data['vehicle'].applyEngineForce(v_ws_l*10.0,0)
+        parent.local_data['vehicle'].applyEngineForce(v_ws_l*10.0,2)
+        parent.local_data['vehicle'].applyEngineForce(v_ws_r*10.0,1)
+        parent.local_data['vehicle'].applyEngineForce(v_ws_r*10.0,3)
+
+
         # assumes left wheels are 1 & 3 and right wheels are 0 & 2
-        parent.local_data['vehicle'].applyEngineForce(self.local_data['force_l'],0)
-        parent.local_data['vehicle'].applyEngineForce(self.local_data['force_l'],2)
-        parent.local_data['vehicle'].applyEngineForce(self.local_data['force_r'],1)
-        parent.local_data['vehicle'].applyEngineForce(self.local_data['force_r'],3)
+        #parent.local_data['vehicle'].applyEngineForce(self.local_data['force_l'],0)
+        #parent.local_data['vehicle'].applyEngineForce(self.local_data['force_l'],2)
+        #parent.local_data['vehicle'].applyEngineForce(self.local_data['force_r'],1)
+        #parent.local_data['vehicle'].applyEngineForce(self.local_data['force_r'],3)
 
         #Brakes:
         #Applies the braking force to each wheel listed:

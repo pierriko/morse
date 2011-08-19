@@ -3,7 +3,7 @@ import morse.core.robot
 import PhysicsConstraints
 from morse.core.services import MorseServices
 
-class SegwayRMP400Class(morse.core.robot.MorsePhysicsRobotClass):
+class SegwayRMP400Class(morse.core.robot.MorseRobotClass):
     """ Class definition for the Segway RMP400 base.
         Sub class of Morse_Object. """
               
