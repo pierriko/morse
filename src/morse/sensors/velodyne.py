@@ -19,16 +19,24 @@ class VelodyneClass(morse.core.sensor.MorseSensorClass):
         super(self.__class__,self).__init__(obj, parent)
 
         arc_prefix = 'Arc_'
+        self._ray_arc = None
+        reverse_arc_prefix = 'Reverse_Arc_'
+        self._reverse_ray_arc = None
 
         # Look for a child arc to use for the scans
         for child in obj.children:
-            if arc_prefix in child.name:
+            if arc_prefix in child.name and self._ray_arc == None:
                 self._ray_arc = child
                 logger.info("Velodyne: Using arc object: '{0}'".format(self._ray_arc))
+            if reverse_arc_prefix in child.name and self._reverse_ray_arc == None:
+                self._reverse_ray_arc = child
+                logger.info("Velodyne: Using reverse arc object: '{0}'".format(self._reverse_ray_arc))
+            if self._ray_arc != None and self._reverse_ray_arc != None:
                 break
 
         # Set its visibility, according to the settings
         self._ray_arc.setVisible(self.blender_obj['Visible_arc'])
+        self._reverse_ray_arc.setVisible(self.blender_obj['Visible_reverse_arc'])
         self._ray_list = []
 
         # Create an empty list to store the intersection points
@@ -81,7 +89,7 @@ class VelodyneClass(morse.core.sensor.MorseSensorClass):
         # Obtain the rotation matrix of the sensor.
         robot_inverted_matrix = morse.helpers.math.invert_rotation_matrix(self.robot_parent.blender_obj)
         sensor_inverted_matrix = morse.helpers.math.invert_rotation_matrix(self.blender_obj)
-
+        
         # Create a vector for the mathutils operations
         vector_point = mathutils.Vector()
 
@@ -89,26 +97,29 @@ class VelodyneClass(morse.core.sensor.MorseSensorClass):
         logger.debug("ARC POSITION: [%.4f, %.4f, %.4f]" % (self.blender_obj.position[0], self.blender_obj.position[1], self.blender_obj.position[2]))
         # Get the mesh for the semicircle
         for mesh in self._ray_arc.meshes:
+            mesh_rev = self._reverse_ray_arc.meshes[0]
             for mat in range(mesh.numMaterials):
                 index = 0
                 for v_index in range(mesh.getVertexArrayLength(mat)):
                     vertex = mesh.getVertex(mat, v_index)
+                    vertex_rev = mesh_rev.getVertex(mat, v_index)
                     vertex_pos = vertex.getXYZ()
-
+                    vertex_pos_rev = vertex_rev.getXYZ()
+                    
                     # Convert the vertex to a vector
                     morse.helpers.math.fill_vector (vector_point, vertex_pos)
-
+                    
                     # Skip the center vertex
                     # NOTE: Make sure the center vertex of the arc
                     #  has local coordinates 0.0, 0.0, 0.0
                     if vector_point.length == 0:
                         continue
-
+                    
                     base_ray = self._ray_list[index]
                     # Adjust the vector coordinates to the rotation
                     #  of the robot
                     corrected_ray = self.blender_obj.getAxisVect(base_ray)
-
+                    
                     ray = [0, 0, 0]
                     # Displace according to the arc vertices
                     for i in range(3):
@@ -130,11 +141,12 @@ class VelodyneClass(morse.core.sensor.MorseSensorClass):
                         #  from the intersection point
                         for i in range(3):
                             point[i] = point[i] - self.blender_obj.position[i]
+                        
                         logger.debug("\t\tARC POINT: [%.4f, %.4f, %.4f]" % (point[0], point[1], point[2]))
 
                         # Create a vector object
                         morse.helpers.math.fill_vector (vector_point, point)
-
+                        
                         # Multiply the resulting point by the inverse
                         #  of the sensor rotation matrix
                         if GameLogic.blenderVersion < (2,59,0):
@@ -151,10 +163,11 @@ class VelodyneClass(morse.core.sensor.MorseSensorClass):
                             # Send the vertex to the new location
                             geometry_point = vector_point * sensor_inverted_matrix
                             vertex.setXYZ(geometry_point)
-
+                            vertex_rev.setXYZ(geometry_point)
+                        
                         # Convert the arc point from a vector to a list
                         arc_point = [arc_point[0], arc_point[1], arc_point[2]]
-
+                        
                     # Otherwise return the vertex to its original position
                     else:
                         # Create a vector object
@@ -162,15 +175,16 @@ class VelodyneClass(morse.core.sensor.MorseSensorClass):
                         # Give it the correct size
                         vector_point.normalize()
                         vector_point = vector_point * self.blender_obj['laser_range']
-
+                        
                         # Move the vertex to the computed position
                         vertex.setXYZ(vector_point)
+                        
                         logger.debug("\t\tNO intersection. [%.4f, %.4f, %.4f]" % (vector_point[0], vector_point[1], vector_point[2]))
 
                         # Add a point at 0,0,0 to the output file,
                         #  to mark that this ray did not find anything
                         arc_point = [0.0, 0.0, 0.0]
-
+                        
                     
                     #calculate ranges of the laserscanner based on Blender_object pose and points
                     xx = arc_point[0] - self.blender_obj.position[0]

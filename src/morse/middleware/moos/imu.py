@@ -20,8 +20,9 @@ def init_extra_module(self, component_instance, function, mw_data):
 def post_imu(self, component_instance):
     """ Publish the data of the Odometry-sensor as a ROS-Pose message
     """
-    curTime=pymoos.MOOSCommClient.MOOSTime()
-
+    #curTime=pymoos.MOOSCommClient.MOOSTime()
+    curTime=self.current_MOOS_time
+    
     vel=component_instance.local_data['velocity']
     acc=component_instance.local_data['acceleration']
 
@@ -34,4 +35,9 @@ def post_imu(self, component_instance):
     self.m.Notify('zAccelX',acc[0],curTime)
     self.m.Notify('zAccelY',acc[1],curTime)
     self.m.Notify('zAccelZ',acc[2],curTime)
-
+    
+    # post velocities
+    self.m.Notify('zVelX',vel[0],curTime)
+    self.m.Notify('zVelY',vel[1],curTime)
+    self.m.Notify('zVelZ',vel[2],curTime)
+   

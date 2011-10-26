@@ -79,11 +79,9 @@ def actuator_action(contr):
 
 def mw_action(contr):
     """ Call the 'action' method of the correct middleware. """
-    # TODO: Right now there is nothing the mw should do, so just exit
-    return
-
-    #obj = contr.owner
+    obj = contr.owner
     
     # Get the intance of this objects class
-    #mw_object = GameLogic.componentDict[obj.name]
-    #mw_object.action()
+    mw_object = GameLogic.mwDict[obj]
+    mw_object.action()
+

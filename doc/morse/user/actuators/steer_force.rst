@@ -27,6 +27,11 @@ Services
 
 No available services
 
+Adjustable parameters
+---------------------
+
+- 4wd (boolean) - The 4wd boolean in the **Logic Editor >> Game Properties** panel determines if engine force is applied to all four wheels or only the two rear wheels.  Braking is applied to all four wheels regardless of this setting.
+
 Applicable modifiers 
 --------------------
 

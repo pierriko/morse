@@ -30,10 +30,8 @@
 import logging; logger = logging.getLogger("morse." + __name__)
 import GameLogic
 import morse.core.robot
-import PhysicsConstraints
 
-
-class HummerClass(morse.core.robot.MorseRobotClass):
+class HummerClass(morse.core.robot.MorseVehicleRobotClass):
     """ Class definition for the Hummer.
         Sub class of Morse_Object. """
 
@@ -217,6 +215,6 @@ class HummerClass(morse.core.robot.MorseRobotClass):
         """ Main function of this component. """
         #
         #  This section runs continuously after the initial set up:
-        #  Updating Speed, Friction, Braking, Suspension, etc:
+        #  Updating Speed, Braking, etc:
         #
         pass

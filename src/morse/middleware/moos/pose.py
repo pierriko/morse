@@ -21,11 +21,12 @@ def init_extra_module(self, component_instance, function, mw_data):
 def post_pose(self, component_instance):
     """ Publish the data of the Odometry-sensor as a ROS-Pose message
     """
-    curTime=pymoos.MOOSCommClient.MOOSTime()
+    #curTime=pymoos.MOOSCommClient.MOOSTime()
+    curTime=self.current_MOOS_time
     parent_name = component_instance.robot_parent.blender_obj.name
     
     # post the simulation time so that it can be synced to MOOSTime
-    self.m.Notify('actual_time',GameLogic.current_time,curTime)
+    #self.m.Notify('actual_time',GameLogic.current_time,curTime)
     # post the robot position
     self.m.Notify('simEast',component_instance.local_data['x'],curTime)
     self.m.Notify('simNorth',component_instance.local_data['y'],curTime)

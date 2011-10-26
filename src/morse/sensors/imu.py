@@ -1,5 +1,6 @@
 import logging; logger = logging.getLogger("morse." + __name__)
 import GameLogic
+import mathutils
 import math
 import morse.core.sensor
 
@@ -71,9 +72,9 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         logger.debug("DISTANCE: %.4f" % self.local_data['distance'])
 
         # Compute the difference in angles with the previous loop
-        droll = self.position_3d.roll - self.pproll
-        dpitch = self.position_3d.pitch - self.pppitch
-        dyaw = self.position_3d.yaw - self.ppyaw
+        droll = self.wrapToPi(self.position_3d.roll - self.pproll)
+        dpitch = self.wrapToPi(self.position_3d.pitch - self.pppitch)
+        dyaw = self.wrapToPi(self.position_3d.yaw - self.ppyaw)
         
          # Store the position in this instant
         self.ppx = self.p[0]
@@ -82,8 +83,14 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.pproll = self.position_3d.roll
         self.pppitch = self.position_3d.pitch
         self.ppyaw = self.position_3d.yaw
-
+        
         # Scale the speeds to the time used by Blender
+        #velVec=mathutils.Vector([dx,dy,dz])*self.ticks
+        #rotVel=self.blender_obj.orientation*velVec
+
+        #self.v[0] = rotVel[0]
+        #self.v[1] = rotVel[1]
+        #self.v[2] = rotVel[2]
         self.v[0] = dx * self.ticks
         self.v[1] = dy * self.ticks
         self.v[2] = dz * self.ticks
@@ -91,6 +98,9 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.v[4] = dpitch * self.ticks
         self.v[5] = dyaw * self.ticks
         logger.debug("SPEED: (%.4f, %.4f, %.4f, %4f, %4f, %4f)" % (self.v[0], self.v[1], self.v[2], self.v[3], self.v[4], self.v[5]))
+
+        #import pdb
+        #pdb.set_trace()
 
         self.a[0] = (self.v[0] - self.pvx) * self.ticks
         self.a[1] = (self.v[1] - self.pvy) * self.ticks
@@ -112,3 +122,5 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.local_data['velocity'] = self.v
         self.local_data['acceleration'] = self.a
 
+    def wrapToPi(self,angle):
+        return ((angle+math.pi)%(2*math.pi))-math.pi

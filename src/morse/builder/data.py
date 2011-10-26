@@ -27,6 +27,7 @@ MORSE_MIDDLEWARE_MODULE = {
     'yarp': 'morse.middleware.yarp_mw.MorseYarpClass',
     'pocolibs': 'morse.middleware.pocolibs_mw.MorsePocolibsClass',
     'text': 'morse.middleware.text_mw.TextOutClass',
+    'moos': 'morse.middleware.moos_mw.MOOSClass',
 }
 
 """
@@ -116,6 +117,18 @@ MORSE_MIDDLEWARE_DICT = {
 
         'v_omega': [MORSE_MIDDLEWARE_MODULE['pocolibs'], 'read_genpos', 'morse/middleware/pocolibs/actuators/genpos', 'simu_locoSpeedRef'],
     },
+
+    'moos_empty': {
+        'morse_vw_control': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_message'],
+        'morse_vw_diff_drive_control': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_message'],
+        'morse_sick': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_2DLaserScan', 'morse/middleware/moos/sick'],
+        'morse_pose': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_pose', 'morse/middleware/moos/pose'],
+        'morse_imu': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_imu', 'morse/middleware/moos/imu'],
+        'morse_wheel_encoders': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_wheel_encoders', 'morse/middleware/moos/wheel_encoders'],
+        'morse_GPS': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_gps', 'morse/middleware/moos/gpy'],
+        'morse_gyroscope': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_gyroscope','morse/middleware/moos/gyroscope'],
+        'morse_proximity': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_message']
+    }
 }
 
 
