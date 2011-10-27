@@ -8,7 +8,7 @@ import bpy
 import morse.sensors.camera
 import morse.helpers.colors
 
-from morse.helpers import objects
+from morse.helpers import passive_objects
 
 class SemanticCameraClass(morse.sensors.camera.CameraClass):
     """
@@ -59,16 +59,16 @@ class SemanticCameraClass(morse.sensors.camera.CameraClass):
         if not hasattr(GameLogic, 'trackedObjects'):
             logger.info('Initialization of tracked objects:')
             scene = GameLogic.getCurrentScene()
-            GameLogic.trackedObjects = dict.fromkeys(objects.active_objects())
+            GameLogic.trackedObjects = dict.fromkeys(passive_objects.active_objects())
 
             # Store the bounding box of the marked objects
             for obj in GameLogic.trackedObjects.keys():
 
-                label, desc, type = objects.details(obj)
+                details = passive_objects.details(obj)
                 # GetBoundBox(0) returns the bounding box in local space
                 #  instead of world space.
                 GameLogic.trackedObjects[obj] = bpy.data.objects[obj.name].bound_box
-                logger.info('    - {0} (desc:{1})'.format(label, type))
+                logger.info('    - {0} (type:{1})'.format(details['label'], details['type']))
 
 
         # Prepare the exportable data of this sensor
@@ -96,22 +96,23 @@ class SemanticCameraClass(morse.sensors.camera.CameraClass):
         visibles = self.local_data['visible_objects']
 
         for obj in GameLogic.trackedObjects.keys():
+            label = passive_objects.label(obj)
             visible = self._check_visible(obj)
-
             # Object is visible and not yet in the visible_objects list...
-            if visible and obj not in visibles:
-                self.local_data['visible_objects'].append(obj)
+            if visible and label not in visibles:
+                self.local_data['visible_objects'].append(label)
                 # Scale the object to show it is visible
                 #obj.localScale = [1.2, 1.2, 1.2]
-                logger.info("Semantic: {0} just appeared".format(obj.name))
+                logger.info("Semantic: {0} just appeared".format(label))
 
             # Object is not visible and was in the visible_objects list...
-            if not visible and obj in visibles:
-                self.local_data['visible_objects'].remove(obj)
+            if not visible and label in visibles:
+                self.local_data['visible_objects'].remove(label)
                 # Return the object to normal size
                 #  when it is no longer visible
                 #obj.localScale = [1.0, 1.0, 1.0]
-                logger.debug("Semantic: {0} just disappeared".format(obj.name))
+                logger.debug("Semantic: {0} just disappeared".format(label))
+
         logger.debug(str(self.local_data['visible_objects']))
 
 
