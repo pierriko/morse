@@ -31,6 +31,9 @@ class MorseRobotClass(morse.core.object.MorseObjectClass):
 
         self.default_action()
 
+    def onBuild(self):
+        """ Method called when robot is added in builder. """
+
 class FourWheelRobotClass(MorseRobotClass): 
 
     # Make this an abstract class
@@ -438,20 +441,29 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
     def BuildModelWithoutSuspension(self):
         """ Add all the constraints to attach the wheels to the body """
         # make joints available to actuator so force or torque can be applied
-        # add front wheels
-        self.local_data['wheelFLJoint']=self.AttachWheelToBody(self.local_data['wheelFL'],self.blender_obj)  
-        self.local_data['wheelFRJoint']=self.AttachWheelToBody(self.local_data['wheelFR'],self.blender_obj) 
-        # add rear wheels 
-        self.local_data['wheelRLJoint']=self.AttachWheelToBody(self.local_data['wheelRL'],self.blender_obj) 
-        self.local_data['wheelRRJoint']=self.AttachWheelToBody(self.local_data['wheelRR'],self.blender_obj) 
+        ## add front wheels
+        #self.local_data['wheelFLJoint']=self.AttachWheelToBody(self.local_data['wheelFL'],self.blender_obj)  
+        #self.local_data['wheelFRJoint']=self.AttachWheelToBody(self.local_data['wheelFR'],self.blender_obj) 
+        ## add rear wheels 
+        #self.local_data['wheelRLJoint']=self.AttachWheelToBody(self.local_data['wheelRL'],self.blender_obj) 
+        #self.local_data['wheelRRJoint']=self.AttachWheelToBody(self.local_data['wheelRR'],self.blender_obj) 
 
-    def AttachWheelToBody(self, wheel, parent):
+        # add front wheels
+        self.local_data['wheelFLJoint']=self.AttachWheelToBody(self.local_data['wheelFL'],self.blender_obj, self.wheelFLPos)  
+        self.local_data['wheelFRJoint']=self.AttachWheelToBody(self.local_data['wheelFR'],self.blender_obj, self.wheelFRPos) 
+        # add rear wheels 
+        self.local_data['wheelRLJoint']=self.AttachWheelToBody(self.local_data['wheelRL'],self.blender_obj, self.wheelRLPos) 
+        self.local_data['wheelRRJoint']=self.AttachWheelToBody(self.local_data['wheelRR'],self.blender_obj, self.wheelRRPos) 
+
+    def AttachWheelToBody(self, wheel, parent, wheelPos):
         """ Attaches the wheel to the given parent using a 6DOF constraint """
-        result = parent.getVectTo(wheel);
-        # result is a unit vector (result[2]) and a length(result[0])
-        # multiply them together to get the complete vector
-        wheelPos=result[0]*result[2]
-        logger.debug("Wheel Position: (%.4f, %.4f, %.4f)" % (wheelPos[0], wheelPos[1], wheelPos[2]))
+        #result = parent.getVectTo(wheel);
+        ## result is a unit vector (result[2]) and a length(result[0])
+        ## multiply them together to get the complete vector
+        #wheelPos=result[0]*result[2]
+        #logger.debug("Wheel Position: (%.4f, %.4f, %.4f)" % (wheelPos[0], wheelPos[1], wheelPos[2]))
+        print(wheel.name)
+        print(wheelPos)
         # create a 6 DOF 
         joint = PhysicsConstraints.createConstraint( parent.getPhysicsId(),  # get physics ID of the parent object
                                      wheel.getPhysicsId(),  # get physics ID of the wheel object

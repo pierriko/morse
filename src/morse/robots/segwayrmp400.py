@@ -53,6 +53,12 @@ class SegwayRMP400PhysicsClass(morse.core.robot.MorsePhysicsRobotClass):
             but that information is not currently used for a robot. """
         # Call the constructor of the parent class
         print ("######## ROBOT '%s' INITIALIZING ########" % obj.name)
+        # define the wheel positions:
+        self.wheelFLPos=[0.27, 0.312, 0.1]
+        self.wheelFRPos=[0.27, -0.312, 0.1]
+        self.wheelRLPos=[-0.27, 0.312, 0.1]
+        self.wheelRRPos=[-0.27, -0.312, 0.1]
+        
         super(self.__class__,self).__init__(obj, parent)
 
         print ('######## ROBOT INITIALIZED ########')

@@ -191,8 +191,18 @@ class Component(AbstractComponent):
         self._blendname = name # for middleware dictionary
         # here we use the fact that after appending, Blender select the objects 
         # and the root (parent) object first ( [0] )
-        self._blendobj = bpy.context.selected_objects[0]
-
+        #self._blendobj = bpy.context.selected_objects[0]
+        
+        # search through the objects and look for the main robot 
+        # object by checking for a 'XX_Tag' property
+        # - FIX THIS LATER: just check for any properties right now 
+        print('name: ' + name)
+        for obj in bpy.context.selected_objects:
+             if (len(obj.game.properties)>0):
+                self._blendobj=obj
+                print(obj.name)
+                break;
+             
 class Robot(Component):
     def __init__(self, name):
         Component.__init__(self, 'robots', name)
