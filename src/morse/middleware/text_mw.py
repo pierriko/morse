@@ -5,11 +5,12 @@ import morse.core.middleware
 class TextOutClass(morse.core.middleware.MorseMiddlewareClass):
     """ Produce text files as output for the components """
 
-    def __init__(self, obj, parent=None):
+    def __init__(self):
         # Call the constructor of the parent class
-        super(self.__class__,self).__init__(obj, parent)
+        super(self.__class__,self).__init__()
 
         self._file_list = dict()
+        self._index_list = dict()
 
     def __del__(self):
         """ Close all opened files """
@@ -43,7 +44,7 @@ class TextOutClass(morse.core.middleware.MorseMiddlewareClass):
         data = []
         data.append("ROBOT %s || SENSOR %s\n" % (parent_name, component_name))
         data.append("(distance, globalVector(3), localVector(3))\n")
-        data.append(repr(component_instance.relative_position) + "\n")
+        data.append(repr(component_instance.relative_position) + "\n\n")
 
         # Open the file and write a header
         file_name = '{0}_{1}.txt'.format(parent_name, component_name)
@@ -51,6 +52,7 @@ class TextOutClass(morse.core.middleware.MorseMiddlewareClass):
         for line in data:
             FILE.write(line.encode())
         self._file_list[component_name] = FILE
+        self._index_list[component_name] = 1
         logger.info("File: '%s' opened for writing" % file_name)
 
 
@@ -61,8 +63,12 @@ class TextOutClass(morse.core.middleware.MorseMiddlewareClass):
         """
         parent_position = component_instance.robot_parent.position_3d
         FILE = self._file_list[component_instance.blender_obj.name]
-        line = "==> Data at X,Y,Z: [%.6f %.6f %.6f] yaw,pitch,roll: [%.6f %.6f %.6f] | time %s\n" % (parent_position.x, parent_position.y, parent_position.z, parent_position.yaw, parent_position.pitch, parent_position.roll, GameLogic.current_time)
+        line = "==> Data at X,Y,Z: [%.6f %.6f %.6f] yaw,pitch,roll: [%.6f %.6f %.6f] | index %d | time %.2f\n" % (parent_position.x, parent_position.y, parent_position.z, parent_position.yaw, parent_position.pitch, parent_position.roll, self._index_list[component_instance.blender_obj.name], GameLogic.current_time)
+        self._index_list[component_instance.blender_obj.name] += 1
         FILE.write(line.encode())
         for variable, data in component_instance.local_data.items():
-            line = "\t%s = %s\n" % (variable, repr(data))
+            if isinstance(data, float):
+                line = "\t%s = %.6f\n" % (variable, data)
+            else:
+                line = "\t%s = %s\n" % (variable, repr(data))
             FILE.write(line.encode())

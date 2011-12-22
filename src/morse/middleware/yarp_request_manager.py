@@ -76,8 +76,8 @@ class YarpRequestManager(RequestManager):
         self.yarp_object = self._yarp_module.Network()
 
         # Create the names of the ports
-        request_port_name = '/ors/services/{0}/request'.format(component_name)
-        reply_port_name = '/ors/services/{0}/reply'.format(component_name)
+        request_port_name = '/morse/services/{0}/request'.format(component_name)
+        reply_port_name = '/morse/services/{0}/reply'.format(component_name)
 
         if not component_name in self._yarp_request_ports.keys():
             # Create the ports to accept and reply to requests
@@ -115,7 +115,6 @@ class YarpRequestManager(RequestManager):
                     try:
                         id, component_name, service, params = self._parse_request(bottle_in)
                     except ValueError: # Request contains < 2 tokens.
-                        id = req
                         raise MorseRPCInvokationError("Malformed request! ")
 
                     logger.info("Got '%s | %s | %s' (id = %s) from %s" % (component_name, service, params, id, component_name))
@@ -177,7 +176,8 @@ class YarpRequestManager(RequestManager):
 
         try:
             params = bottle.get(3).toString()
-            p =  eval(params, {"__builtins__": None},{})
+            import ast
+            p =  ast.literal_eval(params)
         except (NameError, SyntaxError) as e:
             raise MorseRPCInvokationError("Invalid request syntax: error while parsing the parameters. " + str(e))
 

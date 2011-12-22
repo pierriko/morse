@@ -1,9 +1,11 @@
 import logging; logger = logging.getLogger("morse." + __name__)
 import math
+import time
 import re
 import GameLogic
 from morse.middleware.pocolibs.sensors.Viman_Poster import ors_viman_poster
 from morse.helpers.transformation import Transformation3d
+from morse.helpers import passive_objects
 
 object_config_file = "objectList_cfg"
 
@@ -41,8 +43,8 @@ def init_viman_poster(self, component_instance, poster_name):
     self.scene_object_list += _read_object_list()
 
     #Complete the list with the objects already tracked by the semantic cam.
-    if hasattr(GameLogic, 'trackedObjects'):
-        self.scene_object_list += [obj.name for obj in GameLogic.trackedObjects.keys()]
+    if hasattr(GameLogic, 'passiveObjectsDict'):
+        self.scene_object_list += [obj['label'] for obj in GameLogic.passiveObjectsDict.values()]
 
     if not self.scene_object_list:
         logger.error("No VIMAN object to track. Make sure some objects have " +\
@@ -71,35 +73,36 @@ def init_viman_poster(self, component_instance, poster_name):
 
 
 def write_viman(self, component_instance):
-    """ Write an image and all its data to a poster """
+    """ Write the objects list to a poster """
     # Get the id of the poster already created
     poster_id = self._poster_dict[component_instance.blender_obj.name]
     parent = component_instance.robot_parent
 
     scene = GameLogic.getCurrentScene()
+    
+    seen_objects = [obj['name'] for obj in component_instance.local_data['visible_objects']]
 
     i = 0
     for object_id in self.scene_object_list:
 
         try:
-            object = scene.objects[object_id]
+            t = time.time()
+            tacq_sec = int(t)
+            tacq_usec = int((t - tacq_sec) * 1000)
+            ors_viman_poster.set_tacq(self.viman_data, i, tacq_sec, tacq_usec)
+            
+            if object_id in seen_objects:
 
-            if object in component_instance.local_data['visible_objects']:
+                object = passive_objects.obj_from_label(object_id)
 
                 position_3d = Transformation3d(object)
-                logger.debug("VIMAN " + object.name + " is visible at " + str(position_3d))
-                ors_viman_poster.set_visible (self.viman_data, i, 1)
+                logger.debug("VIMAN " + object_id + "(" + object.name + ") is visible at " + str(position_3d))
+                ors_viman_poster.set_visible(self.viman_data, i, 1)
                 _fill_world_matrix(self.viman_data, position_3d, i)
             else:
                 ors_viman_poster.set_visible (self.viman_data, i, 0)
-
-            #robot_matrix = viman_data.objects[i].thetaMatRobot
-            #world_matrix = viman_data.objects[i].thetaMatOrigin
-            #camera_matrix = viman_data.objects[i].thetaMatCam
-
-            # Compute the current time
-            #pom_date, t = self._compute_date()
-
+        
+        
             # Write to the poster with the data for all objects
             posted = ors_viman_poster.real_post_viman_poster(poster_id, self.viman_data)
         except KeyError as detail:

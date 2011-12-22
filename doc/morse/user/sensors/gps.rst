@@ -8,7 +8,7 @@ provides
 
 Files
 -----
-- Blender: ``$MORSE_ROOT/data/morse/components/sensors/morse_GPS.blend``
+- Blender: ``$MORSE_ROOT/data/morse/sensors/gps.blend``
 - Python: ``$MORSE_ROOT/src/morse/sensors/gps.py``
 
 Local data

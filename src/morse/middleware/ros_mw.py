@@ -13,10 +13,10 @@ from std_msgs.msg import String
 class ROSClass(morse.core.middleware.MorseMiddlewareClass):
     """ Handle communication between Blender and ROS."""
       
-    def __init__(self, obj, parent=None):
+    def __init__(self):
         """ Initialize the network and generate a ROS node."""
         logger.info("Middleware initialization")
-        super(self.__class__,self).__init__(obj, parent)
+        super(self.__class__,self).__init__()
         self._topics = []
         self.clock_publisher = rospy.Publisher("/clock", Clock)
         self.clock_msg = Clock()
@@ -61,7 +61,7 @@ class ROSClass(morse.core.middleware.MorseMiddlewareClass):
         logger.info(" ######################## %s"%component_name )
         
         # Init MORSE-node in ROS
-        rospy.init_node('morse')
+        rospy.init_node('morse', log_level = rospy.DEBUG, disable_signals=True)
         function = self._check_function_exists(function_name)
         
         # The function exists within this class,

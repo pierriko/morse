@@ -9,10 +9,10 @@ import mathutils
 
 class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
     """ Handle communication between Blender and MOOS."""
-
-    def __init__(self, obj, parent=None):
+      
+    def __init__(self):
         """ Initialize the MOOS app"""
-        super(self.__class__,self).__init__(obj, parent)
+        super(self.__class__,self).__init__()
         logger.info("Middleware initialization")
         self.m = pymoos.MOOSCommClient.MOOSApp()
         # intialize MOOS and MORSE times
@@ -109,6 +109,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
             self.m.Notify(parent_name+"_"+component_instance.blender_obj.name+"_"+variable,str(data),GameLogic.current_time)
 
                             
+    # NOTE: This is a dummy function that is executed for every actuator. Since ROS uses the concept of callbacks, it does nothing ...    
     def read_message(self, component_instance):
         """ read a command message from the database and send to the simulator???"""
         logger.debug("Read message called.")

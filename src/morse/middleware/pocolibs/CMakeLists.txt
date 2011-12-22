@@ -21,9 +21,9 @@ macro(upcase_first all_lower first_upper)
 	set(${first_upper} "${first_letter}${${first_upper}}")
 endmacro(upcase_first)
 
-set(directories_list "sensors;controllers")
-set(sensors_list "general;viam;pom;velodyne;viman;human_posture")
-set(controllers_list "genpos;platine;lwr")
+set(directories_list "sensors;actuators")
+set(sensors_list "general;viam;pom;velodyne;viman;human_posture;target;platine_posture")
+set(actuators_list "genpos;platine;lwr")
 
 ## Set here the dependencies of your modules
 ## over Genom modules
@@ -34,8 +34,10 @@ set(MODULES_MAP_VELODYNE "velodyne;pom")
 set(MODULES_MAP_VIMAN "viman")
 set(MODULES_MAP_HUMAN_POSTURE "spark")
 set(MODULES_MAP_GENPOS "genPos")
-set(MODULES_MAP_PLATINE "pom")
+set(MODULES_MAP_TARGET "genPos")
+set(MODULES_MAP_PLATINE "pom;platine")
 set(MODULES_MAP_LWR "lwr;gbM;genBasic;genManip")
+set(MODULES_MAP_PLATINE_POSTURE "platine")
 
 foreach(directory ${directories_list})
 	set(items_list "${directory}_list")
@@ -57,7 +59,7 @@ foreach(directory ${directories_list})
                 foreach(dependency ${module_to_find})
 		            string(TOUPPER "${dependency}" DEPENDENCY)
 				    set(MODULE_INCLUDE_DIRS "${DEPENDENCY}_INCLUDE_DIRS")
-					MESSAGE("Adding dependency ${dependency}")
+                    #MESSAGE("Adding dependency ${dependency}")
 				    pkg_check_modules(${DEPENDENCY} REQUIRED ${dependency})
 				    include_directories(${${MODULE_INCLUDE_DIRS}})
                 endforeach(dependency)
@@ -97,7 +99,8 @@ foreach(directory ${directories_list})
 
 			add_library(${target_name} SHARED ${source} ${CMAKE_CURRENT_BINARY_DIR}/${target_name}PYTHON_wrap.c)
 			set_target_properties(${target_name} PROPERTIES PREFIX "_")
-			target_link_libraries(${target_name} ${POCOLIBS_LIBRARIES} ${PYTHON_LIBRARIES})
+			set_target_properties(${target_name} PROPERTIES SUFFIX ".so")
+			target_link_libraries(${target_name} ${POCOLIBS_LIBRARIES} ${PYTHON3_LIBRARIES})
 			install (FILES ${MODULE_SOURCE_DIR}/__init__.py 
 				${CMAKE_CURRENT_BINARY_DIR}/_${target_name}.so 
 				${CMAKE_CURRENT_BINARY_DIR}/${target_name}.py

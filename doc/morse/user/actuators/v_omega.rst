@@ -11,21 +11,31 @@ The default value in Blender is ``tics = 60``.
 Files 
 -----
 
--  Blender: ``$MORSE_ROOT/data/morse/components/controllers/morse_vw_control.blend``
+-  Blender: ``$MORSE_ROOT/data/morse/actuators/v_omega.blend``
 -  Python: ``$MORSE_ROOT/src/morse/actuators/v_omega.py``
 
 Local data 
 ----------
 
--  **v**: (float) linear velocity
--  **w**: (float) angular velocity
+-  **v**: (float) linear velocity in meters per second
+-  **w**: (float) angular velocity in radians per second
 
 Services
 --------
 
-- **set_speed**: (synchronous service) Modifies v and w according to its
-  parameter
-- **stop**: (synchronous service) Stop the robot (modifies v and w to 0.0)
+- **set_speed**: (synchronous service) Modifies **v** and **w** according to the
+  parameters given.
+
+    +------------+---------------+------------------+
+    | Parameters | ``v``         | float            |
+    |            +---------------+------------------+
+    |            | ``w``         | float            |
+    +------------+---------------+------------------+
+
+    Parameters: ``(v, w)``
+
+
+- **stop**: (synchronous service) Stop the robot (sets **v** and **w** to 0.0)
 
 Applicable modifiers 
 --------------------

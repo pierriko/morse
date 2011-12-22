@@ -3,7 +3,7 @@ Creating a modifier
 
 The concept of a modifier is relatively simple. Their only function is to
 change the data stored in variables in the corresponding component, by using
-the concept of :doc:`hooks <hooks>`. 
+the concept of :doc:`hooks <../user/hooks>`. 
 
 Creating a modifier is more or less the same than creating a sensor. There are
 still two parts, the blender part and the python logic. For the blender part,
@@ -42,7 +42,7 @@ of the component.
 Examples
 --------
 
-`NED_modifier.py <http://trac.laas.fr/git/morse/tree/src/morse/modifiers/ned_mod.py>`_ 
+`NED_modifier.py <http://trac.laas.fr/git/morse/tree/src/morse/modifiers/ned.py>`_ 
 shows a simple example for a modifier.
 
 `GPS_noise.py <http://trac.laas.fr/git/morse/tree/src/morse/modifiers/gps_noise.py>`_ 

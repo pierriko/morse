@@ -46,7 +46,8 @@ class MorseServices:
             try:
                 __import__(modulename)
             except ImportError as detail:
-                logger.error(modulename + " does not exist! Check for typos in the configuration file!")
+                logger.error("Error while importing " + modulename + \
+                             "\nError details:\n" + str(detail))
                 return False
             module = sys.modules[modulename]
 
@@ -57,13 +58,7 @@ class MorseServices:
                 logger.error("Request Manager " + classname + " not found in " + modulename + ". Check for typos in the configuration file!")
                 return False
 
-            try:
-                instance = klass()
-            except MorseServiceError:
-                # Exception during the initialization of the request
-                # manager?
-                # The cause of the exception is likely already logged.
-                return False
+            instance = klass() # In case of instantiation failure, this may raise a MorseServiceError exception
 
             self._request_managers[classname] = instance
             logger.info("Successfully initialized the %s request manager." % classname)
@@ -91,14 +86,20 @@ class MorseServices:
         instance = self._request_managers[request_manager]
 
         if component in self._service_mappings:
-            self._service_mappings[component].append(instance)
+            self._service_mappings[component].add(instance)
         else:
-            self._service_mappings[component] = [instance]
+            self._service_mappings[component] = {instance, }
 
 
     def __del__(self):
         """ Removes all registered request managers, calling their destructors. """
         logger.info("Deleting all request managers...")
+        for rqst_manager in self._request_managers.values():
+            if not rqst_manager.finalization():
+                logger.warning("finalization of the service manager did not complete successfully!")
+            
+            logger.info("%s: service manager closed." % rqst_manager)
+            
         self._request_managers.clear()
         self._service_mappings.clear()
         
@@ -156,8 +157,9 @@ def service(fn = None, component = None, name = None, async = False):
     configuration file).
 
     This decorator works both with free function and for methods in
-    classes inheriting from :py:class:`MorseObjectClass`. In the former
-    case, you must specify a component (your service will belong to this
+    classes inheriting from
+    :py:class:`morse.core.object.MorseObjectClass`. In the former case,
+    you must specify a component (your service will belong to this
     namespace), in the later case, it is automatically set to the name
     of the corresponding MORSE component.
 
@@ -187,9 +189,6 @@ def service(fn = None, component = None, name = None, async = False):
             dfn = fn
             if async:
                 def decorated_fn(self, callback, *param):
-                    if hasattr(decorated_fn, "_morse_service_interruptible"):
-                        logger.debug(decorated_fn.__name__ + " interruptible? " +\
-                                str(decorated_fn._morse_service_interruptible))
                     # Stores in the callback the original calling
                     # service.
                     callback.service = decorated_fn
@@ -197,6 +196,12 @@ def service(fn = None, component = None, name = None, async = False):
                     fn(self, *param)
                 dfn = decorated_fn
                 dfn.__name__ = fn.__name__
+
+                # Copy all special values the original method may have.
+                # This is useful in case of cascading decorator (cf
+                # @ros_action for instance).
+                for attr, value in fn.__dict__.items():
+                    setattr(dfn, attr, value)
 
             dfn._morse_service = True
             dfn._morse_service_name = name

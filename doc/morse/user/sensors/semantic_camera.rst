@@ -4,9 +4,11 @@ Semantic camera sensor
 This sensor emulates a hight level camera that outputs the names of the objects
 that are located within the field of view of the camera.
 
-The sensor determines first which objects are marked with a **Logic Property**
-called **Object**, of type String and which should have the same value as the
-name of the object.
+The sensor determines first which objects are to be tracked (objects marked with
+a **Logic Property** called ``Object``, cf documentation on :doc:`passive
+objects <../others/passive_objects>` for more on that). If the ``Label`` property
+is defined, it is used as exported name. Else the Blender object name is used.
+
 Then a test is made to identify which of these objects are inside of the view
 frustum of the camera. Finally, a single visibility test is performed by casting
 a ray from the center of the camera to the center of the object. If anything
@@ -21,15 +23,15 @@ set to draw **Textured** objects.
 Files
 -----
 
-- Blender: ``$MORSE_ROOT/data/morse/components/sensors/morse_camera.blend``
+- Blender: ``$MORSE_ROOT/data/morse/sensors/semantic_camera.blend``
 - Python: ``$MORSE_ROOT/src/morse/sensors/semantic_camera.py``
 
 
 Local data
 ----------
 
-- **visible_objects**: (List) An array with the names of the objects visible by
-  the camera.
+- **visible_objects**: (List) An array with the names (or labels) of the
+  objects visible by the camera.
 
 Configurable parameters
 -----------------------
@@ -47,3 +49,9 @@ Applicable modifiers
 --------------------
 
 No camera modifiers available at the moment
+
+Related components
+------------------
+
+The movement of the semantic camera is implemented by making it the child of a
+:doc:`Pan-Tilt unit <../actuators/ptu>` actuator.

@@ -9,6 +9,12 @@ It is very particular and different from almost any other computer program avail
 Follow this link for good tutorial on `the use of Blender's interface <http://www.blendercookie.com/getting-started-with-blender/>`_.
 Here we present the most useful commands necessary to operate MORSE.
 
+.. note:: The Blender interface is divided in various panels (windows).
+    The mouse and keyboard shortcuts used change depending on the panel over
+    which the mouse pointer is located.
+    All the following commands are valid for when the **mouse pointer is located
+    inside the 3D View panel**.
+
 Selection of an object 
 ++++++++++++++++++++++
 
@@ -91,7 +97,7 @@ in the same way as First Person Shooter game. The camera can be moved around usi
 - :kbd:`a`/:kbd:`q`, :kbd:`d` to move left and right
 - :kbd:`r`, :kbd:`f` to move up and down
 
-The direction the camera points to is controlled with the mouse.
+The direction the camera points to is controlled with the mouse. Hold down the :kbd:`Ctrl` key while moving the mouse.
 
 It is possible to adjust the speed of the camera movement, by selecting the **CameraFP** object in the scene,
 and adjusting the game properties of the camera object: **Sensitivity** for the mouse, and **Speed** for the keyboard.
@@ -103,6 +109,8 @@ Standard keyboard functions
 The following are key bindings already defined in any simulation scene
 
 - :kbd:`p` key: start the simulation (initiate the Game Engine)
+
+- :kbd:`h` key: show an on screen display with this list of keyboard functions
 
 - :kbd:`Esc` key: stop and exit the simulation (cleaning up the connections)
 
@@ -166,5 +174,4 @@ Using middlewares
 To use one of the available middleware bindings import/export data from the simulated actuators/sensors:
 
 #. Link a middleware object, as explained above
-#. Edit the ``component_config.py`` script to indicate what middleware will be attached to each component,
-as explained in the :doc:`hooks <hooks>` section
+#. Edit the ``component_config.py`` script to indicate what middleware will be attached to each component, as explained in the :doc:`hooks <hooks>` section

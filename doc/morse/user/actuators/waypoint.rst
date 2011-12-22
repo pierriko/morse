@@ -1,12 +1,12 @@
-Waypoint target movement
-========================
+Waypoint actuator
+=================
 
 This actuator reads the coordinates of a destination point, and moves the robot
 towards the given point, with the robot restricted to moving only forward,
 backwards or turning around its Z axis.
 This controller is meant to be used mainly by non-holonomic robots.  
 
-While a robot is moving towards a given waypoint, a property of the **MorseRobotClass** will be changed in indicate the status of the robot. The ``movement_status`` property will change value from **Stop** to **Transit**.
+While a robot is moving towards a given waypoint, a property of the **MorseRobotClass** will be changed in indicate the status of the robot. The ``movement_status`` property will take one of these values: **Stop**, **Transit** or **Arrived**.
 
 The movement speed of the robot is internally adjusted to the Blender time measure,
 following the formula: ``blender_speed = given_speed * tics``, where
@@ -32,8 +32,8 @@ and the robot can get blocked by any object between it and the target.
 Files
 -----
 
--  Blender: ``$MORSE_ROOT/data/morse/components/controllers/morse_destination_control.blend``
--  Python: ``$MORSE_ROOT/src/morse/actuators/destination.py``
+-  Blender: ``$MORSE_ROOT/data/morse/actuators/waypoint.blend``
+-  Python: ``$MORSE_ROOT/src/morse/actuators/waypoint.py``
 
 Local data
 ----------
@@ -77,9 +77,11 @@ Services
     Parameters: ``(x, y, z[, tolerance[, speed]])``
 
 
-- **stop**: (Synchronous service) This method will instruct the robot to go to its current position, and reply immediately. If a **goto** request is ongoing, it will finish at the next tick, and it will itself also reply indicating it has finished.
+- **stop**: (Synchronous service) This method will instruct the robot to set its speed to 0.0, and reply immediately. If a **goto** request is ongoing, it will remain "pending", as the current destination is not changed.
 
-- **get_status**: (Synchronous service) Ask the actuator to send a message indicating the current movement status of the parent robot. There are two possible states: **Transit** and **Stop**.
+- **resume**: (Synchronous service) Restores the speed to the same value as before the last call to the **stop** service. The robot will continue to the last waypoint specified.
+
+- **get_status**: (Synchronous service) Ask the actuator to send a message indicating the current movement status of the parent robot. There are three possible states: **Transit**, **Arrived** and **Stop**.
 
 Applicable modifiers
 --------------------

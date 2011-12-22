@@ -25,64 +25,142 @@ possible. To do so, we encapsulate the potential complexities of Blender,
 Python or Morse.
 
 To test the API step by step, you can open morse, and in the Blender UI, open 
-a Python Console, whithin which you can import this API 
+a Python Console, within which you can import this API 
 ``from morse.builder.morsebuilder import *``
 
-Append a robot
-++++++++++++++
 
-We can append components by their filename (without the .blend enstension)
+.. note:: Configuring the environment variables:
+    It is necessary to indicate the builder where to look for the installed MORSE
+    components in the computer. This is done by specifying the environment variable
+    ``$MORSE_ROOT``, which should point to the prefix directory used during MORSE installation.
 
-* to do so, in Blender 2.57+ we just need to have blender-file containing only 
-  1 root-object, and as many sub-object as we want, knowing that they'll all be 
-  appended.
-* in Blender 2.56, it's a bit more tricky, since we don't yet have the 
-  `bpy.data.libraries.load 
-  <http://www.blender.org/documentation/blender_python_api_2_57_release/bpy.types.BlendDataLibraries.html>`_ 
-  method, so we need to generate a components-dictionnary to associate a 
-  blender file to its objects. cf. ``morse.builder.data.MORSE_COMPONENTS_DICT``
 
-To append a robot on the scene, we just need to write:
+Classes and methods in the Builder API
+--------------------------------------
+
+The AbstractComponent base class
+++++++++++++++++++++++++++++++++
+
+All the basis component classes used in the Builder API inherit from a base class
+``AbstractComponent``. This class provides the following methods:
+
+ * **name**: change the object name in Blender
+ * **translate**: The translation will add (x,y,z) to the current object
+   location (default: x=0, y=0, z=0, unit: meter).
+ * **rotate**: The rotation is an `euler rotation
+   <http://www.blender.org/documentation/blender_python_api_2_57_release/bpy.types.Object.html#bpy.types.Object.rotation_euler>`_
+   relative to the object's center (default: x=0, y=0, z=0, unit: radian).
+ * **properties**: Allows adding/changing the game properties of the Blender
+   objects. It receives a list of named items: ``name``=``value``, separated by
+   commas.
+ * **append**: Add the object given as an argument as a child of this object.
+   The argument is an instance to another component. This method is generally
+   used to add components to a robot.
+
+This base class has one concrete subclass that can be use to insert static
+(passive) objects to your simulation:
+
+ * :py:class:`morse.builder.morsebuilder.PassiveObject`
+
+.. note::
+   When creating instances of this classe, it is necessary to give as
+   parameter to the constructor the names of the blender file that 
+   contains the desired asset. Path can be absolute or relative to MORSE 
+   assets' installation path (typically, ``$PREFIX/share/data/morse``).
+
+The Component classes
++++++++++++++++++++++
+
+The class ``Component`` inherits directly from ``AbstractComponent`` and adds
+more functions:
+
+ * **configure_mw**: Do the binding between a component and the method to
+   export/import its data. This must be used in general by sensors and
+   actuators. A single component can make several calls to this function to add
+   bindings with more than one middleware. The parameter can be either the name
+   of the middleware, or a list containing the full path to the middleware
+   class and methods that the object will use.
+ * **configure_service**: Similar to the previous function. Its argument is the
+   name of the middleware to be used.
+ * **configure_modifier**
+ * **configure_overlay**
+
+These configuration functions make use of a dictionary defined in the file:
+``$MORSE_ROOT/src/morse/builder/data.py``. In these dictionaries, the keys are
+the names of the middlewares and the values are the default configurations that
+should be written in the ``component_config.py`` file.
+
+There are four subclasses of the ``Component`` class that are used to add
+components to a scene.  An instance of these classes must be created to insert
+a new component
+
+ * :py:class:`morse.builder.morsebuilder.Robot`
+ * :py:class:`morse.builder.morsebuilder.Sensor`
+ * :py:class:`morse.builder.morsebuilder.Actuator`
+ * :py:class:`morse.builder.morsebuilder.Environment`
+
+.. note::
+   When creating instances of these classes, it is necessary to give as
+   parameters to the constructors the names of the blender files (without the
+   *.blend* extension) that contain the required component. These files should
+   be present under ``$MORSE_ROOT/share/data/morse/{class}/``.
+
+Environment class
++++++++++++++++++
+
+This is a special case of component that **MUST** be added to a scene.
+When an instance of this class is created, it will do several things to properly
+configure the scenario to be used in MORSE.
+
+ * Add the background environment where the robots will be tested
+ * Configure the general Game Engine settings
+ * Write the configuration files for the simulation, based on the configurations done
+    for each component
+ * Configure the parameters for the :doc:`multi-node <../multinode>` simulation.
+
+The ``Environment`` class provides these functions:
+
+ * **show_framerate**: Toggle the settings in the Game Engine to display
+   framerate and profile information of the simulation.  The parameter is a
+   boolean value indicating whether to show or not this information.
+ * **show_physics**: Toggle the display of the bounding boxes of objects during
+   the simulation.  The parameter is a boolean value indicating whether to show
+   or not this information.
+ * **show_debug**: Toggle the printing of the value of the Game Properties
+   marked.  The parameter is a boolean value indicating whether to show or not
+   this information.
+ * **aim_camera**: Set the orientation of the default camera. The parameter is
+   a list with an euler rotation for the camera. Example: *([1.3300, 0,
+   0.7854])*
+ * **place_camera**: Set the location of the default camera. The parameter is a
+   list with the new 3D coordinates for the camera. Example: *([10.0, -10.0,
+   3.0])*
+ * **configure_node**: Provide the information necessary for the node to
+   connect to a multi-node server. The parameter is a list of named items.
+   Example: *(protocol="socket", node_name="NODE A",
+   server_address="140.93.0.93", server_port="65000")* The items accepted in as
+   parameters are:
+    * **protocol**: Either 'socket' or 'hla'
+    * **node_name**: Unique name used as an identifier for each node
+    * **server_address**: IP address where the multi-node server can be found
+    * **server_port**: Used only for 'socket' protocol. Currently it should always be 65000.
+ * **create()**: Should always be called at the very end of the Builder script.
+   It will finalise the building process and write the configuration files.
+
+Note also that the ``configure_service()`` method of the ``Environment`` class
+is overloaded: use it to define which middlewares expose the *simulator
+internals services* (*i.e.*, the services used to remotely control the
+simulator behaviour, cf :doc:`supervision services
+<../user/supervision_services>`):
 
 .. code-block:: python
 
-    atrv = Robot('atrv')
+    env = Environement('indoors-1/indoor-1')
+    # Set the simulation management services to be available from ROS:
+    env.configure_service("ros")
 
-In order to make this work, we should have a blender-file name atrv.blend in 
-the robots folder of ``MORSE_COMPONENTS`` (which is still hard-coded in 
-``morse.builder.data`` as ``'/usr/local/share/data/morse/components'``).
-
-Append a component
-++++++++++++++++++
-
-This taks is verry similar to the previous one, except that we can make a 
-parent relationship with the robot. ie.:
-
-.. code-block:: python
-
-    motion = Controller('morse_vw_control')
-    atrv.append(motion)
-
-Once again, this imply that ``morse_vw_control.blend`` exists in 
-``MORSE_COMPONENTS/controllers/``.
-
-cf. code/morse.builder.html#morse.builder.morsebuilder.Component
-
-Move a component
-++++++++++++++++
-
-There is 2 way to move a component: ``translate(x,y,z)`` and ``rotate(x,y,z)``.
-
-* The translation will add (x,y,z) the the current object location 
-  (default: x=0, y=0, z=0, unit: meter).
-* The rotation is an `euler rotation 
-  <http://www.blender.org/documentation/blender_python_api_2_57_release/bpy.types.Object.html#bpy.types.Object.rotation_euler>`_ 
-  relative to the object's center (default: x=0, y=0, z=0, unit: radian).
-
-.. code-block:: python
-
-    motion.translate(x=.2, z=1)
-    atrv.rotate(z=3.14)
+Detailed explanations of class functions
+----------------------------------------
 
 Component properties
 ++++++++++++++++++++
@@ -92,106 +170,48 @@ You can modify the game-properties of any components within Python
 
 .. code-block:: python
 
-    sick = Sensor('morse_sick')
+    sick = Sensor('sick')
     sick.properties(resolution = 1)
-    cam = Sensor('morse_camera')
+    cam = Sensor('video_camera')
     cam.properties(cam_width = 128, cam_height = 128)
 
 Middleware configuration
 ++++++++++++++++++++++++
 
-In order to set a component-middleware-method, we have two options, the first 
-one is simple for the user, but requier some pre-configuration (dictionnary) 
-and eventualy restriction (middleware-component = 1 method). 
+The builder script also permits creating the required ``component_config.py``
+for the scene according to the robot and components being inserted. This is
+done automatically so that the user does not need to modify said script by
+hand.
+
+The middleware controllers required by the configuration will be automatically
+added to the scene when the builder script is parsed.
+
+In order to set a component-middleware-method, we have two options, the first
+one is simple for the user, but requires some pre-configuration (a dictionary
+defined in the file ``src/morse/builder/data.py``). The argument of the 'configure_mw'
+method is a string with the name of the middleware.
 
 .. code-block:: python
 
-    ros.configure(motion)
+    motion.configure_mw('ros')
+    motion.configure_mw('yarp')
 
 cf. ``morse.builder.data.MORSE_MIDDLEWARE_DICT``
 
+More than one middleware can be configured for the same component, by using
+several calls to the component.configure_mw method.
+
 The second one is a bit less simple for the end-user.
+It consists of including the description of the middleware binding just as it
+would be done by hand in the ``component_config.py`` script:
 
 .. code-block:: python
 
-    ros.configure(motion, ['ROS', 'read_twist', 'morse/middleware/ros/read_vw_twist'])
+    motion.configure_mw('ros', ['ROS', 'read_twist', 'morse/middleware/ros/read_vw_twist'])
 
-cf. `user/hooks.html` and `user/tutorial.html#configuring-the-middlewares`
-
-Example
--------
-
-.. code-block:: python
-
-    from morse.builder.morsebuilder import *
-
-    # Append ATRV robot to the scene
-    atrv = Robot('atrv')
-
-    # Append an actuator
-    motion = Controller('morse_vw_control')
-    motion.translate(z=0.3)
-    atrv.append(motion)
-
-    # Append an odometry sensor
-    odometry = Sensor('morse_odometry')
-    odometry.translate(x=-0.1, z=0.83)
-    atrv.append(odometry)
-
-    # Append a proximity sensor
-    proximity = Sensor('morse_proximity')
-    proximity.translate(x=-0.2, z=0.83)
-    atrv.append(proximity)
-
-    # Append a Pose sensor (GPS + Gyroscope)
-    pose = Sensor('morse_pose')
-    pose.translate(x=0.2,z=0.83)
-    atrv.append(pose)
-
-    # Append a sick laser
-    sick = Sensor('morse_sick')
-    sick.translate(x=0.18,z=0.94)
-    atrv.append(sick)
-    sick.properties(resolution = 1)
-
-    # Append a camera
-    cam = Sensor('morse_camera')
-    cam.translate(x=0.3,z=1.1)
-    atrv.append(cam)
-    cam.properties(cam_width = 128, cam_height = 128)
-
-    # Insert the middleware object
-    ros = Middleware('ros_empty')
-
-    # Configure the middlewares
-    ros.configure(motion)
-    ros.configure(odometry)
-    ros.configure(proximity)
-    ros.configure(pose)
-    ros.configure(sick)
-    ros.configure(cam)
+cf. :doc:`hooks <../user/hooks>` and :doc:`tutorial
+<../user/tutorial>` (in particular the section configuring middleware) for details.
 
 
-Generate the components dictionnary
------------------------------------
-
-This part is requierd for Blender 2.56 developper (if you add new components, 
-or want to tweak them)
-To do so, you will need Blender 2.57 (I know it doesn't smell usual) since the 
-`bpy.data.libraries.load 
-<http://www.blender.org/documentation/blender_python_api_2_57_release/bpy.types.BlendDataLibraries.html>`_ 
-method is verry convinient to read the content of a blender file.
-
-cf. ``morse.builder.data.MORSE_COMPONENTS_DICT``
-
-cf. ``morse.builder.generator.generate()``
-
-cf. code/morse.builder.html#module-morse.builder.generator
-
-TODOs
------
-
-With this small set of class / proof of concept, we can imagine some tools 
-integrated in the Blender GUI to let user append components easily.
-
-
+Take a look at an :doc:`example Builder script <builder_example>` to see how
+all of this works.

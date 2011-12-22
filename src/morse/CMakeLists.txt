@@ -4,12 +4,14 @@ INSTALL(FILES __init__.py #init_middleware.py
         DESTINATION ${PYTHON_INSTDIR}/morse
         )
 
-INSTALL(DIRECTORY core actuators geolandloader helpers blender sensors robots builder
+INSTALL(DIRECTORY core actuators geolandloader helpers blender sensors services robots testing
         DESTINATION ${PYTHON_INSTDIR}/morse
         REGEX .*py.$ EXCLUDE
         )
 
+ADD_SUBDIRECTORY(builder)
 ADD_SUBDIRECTORY(modifiers)
 endif()
 
+ADD_SUBDIRECTORY(multinode)
 ADD_SUBDIRECTORY(middleware)

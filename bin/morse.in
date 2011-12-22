@@ -3,10 +3,14 @@ import sys
 import os
 import logging
 ## Configuring default logging
-from morse.core.ansistrm import ColorizingStreamHandler
+try:
+	from morse.core.ansistrm import ColorizingStreamHandler
+	log_handler = ColorizingStreamHandler()
+except ImportError:
+	log_handler = logging.StreamHandler()
+
 logger = logging.getLogger('morse')
 
-log_handler = ColorizingStreamHandler()
 formatter = logging.Formatter("* %(message)s\n")
 log_handler.setFormatter(formatter)
 
@@ -18,21 +22,23 @@ import subprocess
 import shutil
 import glob
 import re
+import tempfile
 
 VERSION = "@PACKAGE_VERSION@"
 
 #Python version must be egal or bigger than...
-MIN_PYTHON_VERSION = "3.0"
+MIN_PYTHON_VERSION = "3.2"
 #Python version must be smaller than...
 STRICT_MAX_PYTHON_VERSION = "4.0"
 
 #Blender version must be egal or bigger than...
-MIN_BLENDER_VERSION = "2.54"
+MIN_BLENDER_VERSION = "2.59"
 #Blender version must be smaller than...
 STRICT_MAX_BLENDER_VERSION = "3"
 
 #Unix-style path to the MORSE default scene, within the prefix
 DEFAULT_SCENE_PATH = "share/data/morse/morse_default.blend"
+DEFAULT_SCENE_AUTORUN_PATH = "share/data/morse/morse_default_autorun.blend"
 
 #MORSE prefix (automatically detected)
 morse_prefix = ""
@@ -52,7 +58,7 @@ def retrieve_blender_from_path():
         blenders_in_path = subprocess.Popen(
                                 ['which', '-a', 'blender'], 
                                 stdout=subprocess.PIPE).communicate()[0]
-        res = str(blenders_in_path).split('\n')[:-1]
+        res = blenders_in_path.decode().splitlines()
     except OSError:
         return []
     
@@ -63,9 +69,7 @@ def check_blender_version(blender_path):
         version_str = subprocess.Popen(
                                 [blender_path, '--version'], 
                                 stdout=subprocess.PIPE).communicate()[0]
-        # Convert the bytes into a string
-        if sys.version_info>(3,0,0):
-            version_str = str(version_str)
+        version_str = version_str.decode()
         version = version_str.split()[1] + '.' + version_str.split()[3][:-1]
     except OSError:
         return None
@@ -81,36 +85,25 @@ def check_blender_version(blender_path):
 def check_blender_python_version(blender_path):
     """ Creates a small Python script to execute within Blender and get the 
     current Python version bundled with Blender
-    
-    TODO: this method doesn't works because I couldn't find a way to exit 
-    Blender in Python...
-    For now, we don't check Python version in Blender.
-    >>> blender -b or --background
     """
+    with tempfile.NamedTemporaryFile() as tmpF:
+        tmpF.write(b"import sys\n")
+        tmpF.write(b"print('>>>' + '.'.join((str(x) for x in sys.version_info[:2])))\n")
+        tmpF.flush()
     
-    with open("python_checker.py", "w") as f:
-        f.write("import sys\n")
-        f.write("print('.'.join((str(x) for x in sys.version_info[:2])))\n")
+        try:
+            version_str = subprocess.Popen(
+                      [blender_path, '-b', '-P', tmpF.name], 
+                      stdout=subprocess.PIPE).communicate()[0]
+            version_str = version_str.decode()
+            version = version_str.split('>>>')[1][0:3]
+        except (OSError, IndexError):
+            return None
     
-    try:
-        version_str = subprocess.Popen(
-                  [blender_path, '-b', '-P', 'python_checker.py'], 
-                  stdout=subprocess.PIPE).communicate()[0].split()[0]
-        version = version_str.decode()
-    except OSError:
-        os.remove("python_checker.py")
-        return None
+        logger.info("Checking version of Python within Blender " + blender_path + \
+                        "... Found v." + version)
     
-    logger.info("Checking version of Python within Blender " + blender_path + \
-                    "... Found v." + version)
-    
-    if  version.split('.') >= MIN_PYTHON_VERSION.split('.') and \
-        version.split('.') < STRICT_MAX_PYTHON_VERSION.split('.') :
-            os.remove("python_checker.py")
-            return version
-    else:
-        os.remove("python_checker.py")
-        return False
+        return version
         
 def check_default_scene(prefix):
     
@@ -136,7 +129,7 @@ def check_setup():
     ###########################################################################
     #Check platform
     if not 'linux' in sys.platform:
-        logger.warning("MORSE has only been tested on Linux. It may work " + \
+        logger.warning("MORSE has only been tested on Linux. It may work\n" + \
         "on other operating systems as well, but without any guarantee")
     else:
         logger.info("Running on Linux. Alright.")
@@ -152,10 +145,10 @@ def check_setup():
             break
             
     if not found:
-        logger.error(  "We could not find the MORSE Python libraries in your " +\
-                        "system. If MORSE was installed to some strange location, " + \
-                        "you may want to add it to your PYTHONPATH." + \
-                        " Check INSTALL for more details.")
+        logger.error(  "We could not find the MORSE Python libraries in your\n" +\
+                        "system. If MORSE was installed to some strange location,\n" + \
+                        "you may want to add it to your PYTHONPATH.\n" + \
+                        "Check INSTALL for more details.")
         raise MorseError("PYTHONPATH not set up.")
     ###########################################################################
     #Detect MORSE prefix
@@ -192,8 +185,8 @@ def check_setup():
             logger.info("Setting $MORSE_ROOT environment variable to default prefix [" + prefix + "]")
         
         except MorseError as me:
-            logger.error("Could not find the MORSE default scene (I was expecting it " + \
-                    "\nthere: " + me.value + ").\n" + \
+            logger.error("Could not find the MORSE default scene (I was expecting it\n" + \
+                    "there: " + me.value + ").\n" + \
                     "If you've installed MORSE files in an exotic location, check that \n" + \
                     "the $MORSE_ROOT environment variable points to MORSE root directory.\n" + \
                     "Else, try to reinstall MORSE.")
@@ -255,20 +248,17 @@ def check_setup():
     
     ###########################################################################
     #Check Python version within Blender
-    #TODO: skipped for now. See check_blender_python_version() docstring for details
-    '''
     python_version = check_blender_python_version(blender_exec)
     if not (python_version.split('.') >= MIN_PYTHON_VERSION.split('.') and 
             python_version.split('.') < STRICT_MAX_PYTHON_VERSION.split('.')):
         logger.error("Blender is using Python " + python_version + \
         ". Python  >= " + MIN_PYTHON_VERSION + " and < " + STRICT_MAX_PYTHON_VERSION + \
-        " is required to run MORSE. Note the Blender usually provide it owns " + \
+        " is required to run MORSE. Note that Blender usually provides its own " + \
         "Python runtime that may differ from the system one.")
         raise MorseError("Bad Python version")
     else:
         logger.info("Blender is using Python " + python_version + \
         ". Alright.")
-    '''
 
 def create_copy_default_scene(filename = None):
     """
@@ -309,15 +299,22 @@ def prelaunch():
         "You can also run 'morse check' for more details.")
         sys.exit()
 
-def launch_simulator(scene=None, script=None):
-    """Starts Blender on an empty new scene or with a given scene."""
-    
+def launch_simulator(scene=None, script=None, node_name=None, script_options = []):
+    """Starts Blender on an empty new scene or with a given scene.
+
+
+    :param list script_options: if specified, elements of this list are passed
+            to the Python script (and are accessible via sys.argv)
+    """
+
     global morse_prefix, blender_exec, default_scene_abspath
     
     logger.info("*** Launching MORSE ***\n")
     logger.info("PREFIX= " + morse_prefix)
     
     if not scene:
+        if not script: # in case of no argument, execute a default script
+            script = default_scene_abspath[:-5]+'py'
         scene = create_copy_default_scene()
         logger.info("Creating new scene " + scene)
         
@@ -337,22 +334,23 @@ def launch_simulator(scene=None, script=None):
     env = os.environ
     env["PYTHONPATH"] = ":".join(sys.path)
 
+    # Add the MORSE node name to env.
+    if node_name != None:
+        env["MORSE_NODE"] = node_name
+    
     #Replace the current process by Blender
     if script != None:
         logger.info("Executing Blender script: " + script)
-        os.execle(blender_exec, blender_exec, scene, "-P", script, env)
+        if script_options:
+            script_options.append(env)
+            os.execle(blender_exec, blender_exec, scene, "-P", script, "--", *script_options)
+        else:
+            os.execle(blender_exec, blender_exec, scene, "-P", script, env)
     else:
         os.execle(blender_exec, blender_exec, scene, env)
 
-def launch_simulation(scene):
-    """
-    Runs a specified simulation from a blend file without opening Blender.
-    """
-    logger.error("Not yet implemented")
-    sys.exit(1)
-
 def version():
-    print("morse " + VERSION + "\nCopyright LAAS-CNRS 2011")
+    print("morse " + VERSION + "\nCopyright LAAS-CNRS 2011\n")
 
 def help(cmd=None):
     
@@ -360,13 +358,15 @@ def help(cmd=None):
         print ("""morse [command] [options]
 
 Known commands:
-  [None]            launchs the simulator interface with a default scene.
-  create filename   creates a new empty scene and launchs the simulator interface.
-  run filename      runs a simulation without loading the simulator interface.
-  exec filename     runs the given Python script with a default scene.
-  check             checks the environment is correctly setup to run morse.
-  help              displays this message and exits.
-  version           displays the version number and exits.
+  [None]                 launchs the simulator interface with a default scene.
+  create filename        creates a new empty scene and launchs the simulator
+                         interface.
+  run filename [options] runs a simulation without loading the simulator 
+                         interface.
+  exec filename          runs the given Python script with a default scene.
+  check                  checks the environment is correctly setup to run morse.
+  help                   displays this message and exits.
+  version                displays the version number and exits.
 
 'morse' followed by a Blender file name opens the simulator with this scene.
 
@@ -374,14 +374,16 @@ Use help [command] to get more help on a specific command.""")
         return
 
     if cmd == "run":
-        print ("""morse run file_name
+        print ("""morse run file_name [script options]
 
 Runs a simulation without loading the simulator interface. Equivalent
 to the sequence [open a Blend file in the simulator, switch to 
 fullscreen, press P].
 
-file_name must be a Blender file containing a simulation already
-set up.
+file_name can be either a Blender file containing a simulation already
+set up or a Python script using the MORSE Builder API.
+
+In the later case, optional options can be passed to the script.
 """)
     else:
         print("No help for \"" + cmd + "\".")
@@ -391,6 +393,7 @@ if __name__ == '__main__':
 
     
     if len(sys.argv) > 1:
+        
         if sys.argv[1] in ["help", "--help", "-h"]:
             if len(sys.argv) > 2:
                 help(sys.argv[2])
@@ -417,26 +420,44 @@ if __name__ == '__main__':
                 logger.error("'create' option expect exactly one option (a filename)")
                 sys.exit()
         elif sys.argv[1] in ["run"]:
-            launch_simulation()
-        elif sys.argv[1] in ["exec"]:
-            if len(sys.argv) == 3:
+            if len(sys.argv) >= 3:
                 prelaunch()
-                launch_simulator(script=sys.argv[2])
+                script_options = sys.argv[3:]
+                launch_simulator(
+                   os.path.join(morse_prefix, DEFAULT_SCENE_AUTORUN_PATH), \
+                   sys.argv[2], \
+                   script_options = script_options)
             else:
-                logger.error("'exec' option expect exactly one option (a filename)")
+                logger.error("'run' option expect exactly one option (a filename)")
                 sys.exit()
-        
-        else:
-            #The first argument is the scene name?
-            if sys.argv[1].endswith(".blend"):
-                prelaunch()
-                launch_simulator(sys.argv[1])
-            elif sys.argv[1].endswith(".py") | sys.argv[1].endswith(".morse"):
-                prelaunch()
-                launch_simulator(script=sys.argv[1])
+        elif sys.argv[1] in ["exec"]:
+            if len(sys.argv) < 3:
+                logger.error("'exec' option expect at least one option (a filename)")
+                sys.exit()
+            prelaunch()
+            node_name = os.uname()[1]
+            if len(sys.argv) > 3:
+                node_name = sys.argv[3]
+            launch_simulator(script=sys.argv[2], node_name=node_name)
             
-            else:
-                logger.error("Unknown option: " + sys.argv[1])
+        else:
+            scene = None
+            script = None
+            args = sys.argv[1:]
+            for arg in args:
+                if arg.endswith(".blend"):
+                    scene = arg
+                    break
+            for arg in args:
+                if arg.endswith(".py"):
+                    script = arg
+                    break
+            if not scene and not script:
+                logger.error("Unknown option: " + str(args))
+                help()
+                sys.exit()
+            prelaunch()
+            launch_simulator(scene, script)
     
     else:
         

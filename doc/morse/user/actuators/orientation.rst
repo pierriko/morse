@@ -9,17 +9,17 @@ Angles are expected in radians.
 Files 
 -----
 
--  Blender: ``$MORSE_ROOT/data/morse/components/controllers/morse_orientation_control.blend``
+-  Blender: ``$MORSE_ROOT/data/morse/actuators/orientation.blend``
 -  Python: ``$MORSE_ROOT/src/morse/actuators/orientation.py``
 
 Local data 
 ----------
 
--  **rx**: (float) rotation around X axis
--  **ry**: (float) rotation around Y axis
--  **rz**: (float) rotation around Z axis
+-  **yaw**: (float) rotation around Z axis
+-  **pitch**: (float) rotation around Y axis
+-  **roll**: (float) rotation around X axis
 
 Applicable modifiers 
 --------------------
 
-No available modifiers
+- :doc:`NED <../modifiers/ned>`: Changes the angles reference to use North (X), East (Y), Down (Z)

@@ -9,10 +9,10 @@ import GameLogic
 class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
     """ Handle communication between Blender and YARP."""
 
-    def __init__(self, obj, parent=None):
+    def __init__(self):
         """ Initialize the network and connect to the yarp server."""
         # Call the constructor of the parent class
-        super(self.__class__,self).__init__(obj, parent)
+        super(self.__class__,self).__init__()
 
         self._yarpPorts = dict()
         self._component_ports = dict()
@@ -45,9 +45,9 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
         # Extract the information for this middleware
         # This will be tailored for each middleware according to its needs
         function_name = mw_data[1]
-        remote = None
-        if len(mw_data) > 2:
-            remote = mw_data[2]
+        topic = None
+        if len(mw_data) > 3:
+            topic = mw_data[3]
 
         function = self._check_function_exists(function_name)
         # The function exists within this class,
@@ -58,8 +58,6 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
                 port_name = port_name + '/in'
                 self.registerBufferedPortBottle([port_name])
                 component_instance.input_functions.append(function)
-                #if remote != None:
-                    #self.connectPorts(remote, "/ors/"+port_name)
                 # Store the name of the port
                 self._component_ports[component_name] = port_name
             # Data write functions
@@ -67,8 +65,6 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
                 port_name = port_name + '/out'
                 self.registerBufferedPortBottle([port_name])
                 component_instance.output_functions.append(function)
-                #if remote != None:
-                    #self.connectPorts("/ors/"+port_name, remote)
                 # Store the name of the port
                 self._component_ports[component_name] = port_name
             # Image write functions
@@ -76,8 +72,6 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
                 port_name = port_name + '/out'
                 self.registerBufferedPortImageRgba([port_name])
                 component_instance.output_functions.append(function)
-                #if remote != None:
-                    #self.connectPorts("/ors/"+port_name, remote)
                 # Store the name of the port
                 self._component_ports[component_name] = port_name
             # If it is an external function that has already been added
@@ -105,6 +99,11 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
             except IndexError as detail:
                 logger.error("Method '%s' is not known, and no external module has been specified. Check the 'component_config.py' file for typos" % function_name)
                 return
+            
+        # Connect to topic
+        if topic:
+            logger.info("Yarp connecting port %s to topic %s" % (port_name, topic))
+            self.connect2topic(port_name, topic)
 
 
     def read_message(self, component_instance):
@@ -140,7 +139,7 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
                     msg_data = message_data.get(i).toString()
                     component_instance.local_data[variable] = msg_data
                 else:
-                    logger.error("Unknown data type at 'read_message'")
+                    logger.error("Unknown data type at 'read_message', with component '%s'" % component_instance.blender_obj.name)
                     logger.info("DATA: ", data, " | TYPE: ", type(data))
                 i = i + 1
             return True
@@ -174,7 +173,7 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
             elif isinstance(data, str):
                 bottle.addString(data)
             else:
-                logger.error("Unknown data type at 'post_message'")
+                logger.error("Unknown data type at 'post_message', with component '%s'" % component_instance.blender_obj.name)
                 # Trying to store 'type(data)' causes an error in the logger.
                 # Because the type is not directly printable.
                 # This is caused when sending a dictionary type
@@ -226,7 +225,7 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
     def registerBufferedPortBottle(self, portList):
         """ Create a new Buffered Port Bottle, given an identifying name. """
         for portName in portList:
-            portName = '/ors/'+portName
+            portName = '/morse/'+portName
             if portName not in self._yarpPorts:
                 logger.debug('Yarp Mid: Adding ' + portName + ' buffered bottle port.')
                 port = self._yarp_module.BufferedPortBottle()
@@ -240,7 +239,7 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
         """ Create a new Buffered Port Bottle, given an identifying name.
             This is exclusively used for image data."""
         for portName in portList:
-            portName = '/ors/'+portName
+            portName = '/morse/'+portName
             if portName not in self._yarpPorts:
                 logger.debug('Yarp Mid: Adding ' + portName + ' buffered image port.')
                 port = self._yarp_module.BufferedPortImageMono()
@@ -253,7 +252,7 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
         """ Create a new Buffered Port Bottle, given an identifying name.
             This is exclusively used for image data."""
         for portName in portList:
-            portName = '/ors/'+portName
+            portName = '/morse/'+portName
             if portName not in self._yarpPorts:
                 logger.debug('Yarp Mid: Adding ' + portName + ' buffered image port.')
                 port = self._yarp_module.BufferedPortImageRgb()
@@ -266,7 +265,7 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
         """ Create a new Buffered Port Bottle, given an identifying name.
             This is exclusively used for image data."""
         for portName in portList:
-            portName = '/ors/'+portName
+            portName = '/morse/'+portName
             if portName not in self._yarpPorts:
                 logger.debug('Yarp Mid: Adding ' + portName + ' buffered image port.')
                 port = self._yarp_module.BufferedPortImageRgba()
@@ -279,7 +278,7 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
         """ Open a simple yarp port.
             Used to send image data (Works better than a buffered port)."""
         for portName in portList:
-            portName = '/ors/'+portName
+            portName = '/morse/'+portName
             if portName not in self._yarpPorts:
                 logger.debug('Yarp Mid: Adding ' + portName + ' port.')
                 port = self._yarp_module.Port()
@@ -294,14 +293,14 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
             port.close()
 
         #self._network.fini()
-        #self._yarp_module.Network.fini()
+        self._yarp_module.Network.fini()
         #yarp.Network.fini()
         logger.info('Yarp Mid: ports have been closed.')
 
 
     def getPort(self, portName):
         """ Retrieve a yarp port associated to the given name."""
-        port = '/ors/' + portName
+        port = '/morse/' + portName
         return self._yarpPorts[port]
 
 
@@ -311,7 +310,19 @@ class MorseYarpClass(morse.core.middleware.MorseMiddlewareClass):
         for name, port in self._yarpPorts.items():
             logger.info(" - Port name '{0}' = '{1}'".format(name, port))
             
-    def connectPorts(self, source, target):
-        """ Connect a yarp source to a specific yarp target.
-            Can be used to publish or subscribe to a yarp topic. """
-        self.yarp_object.connect(source, target)
+    def connect2topic(self, port, topic):
+        """ Connect a yarp port to a specific yarp topic. """
+        if port in self._yarpPorts:
+            pass
+        else:
+            try:
+                port = self.getPort(port).getName().c_str()
+            except KeyError:
+                try:
+                    port = self.getPort(port+"/in").getName().c_str()
+                except KeyError:
+                    port = self.getPort(port+"/out").getName().c_str()
+        if port[-2:] == "in":
+            self.yarp_object.connect("topic://"+topic, port)
+        else:
+            self.yarp_object.connect(port, "topic://"+topic)
