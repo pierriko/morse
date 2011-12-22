@@ -27,7 +27,7 @@ MORSE_MIDDLEWARE_MODULE = {
     'yarp': 'morse.middleware.yarp_mw.MorseYarpClass',
     'pocolibs': 'morse.middleware.pocolibs_mw.MorsePocolibsClass',
     'text': 'morse.middleware.text_mw.TextOutClass',
-	'moos': 'morse.middleware.moos.MOOSClass',
+	'moos': 'morse.middleware.moos_mw.MOOSClass',
 }
 
 """
@@ -127,17 +127,17 @@ MORSE_MIDDLEWARE_DICT = {
         'ptu_posture': [MORSE_MIDDLEWARE_MODULE['pocolibs'], 'write_platine_posture', 'morse/middleware/pocolibs/sensors/platine_posture', 'platineState']
     },
 
-	'moos': {
-		'vw_control': [MORSE_MIDDLEWARE_MODULE['MOOS'], 'read_message'],
-		'vw_diff_drive_control': [[MORSE_MIDDLEWARE_MODULE['MOOS'], 'read_message'],
-		'sick': [[MORSE_MIDDLEWARE_MODULE['MOOS'], 'post_2DLaserScan', 'morse/middleware/moos/sick'],
-		'pose': [[MORSE_MIDDLEWARE_MODULE['MOOS'], 'post_pose', 'morse/middleware/moos/pose'],
-		'imu': [[MORSE_MIDDLEWARE_MODULE['MOOS'], 'post_imu', 'morse/middleware/moos/imu'],
-		'wheel_encoders': [[MORSE_MIDDLEWARE_MODULE['MOOS'], 'post_wheel_encoders', 'morse/middleware/moos/wheel_encoders'],
-		'gps': [[MORSE_MIDDLEWARE_MODULE['MOOS'], 'post_gps', 'morse/middleware/moos/gps'],
-		'gyroscope': [[MORSE_MIDDLEWARE_MODULE['MOOS'], 'post_gyroscope','morse/middleware/moos/gyroscope'],
-		'proximity': [[MORSE_MIDDLEWARE_MODULE['MOOS'], 'post_message']
-	}
+    'moos': {
+        'vw_control': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
+        'vw_diff_drive_control': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
+        'sick': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_2DLaserScan', 'morse/middleware/moos/sick'],
+        'pose': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_pose', 'morse/middleware/moos/pose'],
+        'imu': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_imu', 'morse/middleware/moos/imu'],
+        'wheel_encoders': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_wheel_encoders', 'morse/middleware/moos/wheel_encoders'],
+        'gps': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_gps', 'morse/middleware/moos/gps'],
+        'gyroscope': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_gyroscope','morse/middleware/moos/gyroscope'],
+        'proximity': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_message']
+    }
 
 }
 
