@@ -196,11 +196,9 @@ class Component(AbstractComponent):
         # search through the objects and look for the main robot 
         # object by checking for a 'XX_Tag' property
         # - FIX THIS LATER: just check for any properties right now 
-        print('name: ' + name)
         for obj in bpy.context.selected_objects:
              if (len(obj.game.properties)>0):
                 self._blendobj=obj
-                print(obj.name)
                 break;
              
 class Robot(Component):
