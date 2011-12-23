@@ -457,14 +457,18 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
 
     def AttachWheelToBody(self, wheel, parent, wheelPos):
         """ Attaches the wheel to the given parent using a 6DOF constraint """
-        #result = parent.getVectTo(wheel);
+        # set the wheel positions relative to the robot in case the
+        # chassis was moved by the builder script or manually in blender
+        globalWheelPos=wheelPos+parent.worldPosition
+        wheel.worldPosition=globalWheelPos
+        
+        # get the new relative position and use it for the constraints
+        result = parent.getVectTo(wheel);
         ## result is a unit vector (result[2]) and a length(result[0])
         ## multiply them together to get the complete vector
-        #wheelPos=result[0]*result[2]
-        #logger.debug("Wheel Position: (%.4f, %.4f, %.4f)" % (wheelPos[0], wheelPos[1], wheelPos[2]))
-        print(wheel.name)
-        print(wheelPos)
-        # create a 6 DOF 
+        wheelPos=result[0]*result[2]        
+
+        # create constraint to allow wheel to spin
         joint = PhysicsConstraints.createConstraint( parent.getPhysicsId(),  # get physics ID of the parent object
                                      wheel.getPhysicsId(),  # get physics ID of the wheel object
                                      12,    # 6dof constraint
