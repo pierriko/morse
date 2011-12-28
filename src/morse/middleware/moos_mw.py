@@ -11,7 +11,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         """ Initialize the MOOS app"""
         super(self.__class__,self).__init__()
         logger.info("Middleware initialization")
-        self.m = pymoos.MOOSCommClient.MOOSApp()
+        self.m = pymoos.MOOSCommClient.MOOSCommClient()
         # intialize MOOS and MORSE times
         self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
         self.current_sim_time=GameLogic.current_sim_time
