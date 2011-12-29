@@ -468,6 +468,8 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
         ## multiply them together to get the complete vector
         wheelPos=result[0]*result[2]        
 
+        logger.debug("Added wheel '%s' at ('%f','%f','%f')" %(wheel.name, wheelPos[0], wheelPos[1], wheelPos[2]))
+
         # create constraint to allow wheel to spin
         joint = PhysicsConstraints.createConstraint( parent.getPhysicsId(),  # get physics ID of the parent object
                                      wheel.getPhysicsId(),  # get physics ID of the wheel object
