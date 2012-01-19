@@ -19,7 +19,7 @@ find_package(Python32Interp REQUIRED)
 find_package(Python32Libs REQUIRED)
 
 EXECUTE_PROCESS(COMMAND
-				${PYTHON3_EXECUTABLE} -c "import distutils.sysconfig, sys; sys.stdout.write(distutils.sysconfig.get_python_lib(0,0,\"\"))"
+					${PYTHON3_EXECUTABLE} -c "import distutils.sysconfig, sys; sys.stdout.write(distutils.sysconfig.get_python_lib(1,0,\"\"))"
 					OUTPUT_VARIABLE PYTHON_INSTALL
 					ERROR_VARIABLE PYTHON_STDERR
 					RESULT_VARIABLE PYTHON_ERR
@@ -76,7 +76,7 @@ ADD_SUBDIRECTORY(testing)
 
 IF(BUILD_CORE_SUPPORT)
 INSTALL (DIRECTORY data examples
-	     DESTINATION ${CMAKE_INSTALL_PREFIX}/share
+	     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/morse
          REGEX .*blend.$ EXCLUDE
          REGEX .*py.$ EXCLUDE
 		 REGEX .*clients.* EXCLUDE
@@ -111,6 +111,7 @@ IF (NOT SPHINX_BUILD)
 ELSE()
 	SET (SPHINX_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/doc/html)
 	SET (SPHINX_LATEX_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/doc/tex)
+	SET (SPHINX_MAN_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/doc/man)
 	ADD_CUSTOM_COMMAND(
 		OUTPUT ${SPHINX_OUTPUT}
 		COMMAND ${SPHINX_BUILD} -b html
@@ -120,6 +121,20 @@ ELSE()
 	)
 
 	ADD_CUSTOM_TARGET(doc ALL DEPENDS ${SPHINX_OUTPUT})
+
+	FIND_PROGRAM(GZIP NAMES gzip)
+	IF (NOT GZIP)
+		MESSAGE(STATUS "Can't find gzip : will not build man pages")
+	ELSE()
+		ADD_CUSTOM_TARGET(man ALL COMMAND ${SPHINX_BUILD} -b man
+									-c ${CMAKE_CURRENT_BINARY_DIR}/doc
+									   ${CMAKE_CURRENT_SOURCE_DIR}/doc/man
+        								   ${SPHINX_MAN_OUTPUT} &&
+						  ${GZIP} -f ${SPHINX_MAN_OUTPUT}/*.1)
+		INSTALL(FILES ${SPHINX_MAN_OUTPUT}/morse.1.gz ${SPHINX_MAN_OUTPUT}/morseexec.1.gz
+			DESTINATION ${CMAKE_INSTALL_PREFIX}/share/man/man1
+		)
+	ENDIF()
 
 	INSTALL(DIRECTORY ${SPHINX_OUTPUT}
 			DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/morse
