@@ -28,8 +28,11 @@ def post_clock(self, component_instance):
 
     """
     msg = Clock()
-    msg.clock = rospy.Time.from_sec(self._sim_time)
-    self._sim_time += self._sim_step
+    if component_instance['middleware_time']:
+        msg.clock = rospy.Time.now()
+    else:
+        msg.clock = rospy.Time.from_sec(self._sim_time)
+        self._sim_time += self._sim_step
 
     for topic in self._topics:
         # publish the message on the correct topic
