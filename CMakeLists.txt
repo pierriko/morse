@@ -12,6 +12,8 @@ option(BUILD_ROS_SUPPORT "Build ROS middleware support" OFF)
 option(BUILD_MOOS_SUPPORT "Build MOOS middleware support" OFF)
 option(BUILD_HLA_SUPPORT "Build HLA middleware support. Also used for distributed HLA simulation." OFF)
 
+option(PYMORSE_SUPPORT "Build and install the Python bindings for MORSE." OFF)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config/)
 find_package(PkgConfig REQUIRED)
 
@@ -71,11 +73,9 @@ if (BUILD_HLA_SUPPORT)
 endif(BUILD_HLA_SUPPORT)
 
 ADD_SUBDIRECTORY(src)
-enable_testing()
-ADD_SUBDIRECTORY(testing)
 
 IF(BUILD_CORE_SUPPORT)
-INSTALL (DIRECTORY data examples
+INSTALL (DIRECTORY data examples addons
 	     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/morse
          REGEX .*blend.$ EXCLUDE
          REGEX .*py.$ EXCLUDE
@@ -90,13 +90,33 @@ CONFIGURE_FILE(
 	${CMAKE_CURRENT_SOURCE_DIR}/bin/morseexec.in
 	${CMAKE_CURRENT_BINARY_DIR}/bin/morseexec
 	)
+CONFIGURE_FILE(
+	${CMAKE_CURRENT_SOURCE_DIR}/bin/multinode_server.in
+	${CMAKE_CURRENT_BINARY_DIR}/bin/multinode_server
+	)
 INSTALL(PROGRAMS
 		${CMAKE_CURRENT_BINARY_DIR}/bin/morse
 		${CMAKE_CURRENT_BINARY_DIR}/bin/morseexec
+		${CMAKE_CURRENT_BINARY_DIR}/bin/multinode_server
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 	    )
 ENDIF()
 
+ADD_SUBDIRECTORY(bindings)
+
+###### Testing ######
+EXECUTE_PROCESS(COMMAND
+				${PYTHON3_EXECUTABLE} -c "import pymorse"
+								RESULT_VARIABLE PYTHON_ERR
+								OUTPUT_QUIET
+								ERROR_QUIET
+				)
+IF (PYTHON_ERR)
+	MESSAGE(WARNING "Can't run test, pymorse is required but cannot be found.\nYou may want to install it first.")
+ELSE()
+	enable_testing()
+	ADD_SUBDIRECTORY(testing)
+ENDIF()
 
 IF (BUILD_DOC_SUPPORT)
 ### Doc target ###

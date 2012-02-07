@@ -226,6 +226,8 @@ class Component(AbstractComponent):
         elif calling_module == 'calling.actuator_action':
             self.properties(Component_Tag = True, Path = 'morse/core/actuator',\
                 Class = 'MorseActuatorClass')
+        else:
+            logger.warning(self.name + ": unknown category: " + calling_module)
 
         # add Game Logic sensor and controller to simulate the component
         bpy.ops.object.select_all(action = 'DESELECT')
@@ -398,8 +400,18 @@ class Environment(AbstractComponent):
                     if space.type == 'VIEW_3D':
                         space.viewport_shade = viewport_shade
 
+    def set_auto_start(self, auto_start=True):
+        bpy.context.scene.render.engine = 'BLENDER_GAME'
+        bpy.context.scene.game_settings.use_auto_start = auto_start
+
     def set_debug(self, debug=True):
         bpy.app.debug = debug
+
+    def set_stereo(self, stereo='STEREO'):
+        """ set_stereo
+        :param stereo: enum in ['NONE', 'STEREO', 'DOME'], default 'STEREO'
+        """
+        bpy.context.scene.game_settings.stereo = stereo
 
     def configure_multinode(self, protocol='socket', 
             server_address='localhost', server_port='65000', distribution=None):

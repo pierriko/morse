@@ -1,10 +1,10 @@
 Tutorials 
 =========
 
-The MORSE Workflow 
-------------------
+General Workflow description
+----------------------------
 
-How to build a complete simulation scenario, from the creation of a custom
+This section will describe how to build a complete simulation scenario, from the creation of a custom
 robot with predefined sensors and actuators to the complete scene, including
 other robots or humans.
 
@@ -29,10 +29,10 @@ Beginners tutorials
 -------------------
 
 .. toctree::
+    :glob:
     :maxdepth: 1
 
-    user/tutorial
-    user/advanced_tutorials/editing_in_blender
+    user/beginner_tutorials/*
 
 Intermediate tutorials
 ----------------------
@@ -44,3 +44,18 @@ These tutorials provide more in-depth explanations of how to setup simulations w
     :maxdepth: 1
 
     user/advanced_tutorials/*
+
+Blender specific instructions
+-----------------------------
+
+Since MORSE is completely built over Blender, it is important to know some of its functionality.
+
+.. toctree::
+    :glob:
+    :maxdepth: 1
+
+    user/blender_tutorials/*
+
+
+
+
