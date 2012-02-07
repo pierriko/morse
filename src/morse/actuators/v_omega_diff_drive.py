@@ -1,6 +1,5 @@
 import logging; logger = logging.getLogger("morse." + __name__)
 from morse.core.services import service
-import GameLogic
 import morse.core.actuator
 import math
 
