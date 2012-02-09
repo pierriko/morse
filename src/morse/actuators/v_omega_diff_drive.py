@@ -18,8 +18,6 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
         # Call the constructor of the parent class
         super(self.__class__,self).__init__(obj, parent)
 
-        #logger.setLevel(logging.DEBUG)
-        
         self.local_data['v'] = 0.0
         self.local_data['w'] = 0.0
 
@@ -27,9 +25,8 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
 
         # get track width for calculating wheel speeds from yaw rate
         parent = self.robot_parent
-        self._trackWidth = parent.local_data['trackWidth']
-        self._radius = parent.local_data['WheelRadius']
-        #logger.debug("TrackWidth: %.4f,    WheelRadius: %.4f" % (self._trackWidth, self._radius))			
+        self._trackWidth = parent._trackWidth
+        self._radius = parent._wheelRadius
         print ('######## CONTROL INITIALIZED ########')
 
     @service
@@ -47,17 +44,14 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
         """ Apply (v, w) to the parent robot. """
 
         # calculate desired wheel speeds and set them
-        #print('default action')
-        
         if (abs(self.local_data['v'])<0.001)and(abs(self.local_data['w'])<0.001):
             # stop the wheel when velocity is below a given threshold
-            self.robot_parent.local_data['wheelFLJoint'].setParam(9,0,100.0)
-            self.robot_parent.local_data['wheelFRJoint'].setParam(9,0,100.0)
-            self.robot_parent.local_data['wheelRLJoint'].setParam(9,0,100.0)
-            self.robot_parent.local_data['wheelRRJoint'].setParam(9,0,100.0)
+            self.robot_parent._wheelFLJoint.setParam(9,0,100.0)
+            self.robot_parent._wheelFRJoint.setParam(9,0,100.0)
+            self.robot_parent._wheelRLJoint.setParam(9,0,100.0)
+            self.robot_parent._wheelRRJoint.setParam(9,0,100.0)
             
             self._stopped=True
-            #print('stopping')
             pass
         else:
             # this is need to "wake up" the physic objects if they have gone to sleep
@@ -78,10 +72,10 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
             
             # set wheel speeds - front and rear wheels have the same speed
 			# TODO: make
-            self.robot_parent.local_data['wheelFLJoint'].setParam(9,w_ws_l,100.0)
-            self.robot_parent.local_data['wheelFRJoint'].setParam(9,w_ws_r,100.0)
-            self.robot_parent.local_data['wheelRLJoint'].setParam(9,w_ws_l,100.0)
-            self.robot_parent.local_data['wheelRRJoint'].setParam(9,w_ws_r,100.0)
+            self.robot_parent._wheelFLJoint.setParam(9,w_ws_l,100.0)
+            self.robot_parent._wheelFRJoint.setParam(9,w_ws_r,100.0)
+            self.robot_parent._wheelRLJoint.setParam(9,w_ws_l,100.0)
+            self.robot_parent._wheelRRJoint.setParam(9,w_ws_r,100.0)
 
 
 

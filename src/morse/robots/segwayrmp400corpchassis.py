@@ -55,10 +55,10 @@ class SegwayRMP400CorpChassisPhysicsClass(morse.core.robot.MorsePhysicsRobotClas
         # Call the constructor of the parent class
         print ("######## ROBOT '%s' INITIALIZING ########" % obj.name)
         # define the wheel positions:
-        self.wheelFLPos=mathutils.Vector((.286, .305, -0.270))
-        self.wheelFRPos=mathutils.Vector((.286, -.305, -0.270))
-        self.wheelRLPos=mathutils.Vector((-.286, .305, -0.270))
-        self.wheelRRPos=mathutils.Vector((-.286, -.305, -0.270))
+        self._wheelFLPos=mathutils.Vector((.286, .305, -0.270))
+        self._wheelFRPos=mathutils.Vector((.286, -.305, -0.270))
+        self._wheelRLPos=mathutils.Vector((-.286, .305, -0.270))
+        self._wheelRRPos=mathutils.Vector((-.286, -.305, -0.270))
         
         super(self.__class__,self).__init__(obj, parent)
 
