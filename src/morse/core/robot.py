@@ -2,8 +2,7 @@ import logging; logger = logging.getLogger("morse." + __name__)
 from abc import ABCMeta
 import morse.core.object
 import math
-import PhysicsConstraints
-import GameLogic
+import bge
 import bpy
 
 class MorseRobotClass(morse.core.object.MorseObjectClass):
@@ -31,9 +30,6 @@ class MorseRobotClass(morse.core.object.MorseObjectClass):
 
         self.default_action()
 
-    def onBuild(self):
-        """ Method called when robot is added in builder. """
-
 class FourWheelRobotClass(MorseRobotClass): 
 
     # Make this an abstract class
@@ -44,7 +40,7 @@ class FourWheelRobotClass(MorseRobotClass):
         # get wheel pointers - needed by wheel speed sensors and to
         # set up constraints
         # bullet vehicles always have 4 wheels
-        scene=GameLogic.getCurrentScene()
+        scene=bge.logic.getCurrentScene()
         self.local_data['numWheels']=4  
         
         # front left wheel
@@ -77,34 +73,41 @@ class FourWheelRobotClass(MorseRobotClass):
             traceback.print_exc()          
 
         # make sure wheels are not children of the robot
-        needRestart=False
+        #needRestart=False
         if (bpy.data.objects[self.blender_obj['WheelFLName']].parent is not None):
-            bpy.ops.object.select_name(name=self.blender_obj['WheelFLName'])
-            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            #self.local_data['wheelFL'].removeParent()
-            needRestart=True
+            #bpy.ops.object.select_name(name=self.blender_obj['WheelFLName'])
+            #bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            self.local_data['wheelFL'].removeParent()
+            #self.local_data['wheelFL'].enableRigidBody()
+            
         if (bpy.data.objects[self.blender_obj['WheelFRName']].parent is not None):    
-            bpy.ops.object.select_name(name=self.blender_obj['WheelFRName'])
-            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            #self.local_data['wheelFR'].removeParent()
-            needRestart=True
+            #bpy.ops.object.select_name(name=self.blender_obj['WheelFRName'])
+            #bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            self.local_data['wheelFR'].removeParent()
+            #self.local_data['wheelFR'].enableRigidBody()
+
         if (bpy.data.objects[self.blender_obj['WheelRLName']].parent is not None):
-            bpy.ops.object.select_name(name=self.blender_obj['WheelRLName'])
-            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            #self.local_data['wheelRL'].removeParent()
-            needRestart=True
+            #bpy.ops.object.select_name(name=self.blender_obj['WheelRLName'])
+            #bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            self.local_data['wheelRL'].removeParent()
+            #self.local_data['wheelRL'].enableRigidBody()
+            
         if (bpy.data.objects[self.blender_obj['WheelRRName']].parent is not None):
-            bpy.ops.object.select_name(name=self.blender_obj['WheelRRName'])
-            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            #self.local_data['wheelRR'].removeParent()
-            needRestart=True
+            #bpy.ops.object.select_name(name=self.blender_obj['WheelRRName'])
+            #bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            self.local_data['wheelRR'].removeParent()
+            #self.local_data['wheelRR'].enableRigidBody()
+
+        #print(self.local_data['wheelFL'].mass)
+       #print(self.local_data['wheelFR'].mass)
+       # print(self.local_data['wheelRL'].mass)
+        #print(self.local_data['wheelRR'].mass)
+
+        #import pdb
+        #pdb.set_trace()
 
         # get wheel radius
         self.local_data['WheelRadius']=self.GetWheelRadius(self.blender_obj['WheelFLName'])
-
-        # scene must be restarted for changes to parents to take effect - no clue why 
-        #if (needRestart):
-        #    scene.restart()
 
 
     def ReadGenericParameters(self):
@@ -365,6 +368,7 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
 
     def __init__ (self, obj, parent=None):
         """ Constructor method. """
+        
         # Call the constructor of the parent class
         super(MorsePhysicsRobotClass, self).__init__(obj, parent)
         
@@ -471,7 +475,7 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
         logger.debug("Added wheel '%s' at ('%f','%f','%f')" %(wheel.name, wheelPos[0], wheelPos[1], wheelPos[2]))
 
         # create constraint to allow wheel to spin
-        joint = PhysicsConstraints.createConstraint( parent.getPhysicsId(),  # get physics ID of the parent object
+        joint = bge.constraints.createConstraint( parent.getPhysicsId(),  # get physics ID of the parent object
                                      wheel.getPhysicsId(),  # get physics ID of the wheel object
                                      12,    # 6dof constraint
                                      wheelPos[0], wheelPos[1], wheelPos[2],  # pivot position
