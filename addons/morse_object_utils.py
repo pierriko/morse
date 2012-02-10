@@ -1,11 +1,10 @@
 bl_info = {
     "name": "Morse Utils",
-    "description": "Utils for Morse Simulator. Generates a basic setup for \
-     interactable Objects, Doors and Drawers, so the human can use them",
+    "description": "Utils for Environment Creation for MORSE",
     "author": "Sebastian Schmidt",
-    "version": (0,4,99),
-    "blender": (2, 5, 0),
-    "api": 31236,
+    "version": (0,5,0),
+    "blender": (2, 61, 0),
+    "api": 39307,
     "location": "Logic",
     "warning": '',
     "wiki_url": "",
@@ -16,6 +15,88 @@ bl_info = {
 import bpy
 from bpy.props import *
 
+
+def update(self, context):
+    objects = []
+    for index, obj in enumerate(bpy.context.scene.objects):
+        objects.append((str(index), obj.name, str(index)))
+    return objects
+     
+class MorseSwitchDialog(bpy.types.Operator):
+    '''
+    Make Switches usable for the Human
+    '''
+    bl_idname = "object.morse_switch_dialog"
+    bl_label = "Morse Switch"
+
+
+    objs = {}
+    inv_objs = {}
+    
+    try:
+        bpy.app.handlers.scene_update_post
+        handler_available = True
+        master = EnumProperty(name = "Switch",items = update)
+    except AttributeError:
+        handler_available = False
+        master = StringProperty(name = "Switch")
+    on = BoolProperty(name = "On")
+
+    def update_dict(self, context):
+        objs = {}
+        inv_objs = {}
+        for index, obj in enumerate(bpy.context.scene.objects):
+            objs[str(index)] = obj.name
+            inv_objs[obj.name] = str(index)
+        self.objs = objs
+        self.inv_objs = inv_objs
+        
+    
+    def assignProp(self, context, name, value):
+        prop = context.object.game.properties[name]
+        prop.value = value
+
+    def execute(self, context):
+        obj = context.active_object
+
+        obj.game.use_actor = True
+
+        if not 'Switch' in obj.game.properties:
+            bpy.ops.object.game_property_new()
+            prop = context.object.game.properties[-1]
+            prop.name = 'Switch'
+            prop.type = 'STRING'
+
+        self.assignProp(context, 'Switch', self.objs[self.master] if self.handler_available else self.master)
+
+        
+        try:
+            master = context.scene.objects[obj.game.properties['Switch'].value]
+            context.scene.objects.active = master
+            if not 'On' in master.game.properties:
+                bpy.ops.object.game_property_new()
+                prop = context.object.game.properties[-1]
+                prop.name = 'On'
+                prop.type = 'BOOL'
+
+            self.assignProp(context, 'On', self.on)
+        except KeyError:
+            self.report({'INFO'}, "No object with this name - switch will not function in simulation")
+
+        return{'FINISHED'}
+            
+    def invoke(self, context, event):
+        self.update_dict(context)
+        obj = context.object
+
+        if 'Switch' in obj.game.properties:
+            if self.handler_available:
+                self.master = self.inv_objs[obj.game.properties['Switch'].value]
+            else:
+                self.master = obj.game.properties['Switch'].value
+
+        return context.window_manager.invoke_props_dialog(self)
+    
 class MorseObjectDialog(bpy.types.Operator):
     '''
     Operator class that assigns a "Object" and a "Description" Property,
@@ -132,6 +213,8 @@ class MorseObjectDialog(bpy.types.Operator):
             self.graspable = True
         if 'Type' in obj.game.properties:
             self.typeProp = obj.game.properties['Type'].value
+        else:
+            self.typeProp = "Object"
 
 
         
@@ -152,6 +235,41 @@ class MorseDrawerDialog(bpy.types.Operator):
     description = StringProperty(name="Description")
     end_frame = IntProperty(name = "End Frame")
     open = BoolProperty(name = "Open")
+
+    if bpy.app.version >= (2, 60, 0):
+        direction = EnumProperty(name = "Generate Action",
+                             items = [('one', 'No', 'one'),
+                                      ('two', 'X+', 'two'),
+                                      ('three', 'X-', 'three'),
+                                      ('four', 'Y+', 'four'),
+                                      ('five', 'Y-', 'five')])
+
+        vec = {'two':(1.0, 0.0, 0.0), 'three':(-1.0, 0.0, 0.0), 'four':(0.0, 1.0, 0.0), 'five':(0.0, -1.0, 0.0)}
+    else:
+        direction = 'one'
+        # means no action generation
+    
+    def generate_action(self, endframe, direction):
+        # create an action
+        action = bpy.data.actions.new(name = bpy.context.object.name + 'Open')
+        bpy.context.object.animation_data_create()
+        bpy.context.object.animation_data.action = action
+        
+        # set starting keyframe
+        bpy.ops.anim.change_frame(frame = 0)
+        bpy.ops.anim.keyframe_insert(type = 'Location')
+        
+        # set endframe 
+        bpy.ops.anim.change_frame(frame = endframe)
+        dim = bpy.context.object.dimensions
+        translate_tuple = tuple(0.8 * dim[i] * direction[i] for i in range(0,3))    
+        bpy.ops.transform.translate(value = translate_tuple)
+        bpy.ops.anim.keyframe_insert(type = 'Location')
+        
+        
+        bpy.ops.anim.change_frame(frame = 0)
+        
+        return action
         
     def assignProp(self, context, name, value):
         prop = context.object.game.properties[name]
@@ -185,6 +303,12 @@ class MorseDrawerDialog(bpy.types.Operator):
         
         # make the drawer an actor
         obj.game.use_actor = True
+
+        # generate action
+        if self.direction != 'one':
+            action = self.generate_action(self.end_frame,self.vec[self.direction])
+        else:
+            action = None
         
         # set the logic to open and close the drawer if needed
         if 'Open' not in context.object.game.sensors:
@@ -205,6 +329,8 @@ class MorseDrawerDialog(bpy.types.Operator):
                 bpy.ops.logic.actuator_add(type = 'ACTION')
             act = context.object.game.actuators[-1]
             act.name = 'Open'
+            if action:
+                act.action = action
         
             contr.link(actuator=act)
         
@@ -227,6 +353,8 @@ class MorseDrawerDialog(bpy.types.Operator):
                 bpy.ops.logic.actuator_add(type = 'ACTION')
             act = context.object.game.actuators[-1]
             act.name = 'Close'
+            if action:
+                act.action = action
         
             contr.link(actuator=act)
         
@@ -302,7 +430,7 @@ class MorseDoorDialog(bpy.types.Operator):
         self.assignProp(context, 'Open', self.open)
         self.assignProp(context, 'Description', self.description)
         
-        # make the drawer an actor
+        # make the door an actor
         obj.game.use_actor = True
 
         # uncomment this part as well for the IPO Setup
@@ -380,6 +508,74 @@ class MorseDoorDialog(bpy.types.Operator):
         '''
         return context.window_manager.invoke_props_dialog(self)
 
+class MorseLightDialog(bpy.types.Operator):
+    '''
+    Set up a light that can be switched on and off
+    '''
+    bl_idname = "object.morse_light_dialog"
+    bl_label = "Morse Light"
+
+    On = BoolProperty(name = "On")
+    energy = FloatProperty(name = "Energy")
+
+    def assignProp(self, context, name, value):
+        prop = context.object.game.properties[name]
+        prop.value = value
+
+    def execute(self, context):
+        obj = bpy.context.active_object
+        
+        # add game properties if needed
+        if not 'On' in obj.game.properties:
+            bpy.ops.object.game_property_new()
+            prop = context.object.game.properties[-1]
+            prop.name = 'On'
+            prop.type = 'BOOL'
+
+        self.assignProp(context, 'On', self.On)
+        
+        if not 'Energy' in obj.game.properties:
+            bpy.ops.object.game_property_new()
+            prop = context.object.game.properties[-1]
+            prop.name = 'Energy'
+            prop.type = 'FLOAT'
+
+        self.assignProp(context, 'Energy', self.energy)
+
+        # add logic setup
+        if not 'PropertyChange' in context.object.game.sensors:
+            bpy.ops.logic.sensor_add(type = 'PROPERTY')
+            sens = context.object.game.sensors[-1]
+            sens.name = 'PropertyChange'
+            sens.property = 'On'
+            sens.evaluation_type = 'PROPCHANGED'
+
+            bpy.ops.logic.controller_add(type = 'PYTHON')
+            contr = context.object.game.controllers[-1]
+            contr.mode = 'MODULE'
+            contr.module = "lights.change_light_energy"
+
+            contr.link(sensor = sens)
+
+        return {'FINISHED'}
+    
+    def invoke(self, context, event):
+        obj = context.object
+
+        if obj.type != 'LAMP':
+            print("Sorry, no lamp selected")
+            self.report({'INFO'}, "Sorry, no lamp selected")
+            return {'CANCELLED'}
+        
+        if 'On' in obj.game.properties:
+            self.On = obj.game.properties['On'].value
+        self.energy = obj.data.energy
+
+        return context.window_manager.invoke_props_dialog(self)
+        
+
+
+
 # Panel in tools region
 class MorsePanel(bpy.types.Panel):
     '''
@@ -394,15 +590,33 @@ class MorsePanel(bpy.types.Panel):
         layout.operator("object.morse_object_dialog")
         layout.operator("object.morse_drawer_dialog")
         layout.operator("object.morse_door_dialog")
+        layout.operator("object.morse_switch_dialog")
+
+        col = layout.column()
+        col.label(text = "Presets for electric devices")
+        layout.operator("object.morse_light_dialog", icon = 'LAMP_SPOT')
  
 
 def register():
     bpy.utils.register_class(MorseObjectDialog)
     bpy.utils.register_class(MorseDoorDialog)
     bpy.utils.register_class(MorseDrawerDialog)
+    bpy.utils.register_class(MorseSwitchDialog)
+    bpy.utils.register_class(MorseLightDialog)
     bpy.utils.register_class(MorsePanel)
+    try:
+        bpy.app.handlers.scene_update_post.append(update)
+    except AttributeError:
+        pass
 def unregister():
     bpy.utils.unregister_class(MorseObjectDialog)
     bpy.utils.unregister_class(MorseDoorDialog)
     bpy.utils.unregister_class(MorseDrawerDialog)
+    bpy.utils.unregister_class(MorseSwitchDialog)
+    bpy.utils.unregister_class(MorseLightDialog)
     bpy.utils.unregister_class(MorsePanel)
+    try:
+        bpy.app.handlers.scene_update_post.remove(update)
+    except AttributeError:
+        pass
+    
