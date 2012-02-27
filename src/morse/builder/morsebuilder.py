@@ -283,44 +283,13 @@ class Robot(Component):
     def make_external(self):
         self._blendobj.game.properties['Robot_Tag'].name = 'External_Robot_Tag'
     def remove_wheels(self):
-        import pdb
-        pdb.set_trace()
-        
-        #for child in self._blendobj.children:
-        #    if 'wheel' in child.name:
-        #        bpy.ops.object.select_name(name=child.name)
-        #        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-        #bpy.ops.object.select_pattern(pattern="*wheel*",case_sensitive=False,extend=False)
-        #if (bpy.ops.object.parent_clear.poll()):
-        #    bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-        #else:
-        #    logger.warning("Parent_clear called with incorrect context. Wheels not removed.")
-        # remove wheels as children
-        bpy.ops.object.select_pattern(pattern='wheel1', extend=False)
-        if (bpy.context.selected_objects[0].parent is not None):
-            try:
-                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            except:
-                pass
-        bpy.ops.object.select_pattern(pattern='wheel2', extend=False)
-        if (bpy.context.selected_objects[0].parent is not None):
-            try:
-                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            except:
-                pass
-        bpy.ops.object.select_pattern(pattern='wheel3', extend=False)
-        if (bpy.context.selected_objects[0].parent is not None):
-            try:
-                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            except:
-                pass            
-        bpy.ops.object.select_pattern(pattern='wheel4', extend=False)
-        if (bpy.context.selected_objects[0].parent is not None):
-            try:
-                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            except:
-                pass
-                
+        wheels = [child for child in self._blendobj.children if \
+                  child.name.lower().startswith("wheel")]
+        for wheel in wheels:
+            bpy.ops.object.select_all(action='DESELECT')
+            bpy.ops.object.select_name(name=wheel.name)
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+
 class Sensor(Component):
     def __init__(self, name):
         Component.__init__(self, 'sensors', name)
