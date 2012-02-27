@@ -289,6 +289,11 @@ class Robot(Component):
             bpy.ops.object.select_all(action='DESELECT')
             bpy.ops.object.select_name(name=wheel.name)
             bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+    def __del__(self):
+        """ Call the remove_wheels method if the robot is a Bullet Vehicle """
+        # HasSuspension game property is used for Bullet Vehicle
+        if "HasSuspension" in self._blendobj.game.properties:
+            self.remove_wheels()
 
 class Sensor(Component):
     def __init__(self, name):
