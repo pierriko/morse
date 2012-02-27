@@ -10,15 +10,15 @@ time measure.
 Files
 -----
 
-  - Blender: ``$MORSE_ROOT/data/morse/actuators/destination.blend``
+  - Blender: ``$MORSE_ROOT/data/actuators/destination.blend``
   - Python: ``$MORSE_ROOT/src/morse/actuators/destination.py``
 
 Local data 
 ----------
 
   - **x**: (float) Destination X coordinate
-  - **Y**: (float) Destination Y coordinate
-  - **Z**: (float) Destination Z coordinate
+  - **y**: (float) Destination Y coordinate
+  - **z**: (float) Destination Z coordinate
 
 .. note:: Coordinates are given with respect to the origin of Blender's coordinate axis.
 

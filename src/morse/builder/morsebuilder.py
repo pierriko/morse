@@ -75,19 +75,21 @@ class PassiveObject(AbstractComponent):
             self._blendobj.location = (0.0, 0.0, 0.0)
             self._blendobj.rotation_euler = (0.0, 0.0, 0.0)
         
-    def make_graspable(self, human_readable_label = None):
+    def setgraspable(self):
         """
-        Makes an object graspable for the human avatar
-        :param human_readable label: A Description of the object. This text is shown by the human
-                  interface when picking up the object. If no label is provided, it is set to the
-                  name of the blender object
+        Makes an object graspable to the human avatar by adding a NEAR collision
+        sensor to the object.
+        
+        This function also set the object to be an active game object (property 
+        'Object' set to true), and set the object label to the Blender object 
+        name (if not already set).        
         """
         obj = self._blendobj
         
-        if not human_readable_label:
-            human_readable_label = obj.name
-            
-        self.properties(Object = True, Graspable = True, Label = human_readable_label)
+        if not "Label" in obj.game.properties:
+            self.properties(Object = True, Graspable = True, Label = obj.name)
+        else:
+            self.properties(Object = True, Graspable = True)        
         
         # Add collision sensor for object placement
         if not 'Collision' in obj.game.sensors:
@@ -134,25 +136,21 @@ class Human(AbstractComponent):
 
         with bpy.data.libraries.load(filepath) as (src, _):
             try:
-                objlist = [{'name':obj} for obj in src.groups]
+                objlist = [{'name':obj} for obj in src.objects]
             except UnicodeDecodeError as detail:
                 logger.error("Unable to open file '%s'. Exception: %s" % \
                              (filepath, detail))
 
         bpy.ops.object.select_all(action='DESELECT')
-        bpy.ops.wm.link_append(directory=filepath + '/Group/', link=False, 
+        bpy.ops.wm.link_append(directory=filepath + '/Object/', link=False, 
                 autoselect=True, files=objlist)
         self._blendname = "Human" # for middleware dictionary
-        # here we use the fact that after appending, Blender select the objects 
-        # and the root (parent) object first ( [0] )
-        self._blendobj = bpy.context.selected_objects[0]
+        self._blendobj = bpy.data.objects["Human"] #TODO: only work with ONE human.
 
         self.armature = None
 
-        # The human is added as a dupli-group. We need to get the
-        # HumanArmature inside the original group.
         try:
-            obj = self._blendobj.dupli_group.objects["HumanArmature"]
+            obj = bpy.data.objects["HumanArmature"] #TODO: only work with ONE human.
             self.armature = AbstractComponent(obj, "human_posture")
         except KeyError:
             logger.error("Could not find the human armature! (I was looking " +\
@@ -163,7 +161,7 @@ class Human(AbstractComponent):
         # fix for Blender 2.6 Animations
         if bpy.app.version > (2,59,0):
             if obj:
-                hips = self._blendobj.dupli_group.objects["Hips_Empty"]
+                hips = bpy.data.objects["Hips_Empty"] #TODO: only work with ONE human.
                 i = 0
                 for act in hips.game.actuators:
                     act.layer = i
@@ -412,12 +410,8 @@ class Environment(AbstractComponent):
                 name = os.environ["MORSE_NODE"]
             except KeyError:
                 name = os.uname()[1]
-        # Insert modifiers into the scene
-        # TODO for mod in AbstractComponent._config.modifier.keys():
-        for mod in scene_modifiers:
-            Modifier(mod)
         # Write the configuration of the middlewares, and node configuration
-        AbstractComponent._config.write_config()
+        Configuration().write_config()
         self._write_multinode(name)
         if not 'Scene_Script_Holder' in bpy.data.objects:
             # Add the necessary objects

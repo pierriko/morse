@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(PACKAGE_NAME morse)
-set(PACKAGE_VERSION 0.4.99)
+set(PACKAGE_VERSION 0.5)
 
 option(BUILD_CORE_SUPPORT "Build and install morse core" ON)
 option(BUILD_DOC_SUPPORT "Build and install morse documentation (Requiere Sphinx)" ON)
@@ -26,8 +26,9 @@ EXECUTE_PROCESS(COMMAND
 					ERROR_VARIABLE PYTHON_STDERR
 					RESULT_VARIABLE PYTHON_ERR
 				)
-
-SET(PYTHON_INSTDIR ${CMAKE_INSTALL_PREFIX}/${PYTHON_INSTALL}) 
+if(NOT PYTHON_INSTDIR)
+	SET(PYTHON_INSTDIR ${CMAKE_INSTALL_PREFIX}/${PYTHON_INSTALL}) 
+endif(NOT PYTHON_INSTDIR)
 MESSAGE(STATUS "will install python files in ${PYTHON_INSTDIR}")
 
 if (NOT PYTHON3INTERP_FOUND)
@@ -59,7 +60,7 @@ endif(BUILD_MOOS_SUPPORT)
 
 IF (BUILD_POCOLIBS_SUPPORT)
 	pkg_check_modules(POCOLIBS REQUIRED pocolibs)
-	find_package(SWIG REQUIRED)
+	find_package(SWIG REQUIRED 2.0.4)
 endif(BUILD_POCOLIBS_SUPPORT)
 
 if (BUILD_HLA_SUPPORT)
@@ -151,7 +152,7 @@ ELSE()
 									   ${CMAKE_CURRENT_SOURCE_DIR}/doc/man
         								   ${SPHINX_MAN_OUTPUT} &&
 						  ${GZIP} -f ${SPHINX_MAN_OUTPUT}/*.1)
-		INSTALL(FILES ${SPHINX_MAN_OUTPUT}/morse.1.gz ${SPHINX_MAN_OUTPUT}/morseexec.1.gz
+		INSTALL(FILES ${SPHINX_MAN_OUTPUT}/morse.1.gz ${SPHINX_MAN_OUTPUT}/morseexec.1.gz ${SPHINX_MAN_OUTPUT}/multinode_server.1.gz
 			DESTINATION ${CMAKE_INSTALL_PREFIX}/share/man/man1
 		)
 	ENDIF()

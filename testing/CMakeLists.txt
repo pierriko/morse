@@ -6,9 +6,13 @@ endmacro()
 
 if (BUILD_CORE_SUPPORT)
 	add_subdirectory(base)
-	add_subdirectory(middlewares/sockets)
+	add_subdirectory(robots/human)
 endif()
 
 if (BUILD_ROS_SUPPORT)
 	add_subdirectory(middlewares/ros)
+endif()
+
+if (BUILD_YARP2_SUPPORT)
+	add_subdirectory(middlewares/yarp)
 endif()

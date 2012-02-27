@@ -9,7 +9,7 @@ The type of tracked objects can be specified using the 'Track' property.
 Files
 -----
 
-- Blender: ``$MORSE_ROOT/data/morse/sensors/proximity.blend``
+- Blender: ``$MORSE_ROOT/data/sensors/proximity.blend``
 - Python: ``$MORSE_ROOT/src/morse/sensors/proximity.py``
 
 
@@ -31,6 +31,14 @@ The Empty object corresponding to this sensor has the following parameters:
   you want to be detected by the proximity sensor. Default is "Robot_Tag".
 - **Range**: (Float) The distance, in meters beyond which this sensor is
   unable to locate other robots.
+
+Services
+--------
+
+- **set_range**: (synchronous) the method expects a float **range**, and
+  modify the range used to detect objects around the proximity sensor
+- **set_tracked_tag**: (synchronous) the method allows to modify the kind of
+  objects detected by the proximity sensor.
 
 Applicable modifiers
 --------------------

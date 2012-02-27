@@ -1,4 +1,4 @@
-MORSE-builder API
+MORSE Builder API
 =================
 
 Abstract
@@ -57,8 +57,8 @@ All the basis component classes used in the Builder API inherit from a base clas
    The argument is an instance to another component. This method is generally
    used to add components to a robot.
 
-This base class has one concrete subclass that can be use to insert static
-(passive) objects to your simulation:
+This base class has one concrete subclass that can be use to insert :doc:`static
+(passive) objects <../user/others/passive_objects>` to your simulation:
 
  * :py:class:`morse.builder.morsebuilder.PassiveObject`
 
@@ -82,8 +82,10 @@ more functions:
    class and methods that the object will use.
  * **configure_service**: Similar to the previous function. Its argument is the
    name of the middleware to be used.
- * **configure_modifier**
- * **configure_overlay**
+ * **configure_modifier**: Add a modifier specified by its first argument to
+   the current object
+ * **configure_overlay**: Add a service overlay for a specific service manager
+   (as defined for configure_service) to the current object.
 
 These configuration functions make use of a dictionary defined in the file:
 ``$MORSE_ROOT/src/morse/builder/data.py``. In these dictionaries, the keys are
@@ -104,6 +106,45 @@ a new component
    parameters to the constructors the names of the blender files (without the
    *.blend* extension) that contain the required component. These files should
    be present under ``$MORSE_ROOT/share/morse/data/{class}/``.
+
+
+The Creator classes
++++++++++++++++++++
+
+Another subclass of ``AbstractComponent`` is ``ComponentCreator``. This class
+is used to instantiate components without the need of having a .blend file
+associated with them. It is limited to generating components with simple
+geometry for their meshes, and limited use of the Logic Bricks in their
+behaviour.
+
+As with the regular ``ComponentClass``, there are also a number of subclasses
+that inherit from this one:
+
+ * :py:class:`morse.builder.creator.SensorCreator`
+ * :py:class:`morse.builder.creator.ActuatorCreator`
+
+The actual definitions of the components that can be instantiated in this way
+can be found in the files:
+``$MORSE_ROOT/srs/morse/builder/sensors.py`` and 
+``$MORSE_ROOT/srs/morse/builder/actuators.py``.
+
+To instantiate these kind of objects, you'll need to use the full path of the
+class. For example:
+
+.. code-block:: python
+
+  from morse.builder.morsebuilder import *
+  import morse.builder.sensors
+  import morse.builder.actuators
+
+  atrv = Robot('atrv')
+
+  infrared = morse.builder.sensors.Infrared("MyInfrared")
+  atrv.append(infrared)
+
+  v_w = morse.builder.actuators.MotionController("MyVOmega")
+  atrv.append(v_w)
+
 
 Environment class
 +++++++++++++++++
@@ -126,7 +167,7 @@ The ``Environment`` class provides these functions:
  * **show_physics**: Toggle the display of the bounding boxes of objects during
    the simulation.  The parameter is a boolean value indicating whether to show
    or not this information.
- * **show_debug**: Toggle the printing of the value of the Game Properties
+ * **show_debug_properties**: Toggle the printing of the value of the Game Properties
    marked.  The parameter is a boolean value indicating whether to show or not
    this information.
  * **aim_camera**: Set the orientation of the default camera. The parameter is
@@ -135,11 +176,27 @@ The ``Environment`` class provides these functions:
  * **place_camera**: Set the location of the default camera. The parameter is a
    list with the new 3D coordinates for the camera. Example: *([10.0, -10.0,
    3.0])*
+ * **set_gravity**: Set the gravity for the specific scene. The parameter is a
+   float defaulting to 9.81.
+ * **set_viewport**: Set the default view mode in one of 'BOUNDBOX',
+   'WIREFRAME', 'SOLID' or 'TEXTURED'
+ * **set_debug**: set the debug bit in blender
+ * **set_stereo**: configure to renderer to render image in 'STEREO' using
+   anaglyphs, allowing to see them in 3d with special red-cyan glasses.
+   Allowed argument is one of 'NONE' (normal 2d mode), 'STEREO' or 'DOME'
  * **configure_multinode**: Provide the information necessary for the node to
    connect to a multi-node server. The parameter is a list of named items.
+   The items accepted in as parameters are:
+    * **protocol**: Either 'socket' or 'hla'
+    * **server_address**: IP address where the multi-node server can be found
+    * **server_port**: Used only for 'socket' protocol. Currently it should always be 65000
+    * **distribution**: A Python dictionary. The keys are the names of the
+      nodes, and the values are lists with the names of the robots handled by
+      each node
+
    Example:
 
-     .. code-block:: python
+   .. code-block:: python
     
         dala1 = Robot('atrv')
         dala2 = Robot('atrv')
@@ -153,11 +210,7 @@ The ``Environment`` class provides these functions:
                                       "nodeB": [dala2.name],
                                   })
 
-   The items accepted in as parameters are:
-    * **protocol**: Either 'socket' or 'hla'
-    * **server_address**: IP address where the multi-node server can be found
-    * **server_port**: Used only for 'socket' protocol. Currently it should always be 65000.
-    * **distribution**: A Python dictionary. The keys are the names of the nodes, and the values are lists with the names of the robots handled by each node
+
  * **create()**: Should always be called at the very end of the Builder script.
    It will finalise the building process and write the configuration files.
 

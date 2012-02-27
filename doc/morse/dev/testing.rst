@@ -25,6 +25,11 @@ MORSE and initializing it with a specified environment.
 
 This environment is defined by overloading the :py:meth:`morse.testing.testing.MorseTestCase.setUpEnv`
 with a description of the environment using the :doc:`Builder API <builder>`.
+Moreover, you can overload the
+:py:meth:`morse.testing.testing.MorseTestCase.setUpMw` and
+:py:meth:`morse.testing.testing.MorseTestCase.tearDownMw` if you want to
+create some specific environment before launching the Morse simulator, and to
+clean it
 
 Complete example
 ----------------
@@ -78,15 +83,24 @@ Running tests
 Running all MORSE tests
 -----------------------
 
-You can `$MORSE_ROOT/testing/test_all.py` to check that all currently defined
-unit-tests for MORSE pass.
+The MORSE tests infrastructure is integrated with cmake, so you can run `make
+test` to check that all currently defined unit-tests for MORSE pass. 
+
+ROS tests
+---------
+
+To run ROS tests, you need first to set the variable `MORSE_SRC_ROOT` to the
+root of your MORSE source. Moreover, you need to generate messages for the
+morsetesting helper: to do so, you must go in
+`${MORSE_SRC_ROOT}/testing/middlewares/ros/morsetesting` and then use rosmake
+to build them.
 
 Tests log
 ---------
 
-The complete log of a test is available in the `testing.log` file, created
-in the current directory.
-
+The complete log of a test is available in the `${testName}.log` file, created
+in the current directory, where testName is the name of your class test (in
+the previous example, it will create the `BaseTest.log` file.
 
 Running a test as a standalone application
 ------------------------------------------

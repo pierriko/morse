@@ -23,15 +23,20 @@ set to draw **Textured** objects.
 Files
 -----
 
-- Blender: ``$MORSE_ROOT/data/morse/sensors/semantic_camera.blend``
+- Blender: ``$MORSE_ROOT/data/sensors/semantic_camera.blend``
 - Python: ``$MORSE_ROOT/src/morse/sensors/semantic_camera.py``
 
 
 Local data
 ----------
 
-- **visible_objects**: (List) An array with the names (or labels) of the
-  objects visible by the camera.
+- **visible_objects**: (List) An array containing the description of objects
+  visible by the camera. Objects are described as a dictionary containing:
+
+	- **name**: (String) the name of the object
+	- **type**: (String) the type of the object
+	- **position**: (Vector3) the position of the object (x, y, z)
+	- **orientation**: (Quaternion) the orientation of the object (w, x, y, z)
 
 Configurable parameters
 -----------------------

@@ -5,23 +5,6 @@ General TODO list for MORSE
  TARGET 0.5
 ==============
 
-Multi-node
-----------
-
-- Document time synchronization (Gilberto)
-- Move the socket multinode server to bin/ (Gilberto)
-- Add the corresponding man page (Gilberto)
-
-Testing
--------
-
-- add tests for:
-  * semantic camera (Severin)
-  * laser scanner (Gilberto)
-
-Components
-----------
-
 - Fix bug in odometry sensor (Gilberto)
 
 Packaging
@@ -29,32 +12,12 @@ Packaging
 
 - Add package(s) for pymorse
 
-Installation
-------------
-
-- Update documentation to configure Blender to find these addons (File > Uesr Preferences > File) (Gilberto/Arnaud)
-
 Documentation
 -------------
 
 - Add docstrings to all modules (everyone)
+- Update the documentation for the human "robot"
 
-Misc
-----
-
-- Bug 189: Most of scenarii and tutorials are broken in current.
-
-HRI
----
-
-- Bug 188: Builder Script - Erros when adding Pose Sensor to Human
-- Check cameras and lights are required in human model
-
-PR2
----
-
-- Update TODO.pr2 list
-- Fix path in pr2extension.py
 
 Public Relations
 ----------------
@@ -109,13 +72,19 @@ exported
 
 [WIP] - "Point Cloud" sensors: generate 3D depth images to simulate either
 stereovision at an abstract level or various Lidars. Make it generic: export
-depth data (openGL z-buffer?), define mofifiers that sample the data according
+depth data (openGL z-buffer?), define modifiers that sample the data according
 to a given sensor geometry.
+
+- Export position in a consistent way through in different components (use
+  Transformation3D)
 
 - PR2: cf TODO.pr2
 
 [PARTIAL] - Support for 4-wheeled vehicles (cf https://github.com/pierriko/morse/tree/experimental_wjwwood)
 
+Documentation
+-------------
+- Correct documentation for the HRI experiments (current one does not mention the Builder)
 
 
 ================

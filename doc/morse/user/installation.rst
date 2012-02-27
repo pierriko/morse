@@ -31,7 +31,7 @@ Required software
 +++++++++++++++++
 
 - Python (3.2 or +) compiled with the ``--with-wide-unicode`` flag
-- Blender 2.59 build with Python 3.2
+- Blender (>= 2.59 & < 2.62) build with Python 3.2
 - MORSE source code
 
 .. note::
@@ -79,12 +79,16 @@ repository::
 
   $ git clone http://github.com/laas/morse.git
   
-Once you have a copy of the repository, you can get to the last stable
-version (0.4) by using ::
+If you want to get only the latest stable version (0.5) of Morse, you can get
+it in the branch `0.5_STABLE`. You can get it directly using ::
+ 
+  $ git clone http://github.com/laas/morse.git -b 0.5_STABLE
+
+or if you have already download the repository ::
   
-  $ git checkout 0.4
+  $ git checkout -b 0.5_STABLE -t origin/0.5_STABLE
   
-You can get a `tarball version here <https://github.com/laas/morse/tarball/0.4>`_. 
+You can get a `tarball version here <https://github.com/laas/morse/tarball/0.5>`_. 
 
  
 Go to the directory where you have previously downloaded the MORSE source.
@@ -110,6 +114,9 @@ by using these additional parameters.
 - ``BUILD_YARP2_SUPPORT`` controls the build of YARP support in MORSE.
 - ``BUILD_ROS_SUPPORT`` controls the build of ROS support in MORSE.
 - ``BUILD_MOOS_SUPPORT`` controls the build of MOOS support in MORSE.
+- ``PYMORSE_SUPPORT`` controls the build and installation of pymorse, a
+  library to interact with Morse through the socket interface. It is needed
+  for test infrastructure.
 - ``CMAKE_BUILD_TYPE`` controls the optimization stuff for C/C++ extension
   (Release is a good choice).
 - ``PYTHON3_EXECUTABLE`` indicate where the python3 executable is in your system

@@ -19,7 +19,7 @@ For a general introduction to human-robot interaction simulation with MORSE, che
 Files
 -----
 
-- Blender: ``$MORSE_ROOT/data/morse/human/human.blend``
+- Blender: ``$MORSE_ROOT/data/robots/human.blend``
 - Python: 
 
   - ``$MORSE_ROOT/src/morse/robots/human.py``
@@ -35,7 +35,7 @@ From Blender interface
 ++++++++++++++++++++++
 
 You can append a human while editing a scenario in Blender by importing the ``Human``
-**group** available in ``$MORSE_ROOT/data/morse/human/human.blend``.
+**group** available in ``$MORSE_ROOT/data/robots/human.blend``.
 
 If the model do not appear, it has probably be added to an invisible layer. Check in
 the layers panel.
@@ -51,8 +51,8 @@ to instantiate the :py:class:`morse.builder.morsebuilder.Human` class.
    from morse.builder.morsebuilder import *
    human = Human()
 
-The :doc:`human posture component <morse/user/sensors/human_posture>`
-that can be accessed through the ``armature`` member.
+The :doc:`human posture component <../sensors/human_posture>`
+can then be accessed through the ``armature`` member.
 
 Usage example:
 
@@ -67,7 +67,7 @@ Usage example:
    human.rotate(z=-3.0)
 
    human.armature.configure_mw('pocolibs',
-                    ['Pocolibs',
+                    ['morse.middleware.pocolibs_mw.MorsePocolibsClass',
                      'export_posture',
                      'morse/middleware/pocolibs/sensors/human_posture',
                      'human_posture'])
@@ -107,11 +107,22 @@ Manipulation mode
 
 To toggle in and out of **Manipulation Mode**, press :kbd:`X`.
 
+You can move the hand by holding :kbd:`Middle Mouse Button` and moving the 
+``Mouse``.
+
 In manipulation mode, when the hand is close enough of a graspable object (see
 :doc:`passive objects <passive_objects>` documentation to know how to define a
 graspable object), a label ``Pickup the object`` appears. Press the :kbd:`Left
-Mouse Button` to take the item, and :kbd:`Right Mouse Button` to release it.
+Mouse Button` to take the item. To lay the item down, press :kbd:`Right Mouse 
+Button`. To precisely lay the item down, move the crosshairs over this point. 
+If this point is in reach (and the object that the item is to be placed on is 
+marked as ``Actor`` in Blender's Physic settings), a green rectangle appears.
+Press :kbd:`Right Mouse Button` to lay it down.
 
+Futhermore the human can interact with doors, drawers and switches. To do so, 
+move the crosshairs over the door/drawer/switch and press :kbd:`Left Mouse 
+Button`. See :doc:`Setting up a Scene with MORSE Utils <../addons/morse_utils>` 
+on how to set up the environment for the human.
 
 Sensors and actuators
 ---------------------

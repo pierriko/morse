@@ -455,6 +455,8 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
         """ Attaches the wheel to the given parent using a 6DOF constraint """
         # set the wheel positions relative to the robot in case the
         # chassis was moved by the builder script or manually in blender
+        import pdb
+        pdb.set_trace()
         globalWheelPos=wheelPos+parent.worldPosition
         wheel.worldPosition=globalWheelPos
         

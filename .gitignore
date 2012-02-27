@@ -14,6 +14,7 @@ CMakeFiles/
 CMakeCache.txt
 install_manifest.txt
 *.*sw*
-share/
-lib/
-bin/
+*.orig
+*.rej
+*.log
+*.gz

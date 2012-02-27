@@ -10,12 +10,12 @@ Files
 -----
 
 - Python: ``$MORSE_ROOT/src/morse/actuators/armature_actuator.py``
-- Blender: ``$MORSE_ROOT/data/morse/actuators/armature_actuator.blend``
+- Blender: ``$MORSE_ROOT/data/actuators/armature_actuator.blend``
 
 - Robots implementing the actuator:
 
-	- PR2: ``$MORSE_ROOT/data/morse/robots/pr2/pr2_25_morse.blend``
-	- KUKA LWR: ``$MORSE_ROOT/data/morse/robots/kuka_lwr.blend``
+	- PR2: ``$MORSE_ROOT/data/robots/pr2/pr2_25_morse.blend``
+	- KUKA LWR: ``$MORSE_ROOT/data/robots/kuka_lwr.blend``
 
 Available services
 ------------------
@@ -34,7 +34,18 @@ All services provided by this actuator are synchronous
 
 - **get_IK_limits**: Same result as the **get_dofs** service
 
-- **set_rotation**: This method receives as parameters the name of a bone and a list with three floating point numbers, indicating the euler rotation to be given to the bone
+- **set_rotation**: This method receives as parameters the name of a bone and a list with three floating point numbers, indicating the euler rotation to be given to the bone. Angles are in radians
+
+    +------------+--------------------+--------------------------------------+
+    | Parameters | ``channel_name``   | Name of the armature bone to rotate  |
+    |            |                    | (see the list above)                 |
+    +------------+--------------------+--------------------------------------+
+    |            | ``rotation``       | Array of 3 floats, with the angles   |
+    |            |                    | to rotate around X, Y, Z.            |
+    +------------+--------------------+--------------------------------------+
+
+    Parameters: ``(channel_name, rotation)``
+
 
 - **get_channel_lengths**: Returns a dictionary, where the key is the name of the channel and the value is a floating point number indicating the length of the bone
 
@@ -48,12 +59,3 @@ A sample python script of how to access the armature actuator via sockets
 can be found at:
 ``$MORSE_ROOT/examples/morse/scenarii/armature_samples/armature_services_tests.py``.
 
-
-
-:mod:`armature_actuator` Module
--------------------------------
-
-.. automodule:: morse.actuators.armature_actuator
-    :members:
-    :undoc-members:
-    :show-inheritance:
