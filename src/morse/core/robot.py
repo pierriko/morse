@@ -444,7 +444,7 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
 
     def BuildModelWithoutSuspension(self):
         """ Add all the constraints to attach the wheels to the body """
-          # add front wheels
+        # add front wheels
         self._wheelFLJoint=self.AttachWheelToBody(self._wheelFL,self.blender_obj, self._wheelFLPos)  
         self._wheelFRJoint=self.AttachWheelToBody(self._wheelFR,self.blender_obj, self._wheelFRPos) 
         # add rear wheels 
@@ -455,8 +455,8 @@ class MorsePhysicsRobotClass(FourWheelRobotClass):
         """ Attaches the wheel to the given parent using a 6DOF constraint """
         # set the wheel positions relative to the robot in case the
         # chassis was moved by the builder script or manually in blender
-        import pdb
-        pdb.set_trace()
+        #import pdb
+        #pdb.set_trace()
         globalWheelPos=wheelPos+parent.worldPosition
         wheel.worldPosition=globalWheelPos
         
