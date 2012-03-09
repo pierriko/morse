@@ -28,6 +28,7 @@ MORSE_MIDDLEWARE_MODULE = {
     'pocolibs': 'morse.middleware.pocolibs_mw.MorsePocolibsClass',
     'text': 'morse.middleware.text_mw.TextOutClass',
 	'moos': 'morse.middleware.moos_mw.MOOSClass',
+    'jaus': 'morse.middleware.jaus_mw.JAUSClass',
 }
 
 """
@@ -159,7 +160,14 @@ MORSE_MIDDLEWARE_DICT = {
         'gps': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_gps', 'morse/middleware/moos/gps'],
         'gyroscope': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_gyroscope','morse/middleware/moos/gyroscope'],
         'proximity': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_message']
-    }
+    },
+
+
+    'jaus': {
+        'vw_control': [MORSE_MIDDLEWARE_MODULE['jaus'], 'read_message'],
+        'vw_diff_drive_control': [MORSE_MIDDLEWARE_MODULE['jaus'], 'read_message'],
+        'pose': [MORSE_MIDDLEWARE_MODULE['jaus'], 'post_pose', 'morse/middleware/jaus/pose']
+    }    
 
 }
 
