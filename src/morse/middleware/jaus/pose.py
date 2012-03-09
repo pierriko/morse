@@ -18,6 +18,7 @@ def init_extra_module(self, component_instance, function, mw_data):
 
     # create a JAUS global pose sensor
     self.m=pyOpenJAUS.GposComponent.GposComponent()
+    self.m.setName("MORSE_Sim_Pose")
     self.m.run()
 
     # create SetGlobalPose message to update GPos position
