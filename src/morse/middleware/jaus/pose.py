@@ -5,9 +5,7 @@ import morse.core.middleware
 import GameLogic
 
 def init_extra_module(self, component_instance, function, mw_data):
-    """ Setup the middleware connection with this data
-
-    Prepare the middleware to handle the serialised data as necessary.
+    """ Create a JAUS component to provide the Global Position service
     """
     # Compose the name of the port, based on the parent and module names
     component_name = component_instance.blender_obj.name

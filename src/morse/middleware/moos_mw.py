@@ -105,7 +105,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
             self.m.Notify(parent_name+"_"+component_instance.blender_obj.name+"_"+variable,str(data),GameLogic.current_time)
 
                             
-    # NOTE: This is a dummy function that is executed for every actuator. Since ROS uses the concept of callbacks, it does nothing ...    
+    # NOTE: This is a dummy function that is executed for every actuator.
     def read_message(self, component_instance):
         """ read a command message from the database and send to the simulator???"""
         logger.debug("Read message called.")
