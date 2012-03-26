@@ -1,5 +1,5 @@
 import logging; logger = logging.getLogger("morse." + __name__)
-import pyOpenJAUS.pyComponents
+import pyOpenJAUS.GposComponent
 import pyOpenJAUS.mobility
 import morse.core.middleware
 import GameLogic
@@ -15,9 +15,9 @@ def init_extra_module(self, component_instance, function, mw_data):
     component_instance.output_functions.append(function)
 
     # create a JAUS global pose sensor
-    self.poseComp=pyOpenJAUS.pyComponents.GposComponent()
-    #self.m.setName("MORSE_Sim_Pose")
-    self.poseComp.run()
+    self.m=pyOpenJAUS.GposComponent.GposComponent()
+    self.m.setName("MORSE_Sim_Pose")
+    self.m.run()
 
     # create SetGlobalPose message to update GPos position
     self.curPos=pyOpenJAUS.mobility.SetGlobalPose()
@@ -48,4 +48,4 @@ def post_pose(self, component_instance):
     self.curPos.setPitch_rad(component_instance.local_data['roll'])
     self.curPos.setYaw_rad(component_instance.local_data['pitch'])
 
-    self.poseComp.updateGlobalPose(self.curPos)
+    self.m.updateGlobalPose(self.curPos)

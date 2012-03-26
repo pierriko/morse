@@ -63,7 +63,7 @@ endif(BUILD_MOOS_SUPPORT)
 # check to make sure pyOpenJAUS is installed
 if (BUILD_MOOS_SUPPORT)
 	EXECUTE_PROCESS(COMMAND 
-					${PYTHON3_EXECUTABLE} -c "import pyOpenJAUS.pyComponents;"
+					${PYTHON3_EXECUTABLE} -c "import pyOpenJAUS.GposComponent;"
 					RESULT_VARIABLE JAUS_PY_ERR
 				   )
 	if (JAUS_PY_ERR)

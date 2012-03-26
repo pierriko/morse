@@ -2,7 +2,6 @@ import morse.builder.creator
 import morse.builder.blenderobjects
 
 class MotionController(morse.builder.creator.ActuatorCreator):
-    logger.info("MotionController created.")
     def __init__(self, name="Motion_Controller"):
         morse.builder.creator.ActuatorCreator.__init__(self, name, 
             "morse/actuators/v_omega", "VWActuatorClass", "v_omega")

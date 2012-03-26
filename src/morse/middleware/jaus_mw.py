@@ -19,7 +19,7 @@ class JAUSClass(morse.core.middleware.MorseMiddlewareClass):
 
         #fundamental_frequency = 10 # [Hz]
         #self.m.Run( "127.0.0.1", 9000, "MORSE_SIM", fundamental_frequency) 
-        logger.info("JAUS Middleware initialized")
+        logger.info("Middleware initialized")
         
 
     def __del__(self):
@@ -33,6 +33,7 @@ class JAUSClass(morse.core.middleware.MorseMiddlewareClass):
         The name of the topic is composed of the robot and sensor names.
         Only useful for sensors.
         """
+		
         logger.info("========== Registering component =================")
         parent_name = component_instance.robot_parent.blender_obj.name
 
