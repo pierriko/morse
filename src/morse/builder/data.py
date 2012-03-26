@@ -151,8 +151,8 @@ MORSE_MIDDLEWARE_DICT = {
     },
 
     'moos': {
-        'vw_control': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
-        'vw_diff_drive_control': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
+        'v_omega': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
+        'vw_diff_drive': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
         'sick': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_2DLaserScan', 'morse/middleware/moos/sick'],
         'pose': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_pose', 'morse/middleware/moos/pose'],
         'imu': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_imu', 'morse/middleware/moos/imu'],
@@ -164,8 +164,8 @@ MORSE_MIDDLEWARE_DICT = {
 
 
     'jaus': {
-        'vw_control': [MORSE_MIDDLEWARE_MODULE['jaus'], 'read_message'],
-        'vw_diff_drive_control': [MORSE_MIDDLEWARE_MODULE['jaus'], 'read_message'],
+        'v_omega': [MORSE_MIDDLEWARE_MODULE['jaus'], 'read_wrench', 'morse/middleware/jaus/PrimitiveDriver'],
+        'vw_diff_drive': [MORSE_MIDDLEWARE_MODULE['jaus'],'read_wrench', 'morse/middleware/jaus/PrimitiveDriver'],
         'pose': [MORSE_MIDDLEWARE_MODULE['jaus'], 'post_pose', 'morse/middleware/jaus/pose']
     }    
 
