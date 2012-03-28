@@ -211,16 +211,7 @@ class Component(AbstractComponent):
                 autoselect=True, files=objlist)
         # here we use the fact that after appending, Blender select the objects 
         # and the root (parent) object first ( [0] )
-        #self._blendobj = bpy.context.selected_objects[0]
-        
-        # search through the objects and look for the main robot 
-        # object by checking for a 'XX_Tag' property
-        # - FIX THIS LATER: just check for any properties right now 
-        for obj in bpy.context.selected_objects:
-             if (len(obj.game.properties)>0):
-                self._blendobj=obj
-                break;        
-        
+        self._blendobj = bpy.context.selected_objects[0]
         self._category = category
         if make_morseable and category in ['sensors', 'actuators', 'robots'] \
                 and not self.is_morseable():
@@ -279,6 +270,7 @@ class Robot(Component):
         Component.__init__(self, 'robots', name)
     def make_external(self):
         self._blendobj.game.properties['Robot_Tag'].name = 'External_Robot_Tag'
+<<<<<<< HEAD
     def remove_wheels(self):
         import pdb
         pdb.set_trace()
@@ -318,6 +310,48 @@ class Robot(Component):
             except:
                 pass
                 
+=======
+
+
+class WheeledRobot(Robot):
+    def __init__(self, name):
+        Robot.__init__(self, name)
+        self._wheels = []
+        #self.unparent_wheels()
+
+    def unparent_wheels (self):
+        """ Make the wheels orphans, but keep the transormation applied to
+            the parent robot """
+        # Force Blender to update the transformation matrices of objects
+        bpy.data.scenes['Scene'].update()
+        children = self._blendobj.children
+        self._wheels = [child for child in children if "wheel" in child.name.lower()]
+        import mathutils
+        for wheel in self._wheels:
+            # Make a copy of the current transformation matrix
+            transformation = mathutils.Matrix(wheel.matrix_world)
+            wheel.parent = None
+            wheel.matrix_world = transformation
+
+    def append(self, obj):
+        """ Add a child to the current object,
+        Overload the append method of AbstractObject
+        eg: robot.append(sensor), will set the robot parent of the sensor.
+        """
+        import math
+        # Correct the rotation of the object
+        old = obj._blendobj.rotation_euler
+        obj._blendobj.rotation_euler = (old[0], old[1], old[2]+math.pi/2)
+
+        # Switch the values of X and Y location
+        tmp_x = obj._blendobj.location[0]
+        obj._blendobj.location[0] = -obj._blendobj.location[1]
+        obj._blendobj.location[1] = tmp_x
+
+        obj._blendobj.parent = self._blendobj
+
+
+>>>>>>> 79cd01b3e996cc79504159937af91dbf9c07332b
 class Sensor(Component):
     def __init__(self, name):
         Component.__init__(self, 'sensors', name)
@@ -347,6 +381,14 @@ class Environment(AbstractComponent):
         self._camera_rotation = [0.7854, 0, 0.7854]
         self._environment_file = name
         self._multinode_configured = False
+        self._display_camera = None
+        
+        # define 'Scene_Script_Holder' as the blender object of Enrivonment 
+        if not 'Scene_Script_Holder' in bpy.data.objects:
+            # Add the necessary objects
+            base = Component('props', 'basics')
+        self._blendobj = bpy.data.objects['Scene_Script_Holder']
+        # Write the name of the 'environment file'
 
     def _write_multinode(self, node_name):
         """ Configure this node according to its name
@@ -413,12 +455,12 @@ class Environment(AbstractComponent):
         # Write the configuration of the middlewares, and node configuration
         Configuration().write_config()
         self._write_multinode(name)
-        if not 'Scene_Script_Holder' in bpy.data.objects:
-            # Add the necessary objects
-            base = Component('props', 'basics')
-        # Write the name of the 'environment file'
-        ssh = AbstractComponent(bpy.data.objects['Scene_Script_Holder'])
-        ssh.properties(environment_file = str(self._environment_file))
+
+        # Change the Screen material
+        if self._display_camera:
+            self._set_scren_mat()
+        
+        self.properties(environment_file = str(self._environment_file))
         # Set the position of the camera
         camera_fp = bpy.data.objects['CameraFP']
         camera_fp.location = self._camera_location
@@ -426,7 +468,28 @@ class Environment(AbstractComponent):
         # Make CameraFP the active camera
         bpy.ops.object.select_all(action = 'DESELECT')
         bpy.ops.object.select_name(name = 'CameraFP')
+        # make sure OpenGL shading language shaders (GLSL) is the 
+        # material mode to use for rendering
+        bpy.context.scene.game_settings.material_mode = 'GLSL'
+        # Set the unit system to use for button display (in edit mode) to metric
+        bpy.context.scene.unit_settings.system = 'METRIC'
+        # Select the type of Framing to Extend, 
+        # Show the entire viewport in the display window, 
+        # viewing more horizontally or vertically.
+        bpy.context.scene.game_settings.frame_type = 'EXTEND'
+        # Start player with a visible mouse cursor
+        bpy.context.scene.game_settings.show_mouse = True
+        # Set default camera
+        bpy.context.scene.camera = camera_fp
         self._created = True
+
+    def set_horizon_color(self, color=(0.05, 0.22, 0.4)):
+        """ Set the horizon color
+        :param color: (0.0, 0.0, 0.0) < (R, B, G) < (1.0, 1.0, 1.0) 
+                      default: dark azure (0.05, 0.22, 0.4)
+        """
+        # Set the color at the horizon to dark azure
+        bpy.context.scene.world.horizon_color = color
 
     def show_debug_properties(self, value=True):
         if isinstance(value, bool):
@@ -478,6 +541,41 @@ class Environment(AbstractComponent):
 
     def configure_service(self, mw):
         AbstractComponent.configure_service(self, mw, "simulation")
+
+    def select_display_camera(self, robot_camera):
+        """ Select the camera that will be displayed on the Screen object
+        :param robot_camera: AbstractComponent reference to the camera desired to be displayed
+        """
+        self._display_camera = robot_camera
+
+    def _set_scren_mat(self):
+        """ Set the material of the Screen object to the same as the one indicated in the _display_camera variable
+        """
+        camera = None
+        screen = bpy.data.objects['Screen']
+        caption = bpy.data.objects['CameraID_text']
+        blender_component = self._display_camera._blendobj
+        # Find the mesh object with a texture called 'ScreenMat'
+        for child in blender_component.children:
+            if 'CameraMesh' in child.name:
+                camera = child
+                break
+        if not camera:
+            logger.warning("BUILDER WARNING: Argument to 'select_display_camera' is not a camera (%s). Camera display will not work" % self._display_camera.name)
+            return
+        # Find the material with name "ScreenMat"
+        for mat in camera.material_slots:
+            if "ScreenMat" in mat.name:
+                material = mat.material
+                break
+        logger.debug ("Setting material %s for the Screen" % material)
+        screen.active_material = material
+
+        # Make the screen visible when starting the scene
+        screen.game.properties['Visible'].value = True
+
+        # Change the text with the name of the camera being displayed
+        caption.game.properties['Text'].value = self._display_camera.name
 
     def __del__(self):
         """ Call the create method if the user has not explicitly called it """

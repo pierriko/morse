@@ -1,43 +1,62 @@
-Linear and angular speed (V, W) actuator 
-========================================
+Differential drive actuator: Linear and angular speed (V, W)
+============================================================
 
-This actuator reads the values of linear and angular speed and applies
-them to the robot as wheel speeds.  This controller is intended to be 
-used with robots that derive from the MorsePhysicsRobotClass class and 
-are differential drive (no steerable wheels).  
-
-The actuator calculates the left and right angular wheel speeds necessary 
-to produce the given velocity (v) and yaw rate(w) in the absence of wheel
-slip.  If slip occurs  the actual robot velocity and yaw rate may be smaller 
-than that commanded.
-
-The angular wheel speeds are calculated by:
-.. math::
-	v_{ws,l}=\frac{2v-\omega t_{w}}{2 R}
-	v_{ws,r}=\frac{2v+\omega t_{w}}{2 R}
-
-where :math:`t_{w}` is the track width of the robot and R is the wheel radius.
+This actuator reads the values of linear and angular speed and applies them to
+the robot as speeds for the wheels. It only works with robots of the type
+``WheeledRobot``, such as the :doc:`Segway RMP 400 <../robots/segwayrmp400>`.
+The movement of the robot is more realistic, but also depends on more factors,
+such as the friction between the wheels and the surface.
 
 Files 
 -----
 
--  Blender: ``$MORSE_ROOT/data/morse/components/controllers/morse_vw_diff_drive_control.blend``
+-  Blender: ``$MORSE_ROOT/data/actuators/v_omega_diff_drive.blend``
 -  Python: ``$MORSE_ROOT/src/morse/actuators/v_omega_diff_drive.py``
 
 Local data 
 ----------
 
--  **v**: (float) linear velocity
--  **w**: (float) angular velocity
+-  **v**: (float) linear velocity in meters per second
+-  **w**: (float) angular velocity in radians per second
 
 Services
 --------
 
-- **set_speed**: (synchronous service) Modifies v and w according to its
-  parameter
-- **stop**: (synchronous service) Stop the robot (modifies v and w to 0.0)
+- **set_speed**: (synchronous service) Modifies **v** and **w** according to the
+  parameters given.
+
+    +------------+---------------+------------------+
+    | Parameters | ``v``         | float            |
+    |            +---------------+------------------+
+    |            | ``w``         | float            |
+    +------------+---------------+------------------+
+
+    Parameters: ``(v, w)``
+
+
+- **stop**: (synchronous service) Stop the robot (sets **v** and **w** to 0.0)
 
 Applicable modifiers 
 --------------------
 
 No available modifiers
+
+
+Example in Builder API
+----------------------
+
+This kind of actuator should only be added to a robot created from the
+``WheeledRobot`` class, such as the :doc:`Segway RMP 400
+<../robots/segwayrmp400>` robot.
+
+.. code-block:: python
+
+    from morse.builder.morsebuilder import *
+
+    # Append Segway robot to the scene
+    robot = WheeledRobot('segwayrmp400')
+    robot.unparent_wheels()
+
+    # Add the actuator
+    motion = Actuator('v_omega_diff_drive')
+    robot.append(motion)
