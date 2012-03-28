@@ -287,7 +287,8 @@ class Robot(Component):
                   child.name.lower().startswith("wheel")]
         for wheel in wheels:
             bpy.ops.object.select_all(action='DESELECT')
-            bpy.ops.object.select_name(name=wheel.name)
+            wheel.select = True
+            bpy.context.scene.objects.active = wheel
             bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
     def __del__(self):
         """ Call the remove_wheels method if the robot is a Bullet Vehicle """
