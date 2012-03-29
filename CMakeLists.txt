@@ -72,7 +72,7 @@ if (BUILD_MOOS_SUPPORT)
 endif(BUILD_MOOS_SUPPORT)
 
 # check to make sure pyOpenJAUS is installed
-if (BUILD_MOOS_SUPPORT)
+if (BUILD_JAUS_SUPPORT)
 	EXECUTE_PROCESS(COMMAND 
 					${PYTHON3_EXECUTABLE} -c "import pyOpenJAUS.pyComponents;"
 					RESULT_VARIABLE JAUS_PY_ERR
@@ -81,7 +81,7 @@ if (BUILD_MOOS_SUPPORT)
 		#message(${MOOS_PY_ERR})
 		#MESSAGE(FATAL_ERROR "BUILD_JAUS_SUPPORT is required, but '${PYTHON3_EXECUTABLE}' can't find JAUS python binding")
 	endif (JAUS_PY_ERR)
-endif(BUILD_MOOS_SUPPORT)
+endif(BUILD_JAUS_SUPPORT)
 
 IF (BUILD_POCOLIBS_SUPPORT)
 	pkg_check_modules(POCOLIBS REQUIRED pocolibs)
