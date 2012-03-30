@@ -241,6 +241,8 @@ class Component(AbstractComponent):
         else:
             logger.warning(self.name + ": unknown category: " + calling_module)
 
+        import pdb
+        pdb.set_trace()
         # add Game Logic sensor and controller to simulate the component
         bpy.ops.object.select_all(action = 'DESELECT')
         bpy.ops.object.select_name(name = obj.name)
@@ -276,21 +278,15 @@ class WheeledRobot(Robot):
     def __init__(self, name):
         Robot.__init__(self, name)
         self._wheels = []
-        #self.unparent_wheels()
 
-    def unparent_wheels (self):
-        """ Make the wheels orphans, but keep the transormation applied to
-            the parent robot """
-        # Force Blender to update the transformation matrices of objects
-        bpy.data.scenes['Scene'].update()
-        children = self._blendobj.children
-        self._wheels = [child for child in children if "wheel" in child.name.lower()]
-        import mathutils
-        for wheel in self._wheels:
-            # Make a copy of the current transformation matrix
-            transformation = mathutils.Matrix(wheel.matrix_world)
-            wheel.parent = None
-            wheel.matrix_world = transformation
+    def remove_wheels(self):
+        wheels = [child for child in self._blendobj.children if \
+                  child.name.lower().startswith("wheel")]
+        for wheel in wheels:
+            bpy.ops.object.select_all(action='DESELECT')
+            wheel.select = True
+            bpy.context.scene.objects.active = wheel
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 
     def append(self, obj):
         """ Add a child to the current object,
@@ -309,6 +305,8 @@ class WheeledRobot(Robot):
 
         obj._blendobj.parent = self._blendobj
 
+    def __del__(self):
+        self.remove_wheels()
 
 class Sensor(Component):
     def __init__(self, name):

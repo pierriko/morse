@@ -19,6 +19,7 @@ class FourWheelRobotClass(morse.core.robot.MorseRobotClass):
     _wheel_positions = {}
     _wheel_orientations = {}
     _wheel_joints = {}
+    _wheel_radii = {}
 
     def action(self):
         """ Overload the 'action' method of the MorseRobotClass
@@ -50,14 +51,7 @@ class FourWheelRobotClass(morse.core.robot.MorseRobotClass):
             self._wheels[index] = wheel
             self._wheel_positions[index] = mathutils.Vector(wheel.worldPosition)
             self._wheel_orientations[index] = mathutils.Matrix(wheel.worldOrientation)
-            # Make the wheels orphans
-            wheel.removeParent()
-            # Keep their transformations
-            #wheel.worldPosition = self._wheel_positions[index]
-            #wheel.worldOrientation = self._wheel_orientations[index]
-
-        # get wheel radius
-        self._wheelRadius=self.GetWheelRadius(self.blender_obj['WheelFLName'])
+            self._wheel_radii[index]=self.GetWheelRadius(self.blender_obj[name])
 
 
     def ReadGenericParameters(self):
