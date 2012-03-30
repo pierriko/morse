@@ -209,21 +209,9 @@ class Component(AbstractComponent):
         bpy.ops.object.select_all(action='DESELECT')
         bpy.ops.wm.link_append(directory=filepath + '/Object/', link=False, 
                 autoselect=True, files=objlist)
-        # bpy.context.selected_objects contains the imported object
-        # see: bpy.ops.wm.link_append ( autoselect = True )
-        # search through the imported objects and look for main one 
-        # by checking for a 'Class' property
-        candidates = [obj for obj in bpy.context.selected_objects if 'Class' in obj.game.properties]
-        if len(candidates) > 0:
-            self._blendobj = candidates[0]
-            if len(candidates) > 1:
-                logger.warning(name + ": more than 1 candidates " + \
-                               str(candidates))
-        else:
-            # in case the component dosent have morse properties (cf. morseable)
-            # after appending, Blender select the root (parent) object first
-            self._blendobj = bpy.context.selected_objects[0]
-
+        # here we use the fact that after appending, Blender select the objects 
+        # and the root (parent) object first ( [0] )
+        self._blendobj = bpy.context.selected_objects[0]
         self._category = category
         if make_morseable and category in ['sensors', 'actuators', 'robots'] \
                 and not self.is_morseable():
@@ -282,48 +270,6 @@ class Robot(Component):
         Component.__init__(self, 'robots', name)
     def make_external(self):
         self._blendobj.game.properties['Robot_Tag'].name = 'External_Robot_Tag'
-<<<<<<< HEAD
-    def remove_wheels(self):
-<<<<<<< HEAD
-        import pdb
-        pdb.set_trace()
-        
-        #for child in self._blendobj.children:
-        #    if 'wheel' in child.name:
-        #        bpy.ops.object.select_name(name=child.name)
-        #        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-        #bpy.ops.object.select_pattern(pattern="*wheel*",case_sensitive=False,extend=False)
-        #if (bpy.ops.object.parent_clear.poll()):
-        #    bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-        #else:
-        #    logger.warning("Parent_clear called with incorrect context. Wheels not removed.")
-        # remove wheels as children
-        bpy.ops.object.select_pattern(pattern='wheel1', extend=False)
-        if (bpy.context.selected_objects[0].parent is not None):
-            try:
-                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            except:
-                pass
-        bpy.ops.object.select_pattern(pattern='wheel2', extend=False)
-        if (bpy.context.selected_objects[0].parent is not None):
-            try:
-                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            except:
-                pass
-        bpy.ops.object.select_pattern(pattern='wheel3', extend=False)
-        if (bpy.context.selected_objects[0].parent is not None):
-            try:
-                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            except:
-                pass            
-        bpy.ops.object.select_pattern(pattern='wheel4', extend=False)
-        if (bpy.context.selected_objects[0].parent is not None):
-            try:
-                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-            except:
-                pass
-                
-=======
 
 
 class WheeledRobot(Robot):
@@ -364,22 +310,6 @@ class WheeledRobot(Robot):
         obj._blendobj.parent = self._blendobj
 
 
->>>>>>> 79cd01b3e996cc79504159937af91dbf9c07332b
-=======
-        wheels = [child for child in self._blendobj.children if \
-                  child.name.lower().startswith("wheel")]
-        for wheel in wheels:
-            bpy.ops.object.select_all(action='DESELECT')
-            wheel.select = True
-            bpy.context.scene.objects.active = wheel
-            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-    def __del__(self):
-        """ Call the remove_wheels method if the robot is a Bullet Vehicle """
-        # HasSuspension game property is used for Bullet Vehicle
-        if "HasSuspension" in self._blendobj.game.properties:
-            self.remove_wheels()
-
->>>>>>> de8475b055e9c0ab10196b8fc7bfb44a0a74cef8
 class Sensor(Component):
     def __init__(self, name):
         Component.__init__(self, 'sensors', name)
