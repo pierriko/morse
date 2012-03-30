@@ -26,7 +26,10 @@ class VWDiffDriveActuatorClass(morse.core.actuator.MorseActuatorClass):
         # get track width for calculating wheel speeds from yaw rate
         parent = self.robot_parent
         self._trackWidth = parent._trackWidth
-        self._radius = parent._wheelRadius
+
+        # use average of rear wheel radii as effective wheel radius
+        if (len(parent._wheel_radii)>0):
+            self._radius = (parent._wheel_radii['RL']+parent._wheel_radii['RR'])/2
 
         logger.info('Component initialized')
 
