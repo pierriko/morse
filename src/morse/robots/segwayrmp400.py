@@ -21,8 +21,3 @@ class SegwayRMP400PhysicsClass(morse.core.wheeled_robot.MorsePhysicsRobotClass):
     def default_action(self):
         """ Main function of this component. """
         pass
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 79cd01b3e996cc79504159937af91dbf9c07332b
