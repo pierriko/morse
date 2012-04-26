@@ -1,14 +1,11 @@
 import logging; logger = logging.getLogger("morse." + __name__)
-
-import GameLogic
 import math
 import mathutils
-
 import roslib; roslib.load_manifest('rospy'); roslib.load_manifest('geometry_msgs'); roslib.load_manifest('nav_msgs')
-
 import rospy
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, TransformStamped
 from nav_msgs.msg import Odometry
+from morse.middleware.ros.tfMessage import tfMessage
 
 def init_extra_module(self, component_instance, function, mw_data):
     """ Setup the middleware connection with this data
@@ -26,33 +23,103 @@ def init_extra_module(self, component_instance, function, mw_data):
     if mw_data[1] == "post_pose":
         self._topics.append(rospy.Publisher(parent_name + "/" + component_name, PoseStamped))
     else:
-        self._topics.append(rospy.Publisher(parent_name + "/" + component_name, Odometry)) 
+        self._topics.append(rospy.Publisher(parent_name + "/" + component_name, Odometry))
+        if not "_pose" in dir(self):
+            # init component specific data
+            self._pose = {}
+        self._pose['previous_orientation_%s'%component_instance.blender_obj.name] = [0.0, 0.0, 0.0]
+        self._pose['previous_position_%s'%component_instance.blender_obj.name] = [0.0, 0.0, 0.0]
+        self._pose['previous_time_%s'%component_instance.blender_obj.name] = 0.0
+
+    self.pub_tf = rospy.Publisher("/tf", tfMessage)
+
+    self._seq = 0
 
     logger.info('Initialized the ROS pose sensor')
 
+def sendTransform(self, translation, rotation, time, child, parent):
+        """
+        :param translation: the translation of the transformtion as a tuple (x, y, z)
+        :param rotation: the rotation of the transformation as a tuple (x, y, z, w)
+        :param time: the time of the transformation, as a rospy.Time()
+        :param child: child frame in tf, string
+        :param parent: parent frame in tf, string
+
+        Broadcast the transformation from tf frame child to parent on ROS topic ``"/tf"``.
+        """
+
+        t = TransformStamped()
+        t.header.frame_id = parent
+        t.header.stamp = time
+        t.child_frame_id = child
+        t.transform.translation.x = translation[0]
+        t.transform.translation.y = translation[1]
+        t.transform.translation.z = translation[2]
+
+        t.transform.rotation.x = rotation[0]
+        t.transform.rotation.y = rotation[1]
+        t.transform.rotation.z = rotation[2]
+        t.transform.rotation.w = rotation[3]
+
+        tfm = tfMessage([t])
+        self.pub_tf.publish(tfm)
+
 def post_odometry(self, component_instance):
-    """ Publish the data of the Pose as a Odometry message for fake localization 
+    """ Publish the data of the Pose sensor as a ROS-Odometry message
     """
     parent_name = component_instance.robot_parent.blender_obj.name
+    current_time = rospy.Time.now()
+
+    x = component_instance.local_data['x']
+    y = component_instance.local_data['y']
+    z = component_instance.local_data['z']
+    roll = component_instance.local_data['roll']
+    pitch = component_instance.local_data['pitch']
+    yaw = component_instance.local_data['yaw']
+
+    euler = mathutils.Euler((roll, pitch, yaw))
+    quaternion = euler.to_quaternion()
 
     odometry = Odometry()
-    odometry.header.stamp = rospy.Time.now()
-    odometry.header.frame_id = "/map"
+    odometry.header.seq = self._seq
+    odometry.header.stamp = current_time
+    odometry.header.frame_id = "/odom"
     odometry.child_frame_id = "/base_footprint"
 
-    odometry.pose.pose.position.x = component_instance.local_data['x']
-    odometry.pose.pose.position.y = component_instance.local_data['y']
-    odometry.pose.pose.position.z = component_instance.local_data['z'] 
-
-    euler = mathutils.Euler((component_instance.local_data['roll'], component_instance.local_data['pitch'], component_instance.local_data['yaw']))
-    quaternion = euler.to_quaternion()
+    # fill pose
+    odometry.pose.pose.position.x = x
+    odometry.pose.pose.position.y = y
+    odometry.pose.pose.position.z = z
     odometry.pose.pose.orientation = quaternion
 
+    # compute twist
+    current_sec = current_time.to_sec()
+    dt = current_sec - self._pose['previous_time_%s'%component_instance.blender_obj.name]
+    odometry.twist.twist.linear.x = (x - self._pose['previous_position_%s'%component_instance.blender_obj.name][0]) / dt
+    odometry.twist.twist.linear.y = (y - self._pose['previous_position_%s'%component_instance.blender_obj.name][1]) / dt
+    odometry.twist.twist.linear.z = (z - self._pose['previous_position_%s'%component_instance.blender_obj.name][2]) / dt
+    odometry.twist.twist.angular.x = (roll - self._pose['previous_orientation_%s'%component_instance.blender_obj.name][0]) / dt
+    odometry.twist.twist.angular.y = (pitch - self._pose['previous_orientation_%s'%component_instance.blender_obj.name][1]) / dt
+    odometry.twist.twist.angular.z = (yaw - self._pose['previous_orientation_%s'%component_instance.blender_obj.name][2]) / dt
+    # store previous data
+    self._pose['previous_orientation_%s'%component_instance.blender_obj.name] = [roll, pitch, yaw]
+    self._pose['previous_position_%s'%component_instance.blender_obj.name] = [x, y, z]
+    self._pose['previous_time_%s'%component_instance.blender_obj.name] = current_sec
+
     for topic in self._topics: 
-        # publish the message on the correct topic    
+        # publish the message on the correct topic
         if str(topic.name) == str("/" + parent_name + "/" + component_instance.blender_obj.name): 
             topic.publish(odometry)
-            
+
+    # publish the odom init
+    sendTransform(self, (x, y, z),
+                  (quaternion.x, quaternion.y, quaternion.z, quaternion.w),
+                  current_time,
+                  "/base_footprint",
+                  "/odom")
+
+    self._seq += 1
+
 def post_pose(self, component_instance):
     """ Publish the data of the Pose as a ROS-PoseStamped message
     """
@@ -75,6 +142,7 @@ def post_pose(self, component_instance):
     poseStamped.header.frame_id = "map"
 
     for topic in self._topics: 
+        message = poseStamped
         # publish the message on the correct topic    
         if str(topic.name) == str("/" + parent_name + "/" + component_instance.blender_obj.name): 
             topic.publish(poseStamped)
