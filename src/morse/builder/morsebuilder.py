@@ -317,7 +317,7 @@ class WheeledRobot(Robot):
             #  because of an incorrect context error
             #bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 
-def remove_wheels(self):
+    def remove_wheels(self):
         wheels = [child for child in self._blendobj.children if \
                   child.name.lower().startswith("wheel")]
         for wheel in wheels:
