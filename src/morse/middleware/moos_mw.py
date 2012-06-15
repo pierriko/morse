@@ -13,7 +13,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         self.m = pymoos.MOOSCommClient.MOOSCommClient()
         # intialize MOOS and MORSE times
         self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
-        self.current_sim_time=GameLogic.current_sim_time
+        self.current_sim_time=bge.logic.current_time
         
         logger.info("%s" % self.m.GetLocalIPAddress())
 

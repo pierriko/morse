@@ -55,15 +55,15 @@ class PhysicsWheelRobotClass(morse.core.robot.MorseRobotClass):
                 logger.info("\tWheel %s: %s" % (index, wheel.name))
                 self._wheel_positions[index] = mathutils.Vector(wheel.worldPosition)
                 self._wheel_orientations[index] = mathutils.Matrix(wheel.worldOrientation)
-            	self._wheel_radii[index]=self.GetWheelRadius(self.blender_obj[name])                
+                self._wheel_radii[index]=self.GetWheelRadius(self.blender_obj[name])                
 				# Make the wheels orphans
-                wheel.removeParent()
+                #wheel.removeParent()
                 # Keep their transformations
                 #wheel.worldPosition = self._wheel_positions[index]
                 #wheel.worldOrientation = self._wheel_orientations[index]
 
         # get wheel radius
-        self._wheelRadius=self.GetWheelRadius(self.blender_obj['WheelFLName'])
+        #self._wheelRadius=self.GetWheelRadius(self.blender_obj['WheelFLName'])
 
         # Add a free rotating wheel if indicated in the robot
         if 'CasterWheelName' in self.blender_obj:
