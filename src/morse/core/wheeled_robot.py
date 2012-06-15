@@ -254,25 +254,25 @@ class MorsePhysicsRobotClass(PhysicsWheelRobotClass):
         # TODO: fill this in later - model after Bueraki code
         pass
 
-#    def getWheelSpeeds(self):
-#        """ Returns the angular wheel velocity in rad/sec"""
-#        # true parameters tell it velocities are local
-#        # wheels should be rotating about local Z axis
-#        wsFL=self._wheelFL.getAngularVelocity(True)
-#        wsFR=self._wheelFR.getAngularVelocity(True)
-#        wsRL=self._wheelRL.getAngularVelocity(True)
-#        wsRR=self._wheelRR.getAngularVelocity(True)
-#        return [wsFL[2], wsFR[2], wsRL[2], wsRR[2]]
-#
-#    def getWheelAngle(self):
-#        """ Returns the accumulated wheel angle in radians"""
-#        # true parameters tell it velocities are local
-#        # wheels should be rotating about local Z axis
-#        wcFL=self._wheelFL.localOrientation.to_euler()
-#        wcFR=self._wheelFR.localOrientation.to_euler()
-#        wcRL=self._wheelRL.localOrientation.to_euler()
-#        wcRR=self._wheelRR.localOrientation.to_euler()
-#        return [wcFL[1], wcFR[1], wcRL[1], wcRR[1]]
+    def getWheelSpeeds(self):
+       """ Returns the angular wheel velocity in rad/sec"""
+       # true parameters tell it velocities are local
+       # wheels should be rotating about local Z axis
+       wsFL=self._wheels['FL'].getAngularVelocity(True)
+       wsFR=self._wheels['FR'].getAngularVelocity(True)
+       wsRL=self._wheels['RL'].getAngularVelocity(True)
+       wsRR=self._wheels['RR'].getAngularVelocity(True)
+       return [wsFL[2], wsFR[2], wsRL[2], wsRR[2]]
+
+    def getWheelAngle(self):
+       """ Returns the accumulated wheel angle in radians"""
+       # true parameters tell it velocities are local
+       # wheels should be rotating about local Z axis
+       wcFL=self._wheels['FL'].localOrientation.to_euler()
+       wcFR=self._wheels['FR'].localOrientation.to_euler()
+       wcRL=self._wheels['RL'].localOrientation.to_euler()
+       wcRR=self._wheels['RR'].localOrientation.to_euler()
+       return [wcFL[1], wcFR[1], wcRL[1], wcRR[1]]
 #
 #    def AttachWheelToWheel(self,wheel1,wheel2):
 #        # add both wheels on each side to each other but with no
