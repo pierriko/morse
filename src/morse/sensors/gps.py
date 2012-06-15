@@ -38,7 +38,7 @@ class GPSClass(morse.core.sensor.MorseSensorClass):
         # By default it is set to 60, regardles of the FPS
         # If logic tick rate is 60, then: 1 second = 60 ticks
         # needed to scale change in position to get speed 
-        self.ticks = GameLogic.getLogicTicRate()
+        self.ticks = bge.logic.getLogicTicRate()
 
         logger.info('Component initialized')
 
