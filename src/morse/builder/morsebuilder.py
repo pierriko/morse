@@ -2,6 +2,7 @@ import logging; logger = logging.getLogger("morsebuilder." + __name__)
 import os
 import bpy
 import json
+import math
 from morse.core.exceptions import MorseError
 from morse.core.exceptions import MorseBuilderNoComponentError
 from morse.builder.abstractcomponent import *
@@ -17,8 +18,8 @@ To test this module you can c/p the following code in Blender Python console::
     from morse.builder.morsebuilder import *
     atrv=Robot("atrv")
 
-The string passed to the differents Components Classes must be an existing 
-.blend file-name, ie. for ``Robot("atrv")`` the file ``atrv.blend`` must exists 
+The string passed to the differents Components Classes must be an existing
+.blend file-name, ie. for ``Robot("atrv")`` the file ``atrv.blend`` must exists
 in the folder ``MORSE_COMPONENTS/robots/``.
 """
 
@@ -31,12 +32,12 @@ class PassiveObject(AbstractComponent):
         :param blenderfile: The Blender file to load. Path can be absolute
                            or relative to MORSE assets' installation path
                            (typically, $PREFIX/share/morse/data)
-        :param prefix: (optional) the prefix of the objects to load in the 
+        :param prefix: (optional) the prefix of the objects to load in the
                        Blender file. If not set, all objects present in the file
                        are loaded. If set, all objects **prefixed** by this
                        name are imported.
         :param keep_pose: If set, the object pose (translation and rotation)
-                        in the Blender file is kept. Else, the object 
+                        in the Blender file is kept. Else, the object
                         own center is placed at origin and all rotation are
                         reset.
         :return: a new AbstractComponent instance.
@@ -65,32 +66,32 @@ class PassiveObject(AbstractComponent):
         logger.info("Importing the following passive object(s): %s" % (objlist))
 
         bpy.ops.object.select_all(action='DESELECT')
-        bpy.ops.wm.link_append(directory=filepath + '/Object/', link=False, 
+        bpy.ops.wm.link_append(directory=filepath + '/Object/', link=False,
                 autoselect=True, files=objlist)
-        # here we use the fact that after appending, Blender select the objects 
+        # here we use the fact that after appending, Blender select the objects
         # and the root (parent) object first ( [0] )
         self._blendobj = bpy.context.selected_objects[0]
 
         if not keep_pose:
             self._blendobj.location = (0.0, 0.0, 0.0)
             self._blendobj.rotation_euler = (0.0, 0.0, 0.0)
-        
+
     def setgraspable(self):
         """
         Makes an object graspable to the human avatar by adding a NEAR collision
         sensor to the object.
-        
-        This function also set the object to be an active game object (property 
-        'Object' set to true), and set the object label to the Blender object 
-        name (if not already set).        
+
+        This function also set the object to be an active game object (property
+        'Object' set to true), and set the object label to the Blender object
+        name (if not already set).
         """
         obj = self._blendobj
-        
+
         if not "Label" in obj.game.properties:
             self.properties(Object = True, Graspable = True, Label = obj.name)
         else:
-            self.properties(Object = True, Graspable = True)        
-        
+            self.properties(Object = True, Graspable = True)
+
         # Add collision sensor for object placement
         if not 'Collision' in obj.game.sensors:
             bpy.ops.logic.sensor_add(type = 'NEAR')
@@ -142,7 +143,7 @@ class Human(AbstractComponent):
                              (filepath, detail))
 
         bpy.ops.object.select_all(action='DESELECT')
-        bpy.ops.wm.link_append(directory=filepath + '/Object/', link=False, 
+        bpy.ops.wm.link_append(directory=filepath + '/Object/', link=False,
                 autoselect=True, files=objlist)
         self._blendname = "Human" # for middleware dictionary
         self._blendobj = self._get_selected("Human")
@@ -181,12 +182,12 @@ class Component(AbstractComponent):
     def __init__(self, category='', name='', make_morseable=True):
         """ Initialize a MORSE component
 
-        :param category: The category of the component (folder in 
+        :param category: The category of the component (folder in
             MORSE_COMPONENTS)
-        :param name: The name of the component (file in 
-            MORSE_COMPONENTS/category/name.blend) If ends with '.blend', 
+        :param name: The name of the component (file in
+            MORSE_COMPONENTS/category/name.blend) If ends with '.blend',
             append the objects from the Blender file.
-        :param make_morseable: If the component has no property for the 
+        :param make_morseable: If the component has no property for the
             simulation, append default Morse ones. See self.morseable()
         """
         AbstractComponent.__init__(self, name=name)
@@ -195,7 +196,7 @@ class Component(AbstractComponent):
         else:
             filepath = os.path.join(MORSE_COMPONENTS, category, name + '.blend')
 
-        try: 
+        try:
             with bpy.data.libraries.load(filepath) as (src, _):
                 try:
                     objlist = [{'name':obj} for obj in src.objects]
@@ -207,22 +208,24 @@ class Component(AbstractComponent):
             raise MorseBuilderNoComponentError("Component not found")
 
         bpy.ops.object.select_all(action='DESELECT')
-        bpy.ops.wm.link_append(directory=filepath + '/Object/', link=False, 
+        bpy.ops.wm.link_append(directory=filepath + '/Object/', link=False,
                 autoselect=True, files=objlist)
-        # here we use the fact that after appending, Blender select the objects 
+        # here we use the fact that after appending, Blender select the objects
         # and the root (parent) object first ( [0] )
         self._blendobj = bpy.context.selected_objects[0]
         self._category = category
         if make_morseable and category in ['sensors', 'actuators', 'robots'] \
                 and not self.is_morseable():
             self.morseable()
+
     def is_morseable(self):
         return 'Class' in self._blendobj.game.properties
+
     def morseable(self, calling_module=None):
         """ Make this component simulable in MORSE
 
         :param calling_module: Module called each simulation cycle.
-            enum in ['calling.sensor_action', 'calling.actuator_action', 
+            enum in ['calling.sensor_action', 'calling.actuator_action',
                     'calling.robot_action']
         """
         obj = self._blendobj
@@ -241,11 +244,10 @@ class Component(AbstractComponent):
         else:
             logger.warning(self.name + ": unknown category: " + calling_module)
 
-        import pdb
-        pdb.set_trace()
         # add Game Logic sensor and controller to simulate the component
         bpy.ops.object.select_all(action = 'DESELECT')
-        bpy.ops.object.select_name(name = obj.name)
+        obj.select = True
+        bpy.context.scene.objects.active = obj
         bpy.ops.logic.sensor_add() # default is Always sensor
         sensor = obj.game.sensors[-1]
         sensor.use_pulse_true_level = True
@@ -254,32 +256,68 @@ class Component(AbstractComponent):
         controller.mode = 'MODULE'
         controller.module = calling_module
         controller.link(sensor = sensor)
-    def frequency(self, delay=0):
+
+    def frequency(self, frequency=None, delay=0):
         """ Set the frequency delay for the call of the Python module
 
-        :param delay: (int) Delay between repeated pulses 
+        :param frequency: (int) Desired frequency,
+            0 < frequency < logic tics
+        :param delay: (int) Delay between repeated pulses
             (in logic tics, 0 = no delay)
+            if frequency is set, delay is obtained by fps / frequency.
         """
+        if frequency:
+            delay = bpy.context.scene.game_settings.fps // frequency
         sensors = [s for s in self._blendobj.game.sensors if s.type == 'ALWAYS']
         if len(sensors) > 1:
             logger.warning(self.name + " has too many Game Logic sensors to "+\
                     "tune its frequency, change it through Blender")
         sensors[0].frequency = delay
 
-
 class Robot(Component):
     def __init__(self, name):
         Component.__init__(self, 'robots', name)
+
     def make_external(self):
         self._blendobj.game.properties['Robot_Tag'].name = 'External_Robot_Tag'
+#    def remove_wheels(self):
+#        wheels = [child for child in self._blendobj.children if \
+#                  child.name.lower().startswith("wheel")]
+#        for wheel in wheels:
+#            bpy.ops.object.select_all(action='DESELECT')
+#            bpy.ops.object.select_pattern(pattern=wheel.name, extend=False)
+#            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+#    def __del__(self):
+#        """ Call the remove_wheels method if the robot is a Bullet Vehicle """
+#        # HasSuspension game property is used for Bullet Vehicle
+#        if "HasSuspension" in self._blendobj.game.properties:
+#            self.remove_wheels()
 
 
 class WheeledRobot(Robot):
     def __init__(self, name):
         Robot.__init__(self, name)
         self._wheels = []
+        #self.unparent_wheels()
 
-    def remove_wheels(self):
+    def unparent_wheels (self):
+        """ Make the wheels orphans, but keep the transormation applied to
+            the parent robot """
+        # Force Blender to update the transformation matrices of objects
+        bpy.data.scenes['Scene'].update()
+        children = self._blendobj.children
+        self._wheels = [child for child in children if "wheel" in child.name.lower()]
+        import mathutils
+        for wheel in self._wheels:
+            # Make a copy of the current transformation matrix
+            transformation = mathutils.Matrix(wheel.matrix_world)
+            wheel.parent = None
+            wheel.matrix_world = transformation
+            # This method should be easier, but does not seem to work
+            #  because of an incorrect context error
+            #bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+
+def remove_wheels(self):
         wheels = [child for child in self._blendobj.children if \
                   child.name.lower().startswith("wheel")]
         for wheel in wheels:
@@ -293,7 +331,6 @@ class WheeledRobot(Robot):
         Overload the append method of AbstractObject
         eg: robot.append(sensor), will set the robot parent of the sensor.
         """
-        import math
         # Correct the rotation of the object
         old = obj._blendobj.rotation_euler
         obj._blendobj.rotation_euler = (old[0], old[1], old[2]+math.pi/2)
@@ -311,6 +348,100 @@ class WheeledRobot(Robot):
 class Sensor(Component):
     def __init__(self, name):
         Component.__init__(self, 'sensors', name)
+        #if name == 'sick':
+            #self.create_sick_arc()
+
+    def create_sick_arc(self):
+        """ Create an arc for use with the SICK sensor
+
+        The arc is created using the parameters in the Sick Empty.
+        'resolution and 'scan_window' are used to determine how many points
+        will be added to the arc.
+        """
+        scene = bpy.context.scene
+
+        sick_obj = self._blendobj
+
+        for child in sick_obj.children:
+            # Get the mesh and the "RayMat" material for the arc
+            if 'SickMesh' in child.name:
+                for mat in child.material_slots:
+                    if "RayMat" in mat.name:
+                        material = mat.material
+                        break
+            # TODO: Remove this code and the arc when no longer needed
+            # Find and remove the default arc included in the sick.blend file
+            # This object is kept for backwards compatibility
+            if 'Arc_180' in child.name:
+                old_arc = child
+                scene.objects.unlink( old_arc )
+
+        # Read the parameters to create the arc
+        properties = sick_obj.game.properties
+        resolution = properties['resolution'].value
+        window = properties['scan_window'].value
+        # Parameters for multi layer sensors
+        try:
+            layers = properties['layers'].value
+            layer_separation = properties['layer_separation'].value
+            layer_offset = properties['layer_offset'].value
+        except KeyError as detail:
+            layers = 1
+            layer_separation = 0.0
+            layer_offset = 0.0
+        logger.debug ("Creating %d arc(s) of %.2f degrees, resolution %.2f" % (layers, window, resolution))
+        mesh = bpy.data.meshes.new( "ArcMesh" )
+        # Add the center vertex to the list of vertices
+        verts = [ [0.0, 0.0, 0.0] ]
+        faces = []
+        vertex_index = 0
+
+        # Set the vertical angle, in case of multiple layers
+        if layers > 1:
+            v_angle = layer_separation * (layers-1) / 2.0
+        else:
+            v_angle = 0.0
+
+        # Initialise the parameters for every layer
+        for layer_index in range(layers):
+            start_angle = window / 2.0
+            end_angle = -window / 2.0
+            # Offset the consecutive layers
+            if (layer_index % 2) == 0:
+                start_angle += layer_offset
+                end_angle += layer_offset
+            logger.debug ("Arc from %.2f to %.2f" % (start_angle, end_angle))
+            logger.debug ("Vertical angle: %.2f" % v_angle)
+            arc_angle = start_angle
+
+            # Create all the vertices and faces in a layer
+            while arc_angle >= end_angle:
+                # Compute the coordinates of the new vertex
+                new_vertex = [ math.cos(math.radians(arc_angle)), math.sin(math.radians(arc_angle)), math.sin(math.radians(v_angle)) ]
+                verts.append(new_vertex)
+                vertex_index = vertex_index + 1
+                # Add the faces after inserting the 2nd vertex
+                if arc_angle < start_angle:
+                    faces.append([0, vertex_index-1, vertex_index])
+                # Increment the angle by the resolution
+                arc_angle = arc_angle - resolution
+
+            v_angle -= layer_separation
+
+        mesh.from_pydata( verts, [], faces )
+        mesh.update()
+        # Compose the name of the arc
+        arc_name = "Arc_%d" % window
+        arc = bpy.data.objects.new( arc_name, mesh )
+        arc.data = mesh
+        # Remove collision detection for the object
+        arc.game.physics_type = 'NO_COLLISION'
+        # Set the material of the arc
+        arc.active_material = material
+        # Link the new object in the scene
+        scene.objects.link( arc )
+        # Set the parent to be the Sick Empty
+        arc.parent = sick_obj
 
 
 class Actuator(Component):
@@ -318,28 +449,24 @@ class Actuator(Component):
         Component.__init__(self, 'actuators', name)
 
 
-class Environment(AbstractComponent):
+class Environment(Component):
     """ Class to configure the general environment of the simulation
     It handles the scenario file, general properties of the simulation,
     the default location and orientation of the camera, the Blender GE settings
     and also writes the 'component_config.py' file.
     """
-
     multinode_distribution = dict()
 
-    def __init__(self, name=None):
-        if name:
-            Component.__init__(self, 'environments', name)
-        else:
-            AbstractComponent.__init__(self)
+    def __init__(self, name):
+        Component.__init__(self, 'environments', name)
         self._created = False
         self._camera_location = [5, -5, 5]
         self._camera_rotation = [0.7854, 0, 0.7854]
         self._environment_file = name
         self._multinode_configured = False
         self._display_camera = None
-        
-        # define 'Scene_Script_Holder' as the blender object of Enrivonment 
+
+        # define 'Scene_Script_Holder' as the blender object of Enrivonment
         if not 'Scene_Script_Holder' in bpy.data.objects:
             # Add the necessary objects
             base = Component('props', 'basics')
@@ -415,33 +542,37 @@ class Environment(AbstractComponent):
         # Change the Screen material
         if self._display_camera:
             self._set_scren_mat()
-        
+
         self.properties(environment_file = str(self._environment_file))
         # Set the position of the camera
         camera_fp = bpy.data.objects['CameraFP']
         camera_fp.location = self._camera_location
         camera_fp.rotation_euler = self._camera_rotation
-        # Make CameraFP the active camera
-        bpy.ops.object.select_all(action = 'DESELECT')
-        bpy.ops.object.select_name(name = 'CameraFP')
-        # make sure OpenGL shading language shaders (GLSL) is the 
+
+        # make sure OpenGL shading language shaders (GLSL) is the
         # material mode to use for rendering
         bpy.context.scene.game_settings.material_mode = 'GLSL'
         # Set the unit system to use for button display (in edit mode) to metric
         bpy.context.scene.unit_settings.system = 'METRIC'
-        # Select the type of Framing to Extend, 
-        # Show the entire viewport in the display window, 
+        # Select the type of Framing to Extend,
+        # Show the entire viewport in the display window,
         # viewing more horizontally or vertically.
         bpy.context.scene.game_settings.frame_type = 'EXTEND'
         # Start player with a visible mouse cursor
         bpy.context.scene.game_settings.show_mouse = True
+
+        # Make CameraFP the active camera
+        bpy.ops.object.select_all(action='DESELECT')
+        camera_fp.select = True
+        bpy.context.scene.objects.active = camera_fp
         # Set default camera
         bpy.context.scene.camera = camera_fp
+
         self._created = True
 
     def set_horizon_color(self, color=(0.05, 0.22, 0.4)):
         """ Set the horizon color
-        :param color: (0.0, 0.0, 0.0) < (R, B, G) < (1.0, 1.0, 1.0) 
+        :param color: (0.0, 0.0, 0.0) < (R, B, G) < (1.0, 1.0, 1.0)
                       default: dark azure (0.05, 0.22, 0.4)
         """
         # Set the color at the horizon to dark azure
@@ -486,7 +617,7 @@ class Environment(AbstractComponent):
         """
         bpy.context.scene.game_settings.stereo = stereo
 
-    def configure_multinode(self, protocol='socket', 
+    def configure_multinode(self, protocol='socket',
             server_address='localhost', server_port='65000', distribution=None):
         self._protocol = protocol
         self._server_address = server_address

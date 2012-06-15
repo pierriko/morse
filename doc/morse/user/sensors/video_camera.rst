@@ -4,7 +4,7 @@ Video camera sensor
 This sensor emulates a single video camera. It generates a series of RGBA images.
 Images are encoded as binary char arrays, with 4 bytes per pixel.
 
-The cameras make use of Blender's **VideoTexture** module, which requires
+The cameras make use of Blender's **bge.texture** module, which requires
 a graphic card capable of GLSL shading.
 Also, the 3D view window in Blender must be set to draw **Textured** objects.
 
@@ -16,6 +16,11 @@ Also, the 3D view window in Blender must be set to draw **Textured** objects.
     Toggling off the cameras can help make the simulation run faster,
     specially when there are several cameras. However, the lack of
     data on the stream may cause problems to some middlewares.
+
+
+.. image:: ../../../media/sensors/video_camera.png 
+  :align: center
+  :width: 600
 
 Files
 -----

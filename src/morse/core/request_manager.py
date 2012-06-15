@@ -3,7 +3,7 @@ logger.setLevel(logging.DEBUG)
 import os
 import sys
 import uuid
-import GameLogic
+import bge
 from functools import partial
 from abc import ABCMeta, abstractmethod
 
@@ -163,9 +163,9 @@ class RequestManager(object):
 
             if self.post_registration(component_name, service_name, async):
                 logger.info(str(self) + ": " + \
-                    ("Asynchronous" if async else "Synchronous") + " service " + \
-                    service_name + " for component " + component_name + \
-                    " successfully registered")
+                    ("Asynchronous" if async else "Synchronous") + \
+                    " service '" + service_name + "' for component '" + \
+                    component_name + "' successfully registered")
             else:
                 logger.error(str(self) + ": Error while registering a new service: " + \
                         "could not complete the post-registration step.")
@@ -245,7 +245,7 @@ class RequestManager(object):
                 else:
                     raise MorseRPCTypeError(str(self) + ": wrong parameter type for service " + service + ". " + str(e))
 
-            logger.debug("Asynchronous request " + str(request_id) + " successfully started.")
+            logger.debug("Asynchronous request '" + str(request_id) + "' successfully started.")
             return (False, request_id)
 
         else: #Synchronous service.
@@ -278,14 +278,14 @@ class RequestManager(object):
         """
         component_name, service_name = self._pending_requests[request_id]
 
-        for component in GameLogic.componentDict.values():
+        for component in bge.logic.componentDict.values():
             if component.name() == component_name:
                 logger.info("calling  interrupt on %s" % str(component))
                 component.interrupt()
                 return
 
         # if not found, search in the overlay dictionnary
-        for overlay in GameLogic.overlayDict.values():
+        for overlay in bge.logic.overlayDict.values():
             if overlay.name() == component_name:
                 logger.info("calling  interrupt on %s" % str(overlay))
                 overlay.interrupt()

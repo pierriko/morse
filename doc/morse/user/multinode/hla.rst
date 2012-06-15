@@ -162,7 +162,11 @@ HLA in the Builder API
 The Builer API provides an ``Environment`` object  that must also be configured 
 for HLA multinode simulation::
 
-    env.configure_node(protocol="hla", node_name="NODE A", server_address="140.93.0.93", server_port="60400")
+    env.configure_multinode(protocol="hla", server_address="140.93.0.93", server_port="60400",
+                            distribution={
+                                "nodeA": ["MyFirstRobot"],
+                                "nodeB": ["MySecondRobot"],
+                            })
 	
 - The ``server_address`` is the IP address of the computer hosting the RTIG.
 - The ``server_port`` is the TCP port used to connect to the RTIG. By default, the TCP port number is 60400.
@@ -170,20 +174,13 @@ for HLA multinode simulation::
 If you want to use an other port, you have to specify it in the Builder configuration (as described above),
 and set the ``CERTI_TCP_PORT`` environment variable before launching the RTIG.
 
-Executing an HLA multi-node simulation
-++++++++++++++++++++++++++++++++++++++
+HLA-related tutorials
+---------------------
 
-Once you have configured your nodes and your environment in the Builder, you are ready to launch the 
-multi-node simulation.
+You can find some multi-node tutorials in ``$MORSE_ROOT/share/morse/examples/tutorials/multinode/``:
 
-1. Launch the RTIG on the RTIG host machine; the CERTI command is ``rtig``.
+.. toctree::
+    :glob:
+    :maxdepth: 1
 
-2. On each node, launch the distributed scenario, using::
-
-    $ export MORSE_NODE="NODE A"
-    $ morse edit <scenario_node.py>
-
-3. Then, on each node, launch the game engine by pressing :kbd:`p`.
-
-The nodes are now synchronized: move one robot on the node where it is
-managed, its pose will be reflected on the other nodes.
+    tutorials/*

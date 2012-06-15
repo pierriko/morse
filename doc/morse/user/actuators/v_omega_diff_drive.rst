@@ -3,9 +3,24 @@ Differential drive actuator: Linear and angular speed (V, W)
 
 This actuator reads the values of linear and angular speed and applies them to
 the robot as speeds for the wheels. It only works with robots of the type
-``WheeledRobot``, such as the :doc:`Segway RMP 400 <../robots/segwayrmp400>`.
-The movement of the robot is more realistic, but also depends on more factors,
+``WheeledRobot``, such as the :doc:`Segway RMP 400 <../robots/segwayrmp400>`
+and the :doc:`Pioneer 3-DX <../robots/pioneer3dx>`.  The movement of the robot
+is more realistic, but also depends on more factors,
 such as the friction between the wheels and the surface.
+
+The speeds for the left and right wheels are calculated as::
+
+    left_speed = (v - e w) / R
+
+    right_speed = (v + e w) / R
+
+Where:
+
+- **v** is the linear velocity given as parameter
+- **w** is the angular velocity given as parameter
+- **e** is half of the distance between the left and right wheels
+- **R** is the radius of the wheels
+
 
 Files 
 -----

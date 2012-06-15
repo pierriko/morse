@@ -34,12 +34,30 @@ EXECUTE_PROCESS(COMMAND
 					RESULT_VARIABLE PYTHON_ERR
 					)
 
+if (WIN32)
+EXECUTE_PROCESS(COMMAND
+   ${PYTHON3_EXECUTABLE} -c "import distutils.sysconfig, sys; sys.stdout.write(distutils.sysconfig.get_config_vars()['BINDIR'] + '\\libs\\python32.lib')"
+                   OUTPUT_VARIABLE PYTHON3_LIBRARY
+                   ERROR_VARIABLE PYTHON_STDERR
+                   RESULT_VARIABLE PYTHON_ERR
+                   )
+else (WIN32)
 EXECUTE_PROCESS(COMMAND
 	${PYTHON3_EXECUTABLE} -c "import distutils.sysconfig, sys; sys.stdout.write(distutils.sysconfig.get_config_vars()['LIBDIR'] + '/' + distutils.sysconfig.get_config_vars()['LDLIBRARY'])"
 					OUTPUT_VARIABLE PYTHON3_LIBRARY
 					ERROR_VARIABLE PYTHON_STDERR
 					RESULT_VARIABLE PYTHON_ERR
 					)
+endif (WIN32)
+
+if (NOT EXISTS ${PYTHON3_LIBRARY})
+	message(FATAL_ERROR "PYTHON3_LIBRARY detected at ${PYTHON3_LIBRARY}, but does not seem to exist")
+endif()
+
+if (NOT EXISTS ${PYTHON3_INCLUDE_DIR}/Python.h)
+	message(FATAL_ERROR "PYTHON3_INCLUDE_DIR detected at ${PYTHON3_INCLUDE_DIR}, "
+						"but ${PYTHON3_INCLUDE_DIR}/Python.h does not seem to exist")
+endif()
 
 MARK_AS_ADVANCED(
   PYTHON3_DEBUG_LIBRARY

@@ -1,6 +1,5 @@
 import logging; logger = logging.getLogger("morse." + __name__)
-import GameLogic
-import mathutils
+import bge
 import math
 import morse.core.sensor
 
@@ -43,7 +42,7 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         # Tick rate is the real measure of time in Blender.
         # By default it is set to 60, regardles of the FPS
         # If logic tick rate is 60, then: 1 second = 60 ticks
-        self.ticks = GameLogic.getLogicTicRate()
+        self.ticks = bge.logic.getLogicTicRate()
 
         self.local_data['distance'] = 0.0
         self.local_data['velocity'] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -83,14 +82,8 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.pproll = self.position_3d.roll
         self.pppitch = self.position_3d.pitch
         self.ppyaw = self.position_3d.yaw
-        
-        # Scale the speeds to the time used by Blender
-        #velVec=mathutils.Vector([dx,dy,dz])*self.ticks
-        #rotVel=self.blender_obj.orientation*velVec
 
-        #self.v[0] = rotVel[0]
-        #self.v[1] = rotVel[1]
-        #self.v[2] = rotVel[2]
+        # Scale the speeds to the time used by Blender
         self.v[0] = dx * self.ticks
         self.v[1] = dy * self.ticks
         self.v[2] = dz * self.ticks
@@ -98,9 +91,6 @@ class IMUClass(morse.core.sensor.MorseSensorClass):
         self.v[4] = dpitch * self.ticks
         self.v[5] = dyaw * self.ticks
         logger.debug("SPEED: (%.4f, %.4f, %.4f, %4f, %4f, %4f)" % (self.v[0], self.v[1], self.v[2], self.v[3], self.v[4], self.v[5]))
-
-        #import pdb
-        #pdb.set_trace()
 
         self.a[0] = (self.v[0] - self.pvx) * self.ticks
         self.a[1] = (self.v[1] - self.pvy) * self.ticks

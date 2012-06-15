@@ -70,7 +70,7 @@ MORSE_MIDDLEWARE_DICT = {
         'infrared': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_range', 'morse/middleware/ros/infrared'],
         'imu': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_odometry', 'morse/middleware/ros/imu'],
         'light': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_switch', 'morse/middleware/ros/light'],
-        'pose': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_pose', 'morse/middleware/ros/pose'],
+        'pose': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_odometry', 'morse/middleware/ros/pose'],
         'proximity': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_message'],
         'pr2_posture': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_jointState', 'morse/middleware/ros/pr2_posture'],
         'semantic_camera': [MORSE_MIDDLEWARE_MODULE['ros'], 'post_string', 'morse/middleware/ros/semantic_camera'],
@@ -82,6 +82,7 @@ MORSE_MIDDLEWARE_DICT = {
         'kuka_lwr': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_joinState', 'morse/middleware/ros/kuka_joinState'],
         'v_omega': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_twist', 'morse/middleware/ros/read_vw_twist'],
         'xy_omega': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_twist', 'morse/middleware/ros/read_xyw_twist'], 
+        'destination': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_point', 'morse/middleware/ros/destination'], 
     },
 
     'socket': {
@@ -157,7 +158,21 @@ MORSE_MIDDLEWARE_DICT = {
         'ptu_posture': [MORSE_MIDDLEWARE_MODULE['pocolibs'], 'write_platine_posture', 'morse/middleware/pocolibs/sensors/platine_posture', 'platineState']
     },
 
-    'moos': {
+    'text': {
+        'accelerometer': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'battery': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'gps': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'gyroscope': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'imu': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'odometry': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'pose': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'proximity': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'ptu_posture': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'rosace': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+        'thermometer': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
+    },
+
+	'moos': {
         'v_omega': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
         'vw_diff_drive': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
         'sick': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_2DLaserScan', 'morse/middleware/moos/sick'],
