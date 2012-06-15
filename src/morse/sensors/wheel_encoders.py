@@ -1,5 +1,4 @@
 import logging; logger = logging.getLogger("morse." + __name__)
-import GameLogic
 import math
 import morse.core.sensor
 
@@ -8,11 +7,9 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
 
     def __init__(self, obj, parent=None):
         """ Constructor method.
-
         Receives the reference to the Blender object.
-        The second parameter should be the name of the object's parent.
-        """
-        print ("######## ODOMETER '%s' INITIALIZING ########" % obj.name)
+        The second parameter should be the name of the object's parent. """
+        logger.info('%s initialization' % obj.name)
         # Call the constructor of the parent class
         super(self.__class__,self).__init__(obj, parent)
 
@@ -33,7 +30,7 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
 
         # keep up with previous angle for unwrapping
         self._prevRot=[0.0,0.0,0.0,0.0]
-        print ('######## ODOMETER INITIALIZED ########')
+        logger.info('Component initialized')
 
 
     def default_action(self):
