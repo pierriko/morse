@@ -81,6 +81,7 @@ MORSE_MIDDLEWARE_DICT = {
         'ptu': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_Vector3', 'morse/middleware/ros/platine'],
         'kuka_lwr': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_joinState', 'morse/middleware/ros/kuka_joinState'],
         'v_omega': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_twist', 'morse/middleware/ros/read_vw_twist'],
+        'vw_diff_drive': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_twist', 'morse/middleware/ros/read_vw_twist'],
         'xy_omega': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_twist', 'morse/middleware/ros/read_xyw_twist'], 
         'destination': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_point', 'morse/middleware/ros/destination'], 
     },
