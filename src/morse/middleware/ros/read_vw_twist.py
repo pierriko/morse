@@ -22,5 +22,9 @@ def callback_wp(data, component_instance):
         yaw = data.angular.z
         component_instance.local_data["w"] = yaw
         
+        # Data modification functions
+        for function in component_instance.input_modifiers:
+            function(component_instance)    
+        
 def read_twist(self, component_instance):
         """ dummy function for Waypoints """
