@@ -26,7 +26,8 @@ class PhysicsWheelRobotClass(morse.core.robot.MorseRobotClass):
             This one will compute the transformations considering the different
             axis orientation used by this kind of robots """
         # Update the component's position in the world
-        self.position_3d.update_Y_forward(self.blender_obj)
+        #self.position_3d.update_Y_forward(self.blender_obj)
+        self.position_3d.update(self.blender_obj)
 
         self.default_action()
 
@@ -96,8 +97,16 @@ class PhysicsWheelRobotClass(morse.core.robot.MorseRobotClass):
 
     def GetTrackWidth(self):
         # get lateral positions of the wheels
-        posL = self._wheel_positions['FL']
-        posR = self._wheel_positions['FR']
+        try:
+            posL = self._wheel_positions[self._wheel_index[0]]
+            posR = self._wheel_positions[self._wheel_index[1]]
+        except KeyError as e:
+            return None
+        except:
+            import traceback
+            traceback.print_exc()
+            return None
+
         # subtract y coordinates of wheels to get width
         return posL[1]-posR[1]
 
@@ -253,29 +262,3 @@ class MorsePhysicsRobotClass(PhysicsWheelRobotClass):
         """ Attaches the wheel to the a-arm and then the a-arm to the body """
         # TODO: fill this in later - model after Bueraki code
         pass
-
-    def getWheelSpeeds(self):
-       """ Returns the angular wheel velocity in rad/sec"""
-       # true parameters tell it velocities are local
-       # wheels should be rotating about local Z axis
-       wsFL=self._wheels['FL'].getAngularVelocity(True)
-       wsFR=self._wheels['FR'].getAngularVelocity(True)
-       wsRL=self._wheels['RL'].getAngularVelocity(True)
-       wsRR=self._wheels['RR'].getAngularVelocity(True)
-       return [wsFL[2], wsFR[2], wsRL[2], wsRR[2]]
-
-    def getWheelAngle(self):
-       """ Returns the accumulated wheel angle in radians"""
-       # true parameters tell it velocities are local
-       # wheels should be rotating about local Z axis
-       wcFL=self._wheels['FL'].localOrientation.to_euler()
-       wcFR=self._wheels['FR'].localOrientation.to_euler()
-       wcRL=self._wheels['RL'].localOrientation.to_euler()
-       wcRR=self._wheels['RR'].localOrientation.to_euler()
-       return [wcFL[1], wcFR[1], wcRL[1], wcRR[1]]
-#
-#    def AttachWheelToWheel(self,wheel1,wheel2):
-#        # add both wheels on each side to each other but with no
-#        # constraints on their motion so that no collision can be set
-#        # between them
-#        pass
