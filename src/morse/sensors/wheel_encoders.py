@@ -45,15 +45,18 @@ class WheelEncodersClass(morse.core.sensor.MorseSensorClass):
         # get angular speed
         for index in self.robot_parent._wheel_index:
             if self.robot_parent._wheels[index] != None:
-                new_index='ws'+index
+                new_index='ws_'+index
                 self.local_data[new_index]=self.robot_parent._wheels[index].getAngularVelocity(True)
 
         # get wheel position            
         for index in self.robot_parent._wheel_index:
             if self.robot_parent._wheels[index] != None:
-                new_index='rot'+index
+                new_index='rot_'+index
                 self.local_data[new_index]=self.robot_parent._wheels[index].localOrientation.to_euler()
-
+                new_index='orient_'+index
+                self.local_data[new_index]=self.robot_parent._wheels[index].localOrientation
+                new_index='pos_'+index
+                self.local_data[new_index]=self.robot_parent._wheels[index].localPosition
         # wheelAngularSpeeds=self.robot_parent.getWheelSpeeds()
         # logger.debug("WHEELSPEED: (%.4f, %.4f, %.4f, %.4f)" % (wheelAngularSpeeds[0], wheelAngularSpeeds[1], wheelAngularSpeeds[2], wheelAngularSpeeds[3]))		
         # self.local_data['wFR'] = wheelAngularSpeeds[0]
