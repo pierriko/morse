@@ -35,6 +35,13 @@ class MorseNEDClass(MorseModifierClass):
         elif function_name == "blender_to_ned_angle":
             component_instance.output_modifiers.append(function)
 
+        # Data read functions
+        if function_name == "ned_rate_to_blender":
+            component_instance.input_modifiers.append(function)
+        # Data write functions
+        elif function_name == "blender_rate_to_ned":
+            component_instance.output_modifiers.append(function)
+
     def blender_to_ned(self, component_instance):
         """ Convert the coordinates from Blender to UTM reference. """
         tmp = component_instance.local_data['x']
@@ -71,3 +78,17 @@ class MorseNEDClass(MorseModifierClass):
             component_instance.local_data['yaw'] = yaw
         except KeyError as detail:
             logger.warning("Unable to use 'ned_angle_to_blender' on component %s. It does not contain the item %s in its 'local_data' dictionary" % (component_instance.blender_obj.name, detail))
+
+    def ned_rate_to_blender(self, component_instance):
+        """ Convert an angular rate command from NED to Blender reference. """
+        try:
+            component_instance.local_data["w"] = -component_instance.local_data["w"]
+        except KeyError as detail:
+            logger.warning("Unable to use 'ned_rate_to_blender' on component %s. It does not contain the item %s in its 'local_data' dictionary" % (component_instance.blender_obj.name, detail))
+
+    def blender_rate_to_ned(self, component_instance):
+        """ Convert an angular rate command from Blender to NED reference. """
+        try:
+            component_instance.local_data["w"] = -component_instance.local_data["w"]
+        except KeyError as detail:
+            logger.warning("Unable to use 'ned_rate_to_blender' on component %s. It does not contain the item %s in its 'local_data' dictionary" % (component_instance.blender_obj.name, detail))

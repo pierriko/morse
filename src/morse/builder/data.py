@@ -1,7 +1,7 @@
 import os
 
 """
-MORSE_COMPONENTS: 
+MORSE_COMPONENTS:
 path to the Morse components
 """
 
@@ -27,6 +27,8 @@ MORSE_MIDDLEWARE_MODULE = {
     'yarp': 'morse.middleware.yarp_mw.MorseYarpClass',
     'pocolibs': 'morse.middleware.pocolibs_mw.MorsePocolibsClass',
     'text': 'morse.middleware.text_mw.TextOutClass',
+    'moos': 'morse.middleware.moos_mw.MOOSClass',
+    'jaus': 'morse.middleware.jaus_mw.JAUSClass',
 }
 
 """
@@ -42,6 +44,8 @@ MORSE_MODIFIER_DICT = {
         'waypoint': [MORSE_MODIFIERS['NED'], 'ned_to_blender'],
         'orientation': [MORSE_MODIFIERS['NED'], 'ned_angle_to_blender'],
         'teleport': [MORSE_MODIFIERS['NED'], 'ned_to_blender'],
+        'v_omega': [MORSE_MODIFIERS['NED'], 'ned_rate_to_blender'],
+        'vw_diff_drive': [MORSE_MODIFIERS['NED'], 'ned_rate_to_blender'],
     },
     'UTM' : {
         'pose': [MORSE_MODIFIERS['UTM'], 'blender_to_utm'],
@@ -85,6 +89,7 @@ MORSE_MIDDLEWARE_DICT = {
         'force_torque': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_wrench', 'morse/middleware/ros/read_wrench'],
         'orientation': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_quaternion', 'morse/middleware/ros/read_quaternion'],
         'teleport': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_pose', 'morse/middleware/ros/read_pose'],
+        'vw_diff_drive': [MORSE_MIDDLEWARE_MODULE['ros'], 'read_twist', 'morse/middleware/ros/read_vw_twist'],
     },
 
     'socket': {
@@ -179,6 +184,24 @@ MORSE_MIDDLEWARE_DICT = {
         'thermometer': [MORSE_MIDDLEWARE_MODULE['text'], 'write_data'],
     },
 
+	'moos': {
+        'v_omega': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
+        'vw_diff_drive': [MORSE_MIDDLEWARE_MODULE['moos'], 'read_message'],
+        'sick': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_2DLaserScan', 'morse/middleware/moos/sick'],
+        'pose': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_pose', 'morse/middleware/moos/pose'],
+        'imu': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_imu', 'morse/middleware/moos/imu'],
+        'wheel_encoders': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_wheel_encoders', 'morse/middleware/moos/wheel_encoders'],
+        'gps': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_gps', 'morse/middleware/moos/gps'],
+        'gyroscope': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_gyroscope','morse/middleware/moos/gyroscope'],
+        'proximity': [MORSE_MIDDLEWARE_MODULE['moos'], 'post_message']
+    },
+
+
+    'jaus': {
+        'v_omega': [MORSE_MIDDLEWARE_MODULE['jaus'], 'read_wrench', 'morse/middleware/jaus/PrimitiveDriver'],
+        'vw_diff_drive': [MORSE_MIDDLEWARE_MODULE['jaus'],'read_wrench', 'morse/middleware/jaus/PrimitiveDriver'],
+        'pose': [MORSE_MIDDLEWARE_MODULE['jaus'], 'post_pose', 'morse/middleware/jaus/pose']
+    }
 
 }
 

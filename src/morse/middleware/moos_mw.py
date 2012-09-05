@@ -10,9 +10,10 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         """ Initialize the MOOS app"""
         super(self.__class__,self).__init__()
         logger.info("Middleware initialization")
-        self.m = pymoos.MOOSCommClient.MOOSApp()
-        #self.m.SetOnConnectCallBack( self.m.DoRegistrations )
-        #self.m.SetOnMailCallBack( self.m.MailCallback )
+        self.m = pymoos.MOOSCommClient.MOOSCommClient()
+        # intialize MOOS and MORSE times
+        self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
+        self.current_sim_time=bge.logic.current_time
         
         logger.info("%s" % self.m.GetLocalIPAddress())
 
@@ -20,7 +21,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         self.m.Run( "127.0.0.1", 9000, "MORSE_SIM", fundamental_frequency) 
         logger.info("Middleware initialized")
         
-        
+
     def __del__(self):
         """ Kill the morse MOOS app."""
         self.m.Close();
@@ -38,6 +39,11 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
         # tells 
         self.m.Register("cVelocity")
         self.m.Register("cYawRate")
+        self.m.Register("cSteer")
+        self.m.Register("cThrottle")
+        self.m.Register("cBrake")
+        self.m.Register("cForceL")
+        self.m.Register("cForceR")
 		
         logger.info("========== Registering component =================")
         parent_name = component_instance.robot_parent.blender_obj.name
@@ -99,7 +105,7 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
             self.m.Notify(parent_name+"_"+component_instance.blender_obj.name+"_"+variable,str(data),bge.logic.current_time)
 
                             
-    # NOTE: This is a dummy function that is executed for every actuator. Since ROS uses the concept of callbacks, it does nothing ...    
+    # NOTE: This is a dummy function that is executed for every actuator.
     def read_message(self, component_instance):
         """ read a command message from the database and send to the simulator???"""
         logger.debug("Read message called.")
@@ -119,3 +125,23 @@ class MOOSClass(morse.core.middleware.MorseMiddlewareClass):
                 component_instance.local_data['force']=message.GetDouble() # command engine force
             elif  (message.GetKey()=="cBrake") and (message.IsDouble()):
                 component_instance.local_data['brake']=message.GetDouble() # command angular velocity [m/s]
+            elif  (message.GetKey()=="cForceL") and (message.IsDouble()):
+                component_instance.local_data['force_l']=message.GetDouble() # command engine force
+            elif  (message.GetKey()=="cForceR") and (message.IsDouble()):
+                component_instance.local_data['force_r']=message.GetDouble() # command angular velocity [m/s]
+
+    def default_action(self):
+        self.current_MOOS_time=pymoos.MOOSCommClient.MOOSTime()
+        if (GameLogic.current_sim_time-self.current_sim_time>0.017):
+            print(GameLogic.current_sim_time)
+            print('skipped')
+        self.current_sim_time=GameLogic.current_sim_time
+        #try:
+        #    if self.blender_obj['publish_clock']:
+        #        self.m.Notify('actual_time',self.current_sim_time,self.current_MOOS_time)
+        #except KeyError as e:
+        #    pass
+        #except:
+        #    import traceback
+        #    traceback.print_exc()
+        self.m.Notify('actual_time',self.current_sim_time,self.current_MOOS_time)

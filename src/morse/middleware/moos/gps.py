@@ -20,11 +20,17 @@ def init_extra_module(self, component_instance, function, mw_data):
 def post_gps(self, component_instance):
     """ Publish the data of the Odometry-sensor as a ROS-Pose message
     """
-    curTime=pymoos.MOOSCommClient.MOOSTime()
+    #curTime=pymoos.MOOSCommClient.MOOSTime()
+    curTime=self.current_MOOS_time
     parent_name = component_instance.robot_parent.blender_obj.name
     
     self.m.Notify('zEast',component_instance.local_data['x'],curTime)
     self.m.Notify('zNorth',component_instance.local_data['y'],curTime)
     self.m.Notify('zHeight',component_instance.local_data['z'],curTime)
+    self.m.Notify('zCourse', component_instance.local_data['course'],curTime)
+    self.m.Notify('zHorizSpeed', component_instance.local_data['speed'],curTime)
+    self.m.Notify('zVertVel', component_instance.local_data['vertSpeed'],curTime)
+    self.m.Notify('zVelXGPS',component_instance.local_data['velX'],curTime)
+    self.m.Notify('zVelYGPS',component_instance.local_data['velY'],curTime)
+    self.m.Notify('zVelZGPS',component_instance.local_data['velZ'],curTime)
     
-   

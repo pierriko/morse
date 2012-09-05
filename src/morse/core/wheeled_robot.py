@@ -19,13 +19,15 @@ class PhysicsWheelRobotClass(morse.core.robot.MorseRobotClass):
     _wheel_positions = {}
     _wheel_orientations = {}
     _wheel_joints = {}
+    _wheel_radii = {}
 
     def action(self):
         """ Overload the 'action' method of the MorseRobotClass
             This one will compute the transformations considering the different
             axis orientation used by this kind of robots """
         # Update the component's position in the world
-        self.position_3d.update_Y_forward(self.blender_obj)
+        #self.position_3d.update_Y_forward(self.blender_obj)
+        self.position_3d.update(self.blender_obj)
 
         self.default_action()
 
@@ -54,14 +56,15 @@ class PhysicsWheelRobotClass(morse.core.robot.MorseRobotClass):
                 logger.info("\tWheel %s: %s" % (index, wheel.name))
                 self._wheel_positions[index] = mathutils.Vector(wheel.worldPosition)
                 self._wheel_orientations[index] = mathutils.Matrix(wheel.worldOrientation)
-                # Make the wheels orphans
-                wheel.removeParent()
+                self._wheel_radii[index]=self.GetWheelRadius(self.blender_obj[name])                
+				# Make the wheels orphans
+                #wheel.removeParent()
                 # Keep their transformations
                 #wheel.worldPosition = self._wheel_positions[index]
                 #wheel.worldOrientation = self._wheel_orientations[index]
 
         # get wheel radius
-        self._wheelRadius=self.GetWheelRadius(self.blender_obj['WheelFLName'])
+        #self._wheelRadius=self.GetWheelRadius(self.blender_obj['WheelFLName'])
 
         # Add a free rotating wheel if indicated in the robot
         if 'CasterWheelName' in self.blender_obj:
@@ -94,8 +97,16 @@ class PhysicsWheelRobotClass(morse.core.robot.MorseRobotClass):
 
     def GetTrackWidth(self):
         # get lateral positions of the wheels
-        posL = self._wheel_positions['FL']
-        posR = self._wheel_positions['FR']
+        try:
+            posL = self._wheel_positions[self._wheel_index[0]]
+            posR = self._wheel_positions[self._wheel_index[1]]
+        except KeyError as e:
+            return None
+        except:
+            import traceback
+            traceback.print_exc()
+            return None
+
         # subtract y coordinates of wheels to get width
         return posL[1]-posR[1]
 
@@ -251,29 +262,3 @@ class MorsePhysicsRobotClass(PhysicsWheelRobotClass):
         """ Attaches the wheel to the a-arm and then the a-arm to the body """
         # TODO: fill this in later - model after Bueraki code
         pass
-
-#    def getWheelSpeeds(self):
-#        """ Returns the angular wheel velocity in rad/sec"""
-#        # true parameters tell it velocities are local
-#        # wheels should be rotating about local Z axis
-#        wsFL=self._wheelFL.getAngularVelocity(True)
-#        wsFR=self._wheelFR.getAngularVelocity(True)
-#        wsRL=self._wheelRL.getAngularVelocity(True)
-#        wsRR=self._wheelRR.getAngularVelocity(True)
-#        return [wsFL[2], wsFR[2], wsRL[2], wsRR[2]]
-#
-#    def getWheelAngle(self):
-#        """ Returns the accumulated wheel angle in radians"""
-#        # true parameters tell it velocities are local
-#        # wheels should be rotating about local Z axis
-#        wcFL=self._wheelFL.localOrientation.to_euler()
-#        wcFR=self._wheelFR.localOrientation.to_euler()
-#        wcRL=self._wheelRL.localOrientation.to_euler()
-#        wcRR=self._wheelRR.localOrientation.to_euler()
-#        return [wcFL[1], wcFR[1], wcRL[1], wcRR[1]]
-#
-#    def AttachWheelToWheel(self,wheel1,wheel2):
-#        # add both wheels on each side to each other but with no
-#        # constraints on their motion so that no collision can be set
-#        # between them
-#        pass

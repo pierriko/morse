@@ -333,6 +333,15 @@ class WheeledRobot(Robot):
             #  because of an incorrect context error
             #bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 
+    def remove_wheels(self):
+        wheels = [child for child in self._blendobj.children if \
+                  child.name.lower().startswith("wheel")]
+        for wheel in wheels:
+            bpy.ops.object.select_all(action='DESELECT')
+            wheel.select = True
+            bpy.context.scene.objects.active = wheel
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+
     def append(self, obj):
         """ Add a child to the current object,
         Overload the append method of AbstractObject
@@ -349,6 +358,8 @@ class WheeledRobot(Robot):
 
         obj._blendobj.parent = self._blendobj
 
+    def __del__(self):
+        self.remove_wheels()
 
 class Sensor(Component):
     def __init__(self, name):

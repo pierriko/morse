@@ -11,6 +11,7 @@ option(BUILD_POCOLIBS_SUPPORT "Build pocolibs framework support" OFF)
 option(BUILD_YARP2_SUPPORT "Build yarp framework support" OFF)
 option(BUILD_ROS_SUPPORT "Build ROS middleware support" OFF)
 option(BUILD_MOOS_SUPPORT "Build MOOS middleware support" OFF)
+option(BUILD_JAUS_SUPPORT "Build JAUS middleware support" OFF)
 option(BUILD_HLA_SUPPORT "Build HLA middleware support. Also used for distributed HLA simulation." OFF)
 
 option(PYMORSE_SUPPORT "Build and install the Python bindings for MORSE." OFF)
@@ -71,6 +72,17 @@ if (BUILD_MOOS_SUPPORT)
 	endif (MOOS_PY_ERR)
 endif(BUILD_MOOS_SUPPORT)
 
+# check to make sure pyOpenJAUS is installed
+if (BUILD_JAUS_SUPPORT)
+	EXECUTE_PROCESS(COMMAND 
+					${PYTHON3_EXECUTABLE} -c "import pyOpenJAUS.pyComponents;"
+					RESULT_VARIABLE JAUS_PY_ERR
+				   )
+	if (JAUS_PY_ERR)
+		#message(${MOOS_PY_ERR})
+		#MESSAGE(FATAL_ERROR "BUILD_JAUS_SUPPORT is required, but '${PYTHON3_EXECUTABLE}' can't find JAUS python binding")
+	endif (JAUS_PY_ERR)
+endif(BUILD_JAUS_SUPPORT)
 
 IF (BUILD_POCOLIBS_SUPPORT)
 	pkg_check_modules(POCOLIBS REQUIRED pocolibs)
@@ -238,4 +250,3 @@ INCLUDE(CPack)
 ### Uninstall ###
 configure_file("${CMAKE_HOME_DIRECTORY}/config/cmake_uninstall.cmake.in" "cmake_uninstall.cmake" IMMEDIATE @ONLY)
 add_custom_target(uninstall "${CMAKE_COMMAND}" -P "cmake_uninstall.cmake")
-

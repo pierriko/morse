@@ -18,6 +18,7 @@ class SteerForceActuatorClass(morse.core.actuator.MorseActuatorClass):
         self.local_data['steer'] = 0.0
         self.local_data['force'] = 0.0
         self.local_data['brake'] = 0.0
+
         
         logger.info('Component initialized')
 
