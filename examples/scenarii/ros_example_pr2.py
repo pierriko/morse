@@ -1,58 +1,21 @@
 from morse.builder import *
 
-# http://www.openrobots.org/morse/doc/latest/user/tutorial.html
-
-# Append ATRV robot to the scene
-james = BasePR2()
-james.configure_service('ros')
-james.head.configure_overlay('ros', 'morse.middleware.ros.overlays.pr2.PR2')
-james.l_arm.configure_overlay('ros', 'morse.middleware.ros.overlays.pr2.PR2')
-james.r_arm.configure_overlay('ros', 'morse.middleware.ros.overlays.pr2.PR2')
-james.torso.configure_overlay('ros', 'morse.middleware.ros.overlays.pr2.PR2')
-james.translate(x=2.5, y=3.2, z=0.0)
-
-human = Human()
-human.translate(x=2.5, y=0, z=0.0)
-#human.rotate(z=-3.0)
-
-# Sensors and Actuators for navigation stack
-#pr2_posture = PR2Posture()
-#james.append(pr2_posture)
-
-Motion_Controller = MotionXYW()
-james.append(Motion_Controller)
-
-odometry = Odometry()
-james.append(odometry)
-
-Pose_sensor = Pose()
-Pose_sensor.name = 'Pose_sensor'
-james.append(Pose_sensor)
-
-imu = IMU()
-james.append(imu)
-
-sick = Sick()
-sick.translate(x=0.275, z=0.252)
-james.append(sick)
-sick.properties(Visible_arc = False)
-sick.properties(laser_range = 30.0000)
-sick.properties(resolution = 1.0000)
-sick.properties(scan_window = 180.0000)
+# Append NavPR2 robot to the scene
+james = NavPR2()
+james.add_interface('ros')
+james.translate(x=2.5, y=3.2)
 
 # Keyboard control
 keyboard = Keyboard()
-keyboard.name = 'keyboard_control'
 james.append(keyboard)
 
-# Configuring the middlewares
-Pose_sensor.add_stream('ros')
-sick.add_stream('ros')
-Motion_Controller.add_stream('ros')
-imu.add_stream('ros')
-#pr2_posture.add_stream('ros', 'morse.middleware.ros.jointstate.JointStatePR2Publisher')
+human = Human()
+human.translate(x=2.5)
 
+#
 # Add passive objects
+#
+
 cornflakes = PassiveObject('props/kitchen_objects', 'Cornflakes')
 cornflakes.setgraspable()
 cornflakes.translate(x=0.5, y=1.67, z=0.9)
