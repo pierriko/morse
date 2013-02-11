@@ -540,7 +540,7 @@ class Environment(Component):
         :param clip_start: Camera near clipping distance, float in meters (default 0.1)
         :param clip_end: Camera far clipping distance, float in meters (default 100)
         """
-        camera_fp = bpymorse.get_object('CameraFP')
+        camera_fp = bpy.data.objects['CameraFP']
         # camera_fp.data holds the bpy.types.Camera instance
         camera_fp.data.clip_start = clip_start
         camera_fp.data.clip_end = clip_end
