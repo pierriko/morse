@@ -50,8 +50,9 @@ class StringPublisher(AbstractMOOS):
         #iterate through all objects of the component_instance and post the data
         for variable, data in self.data.items():
             name = "%s_%s"%(self.component_name, variable)
-            logger.debug("name: %s, type: %s, data: %s"%(name, type(data), str(data))
+            logger.debug("name: %s, type: %s, data: %s"%(name, type(data), str(data)))
             self.m.Notify(name, str(data), current_time)
+
 
 
 class StringReader(AbstractMOOS):
