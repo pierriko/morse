@@ -72,27 +72,32 @@ class ROSPublisher(AbstractROS):
             topic_name += self.kwargs['topic_suffix']
         # Generate a publisher for the component
         self.topic = rospy.Publisher(topic_name, self.ros_class)
-        if self.default_frame_id is 'USE_TOPIC_NAME': # morse convention
-            self.frame_id = self.kwargs.get('frame_id', self.topic_name)
-        else: # default_frame_id was overloaded in subclass
-            self.frame_id = self.kwargs.get('frame_id', self.default_frame_id)
-        self.sequence = 0 # for ROS msg Header
+        self.header = Header() # ROS msg Header
+        # http://ros.org/wiki/geometry/CoordinateFrameConventions#Multi_Robot_Support
+        if 'frame_id' in self.kwargs:
+            # frame_id was set in builder script
+            self.header.frame_id = self.kwargs['frame_id']
+        elif self.default_frame_id != 'USE_TOPIC_NAME':
+            # default_frame_id was overloaded in subclass
+            self.header.frame_id = self.default_frame_id
+        else: # morse convention
+            self.header.frame_id = self.topic_name
+        self.last_time = 0
         logger.info('ROS publisher initialized for %s'%self)
 
     def get_ros_header(self):
-        header = Header()
-        header.stamp = rospy.Time.now()
-        header.seq = self.sequence
-        # http://www.ros.org/wiki/geometry/CoordinateFrameConventions#Multi_Robot_Support
-        header.frame_id = self.frame_id
-        return header
+        if self.last_time < blenderapi.persistantstorage().current_time:
+            # new simulation step
+            self.last_time = blenderapi.persistantstorage().current_time
+            self.header.stamp = rospy.Time.now()
+        return self.header
 
     # Generic publish method
     def publish(self, message):
         """ Publish the data on the rostopic
         """
         self.topic.publish(message)
-        self.sequence += 1
+        self.header.seq += 1
 
 
 class ROSPublisherTF(ROSPublisher):
@@ -129,7 +134,7 @@ class ROSPublisherTF(ROSPublisher):
             time = rospy.Time.now()
         if not child:
             # our frame_id (component frame)
-            child = self.frame_id
+            child = self.header.frame_id
         if not parent:
             # get parent frame_id (aka. the robot)
             parent = self.kwargs.get('parent_frame_id', 'base_link')

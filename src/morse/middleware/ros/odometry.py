@@ -19,7 +19,7 @@ class OdometryPublisher(ROSPublisherTF):
         self.child_frame_id = self.kwargs.get("child_frame_id", "/base_footprint")
 
         logger.info("Initialized the ROS odometry sensor with frame_id '%s' " +\
-                    "and child_frame_id '%s'", self.frame_id, self.child_frame_id)
+                    "and child_frame_id '%s'", self.header.frame_id, self.child_frame_id)
 
     def default(self, ci='unused'):
         odometry = Odometry()
