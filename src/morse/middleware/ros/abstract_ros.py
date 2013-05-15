@@ -58,7 +58,8 @@ class AbstractROS(AbstractDatastream):
         # Unregister the topic if one exists
         if self.topic:
             self.topic.unregister()
-        rospy.signal_shutdown("MORSE Shutdown")
+        # XXX ugly fix #268
+        #rospy.signal_shutdown("MORSE Shutdown")
         logger.info("ROS datastream finalize %s"%self)
 
 

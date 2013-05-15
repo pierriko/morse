@@ -1,11 +1,7 @@
 import logging; logger = logging.getLogger("morse." + __name__)
 # Modules necessary to dynamically add methods to Middleware subclasses
-import os
-import sys
-import re
-import types
 
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 
 from morse.core.sensor import Sensor
 from morse.core.actuator import Actuator
