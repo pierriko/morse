@@ -42,14 +42,6 @@ class Environment(Component):
         self._display_camera = None
         self.is_material_mode_custom = False
 
-        # define 'Scene_Script_Holder' as the blender object of Enrivonment
-        if not 'Scene_Script_Holder' in bpymorse.get_objects():
-            # Add the necessary objects
-            base = Component('props', 'basics')
-        self.set_blender_object(bpymorse.get_object('Scene_Script_Holder'))
-        # Write the name of the 'environment file'
-        self.set_camera_speed(2.0)
-
     def _write_multinode(self, node_name):
         """ Configure this node according to its name
             and the multinode_distribution dictionnary.
@@ -229,6 +221,14 @@ class Environment(Component):
                 component.after_renaming()
 
         self._cfg_camera_scene()
+
+        # define 'Scene_Script_Holder' as the blender object of Enrivonment
+        if not 'Scene_Script_Holder' in bpymorse.get_objects():
+            # Add the necessary objects
+            base = Component('props', 'basics')
+        self.set_blender_object(bpymorse.get_object('Scene_Script_Holder'))
+        # Write the name of the 'environment file'
+        self.set_camera_speed(2.0)
 
         # Default node name
         if name == None:
