@@ -196,6 +196,27 @@ class Environment(Component):
         camera_fp = bpymorse.get_object('CameraFP')
         camera_fp.game.properties['Speed'].value = speed
 
+    def _cfg_camera_scene(self):
+        from morse.builder.sensors import VideoCamera
+        cfg_camera_scene = {}
+        for component in AbstractComponent.components:
+            if isinstance(component, VideoCamera):
+                # Create a new scene for the Camera
+                bpymorse.new_scene(type='LINK_OBJECTS')
+                scene = bpymorse.get_last_scene()
+                scene.render.resolution_x = component.property_value('cam_width')
+                scene.render.resolution_y = component.property_value('cam_height')
+                # TODO disable logic and physic in this created scene
+                cfg_camera_scene[component.name] = scene.name
+
+        # Create 'camera_scene.py' configuration file (like 'component_config.py')
+        # mapping Camera -> Scene for the bge.texture.ImageRender(scene, camera)
+        bpymorse.new_text()
+        bpymorse.get_last_text().name = 'camera_scene.py'
+        cfg = bpymorse.get_text('camera_scene.py')
+        cfg.write('camera_scene = ' + json.dumps(cfg_camera_scene, indent=1) )
+        cfg.write('\n')
+
     def create(self, name=None):
         """ Generate the scene configuration and insert necessary objects
 
@@ -206,6 +227,8 @@ class Environment(Component):
         for component in AbstractComponent.components:
             if hasattr(component, "after_renaming"):
                 component.after_renaming()
+
+        self._cfg_camera_scene()
 
         # Default node name
         if name == None:

@@ -50,6 +50,10 @@ class Camera(morse.core.sensor.Sensor):
         self._texture_ok = False
         self._camera_running = False
 
+        import camera_scene # file like 'component_config.py' in the .blend
+        self.scene_name = camera_scene.camera_scene[self.bge_object.name]
+        blenderapi.add_scene(self.scene_name)
+
         logger.info('Component initialized, runs at %.2f Hz', self.frequency)
 
     def default_action(self):
@@ -108,7 +112,9 @@ class Camera(morse.core.sensor.Sensor):
             return False
 
         # Get the reference to the scene
-        scene = blenderapi.scene()
+        scene_map = blenderapi.get_scene_map()
+        logger.info("Scene %s from %s"% (self.scene_name, repr(scene_map.keys()) ) )
+        scene = scene_map[self.scene_name]
 
         # Link the objects using bge.texture
         if not blenderapi.hascameras():
