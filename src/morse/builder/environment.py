@@ -189,6 +189,8 @@ class Environment(Component):
         camera_fp.game.properties['Speed'].value = speed
 
     def _cfg_camera_scene(self):
+        scene = bpymorse.get_context_scene()
+        scene.name = 'S.MORSE_ENV'
         from morse.builder.sensors import VideoCamera
         cfg_camera_scene = {}
         for component in AbstractComponent.components:
@@ -221,6 +223,9 @@ class Environment(Component):
             if hasattr(component, "after_renaming"):
                 component.after_renaming()
 
+        # Create a new scene for each camera, with specific render resolution
+        # Must be done at the end of the builder script, after renaming
+        # and before adding 'Scene_Script_Holder'
         self._cfg_camera_scene()
 
         # Create a new scene for the MORSE_LOGIC (Scene_Script_Holder, CameraFP)
