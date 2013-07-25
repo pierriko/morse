@@ -195,7 +195,8 @@ class Environment(Component):
             if isinstance(component, VideoCamera):
                 # Create a new scene for the Camera
                 bpymorse.new_scene(type='LINK_OBJECTS')
-                scene = bpymorse.get_last_scene()
+                scene = bpymorse.get_context_scene()
+                scene.name = 'S.%s'%component.name
                 scene.render.resolution_x = component.property_value('cam_width')
                 scene.render.resolution_y = component.property_value('cam_height')
                 # TODO disable logic and physic in this created scene
@@ -222,6 +223,10 @@ class Environment(Component):
 
         self._cfg_camera_scene()
 
+        # Create a new scene for the MORSE_LOGIC (Scene_Script_Holder, CameraFP)
+        bpymorse.new_scene(type='LINK_OBJECTS')
+        scene = bpymorse.get_context_scene()
+        scene.name = 'S.MORSE_LOGIC'
         # define 'Scene_Script_Holder' as the blender object of Enrivonment
         if not 'Scene_Script_Holder' in bpymorse.get_objects():
             # Add the necessary objects
