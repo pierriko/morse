@@ -42,14 +42,6 @@ class Environment(Component):
         self._display_camera = None
         self.is_material_mode_custom = False
 
-        # define 'Scene_Script_Holder' as the blender object of Enrivonment
-        if not 'Scene_Script_Holder' in bpymorse.get_objects():
-            # Add the necessary objects
-            base = Component('props', 'basics')
-        self.set_blender_object(bpymorse.get_object('Scene_Script_Holder'))
-        # Write the name of the 'environment file'
-        self.set_camera_speed(2.0)
-
     def _write_multinode(self, node_name):
         """ Configure this node according to its name
             and the multinode_distribution dictionnary.
@@ -196,6 +188,30 @@ class Environment(Component):
         camera_fp = bpymorse.get_object('CameraFP')
         camera_fp.game.properties['Speed'].value = speed
 
+    def _cfg_camera_scene(self):
+        scene = bpymorse.get_context_scene()
+        scene.name = 'S.MORSE_ENV'
+        from morse.builder.sensors import VideoCamera
+        cfg_camera_scene = {}
+        for component in AbstractComponent.components:
+            if isinstance(component, VideoCamera):
+                # Create a new scene for the Camera
+                bpymorse.new_scene(type='LINK_OBJECTS')
+                scene = bpymorse.get_context_scene()
+                scene.name = 'S.%s'%component.name
+                scene.render.resolution_x = component.property_value('cam_width')
+                scene.render.resolution_y = component.property_value('cam_height')
+                # TODO disable logic and physic in this created scene
+                cfg_camera_scene[component.name] = scene.name
+
+        # Create 'camera_scene.py' configuration file (like 'component_config.py')
+        # mapping Camera -> Scene for the bge.texture.ImageRender(scene, camera)
+        bpymorse.new_text()
+        bpymorse.get_last_text().name = 'camera_scene.py'
+        cfg = bpymorse.get_text('camera_scene.py')
+        cfg.write('camera_scene = ' + json.dumps(cfg_camera_scene, indent=1) )
+        cfg.write('\n')
+
     def create(self, name=None):
         """ Generate the scene configuration and insert necessary objects
 
@@ -206,6 +222,23 @@ class Environment(Component):
         for component in AbstractComponent.components:
             if hasattr(component, "after_renaming"):
                 component.after_renaming()
+
+        # Create a new scene for each camera, with specific render resolution
+        # Must be done at the end of the builder script, after renaming
+        # and before adding 'Scene_Script_Holder'
+        self._cfg_camera_scene()
+
+        # Create a new scene for the MORSE_LOGIC (Scene_Script_Holder, CameraFP)
+        bpymorse.new_scene(type='LINK_OBJECTS')
+        scene = bpymorse.get_context_scene()
+        scene.name = 'S.MORSE_LOGIC'
+        # define 'Scene_Script_Holder' as the blender object of Enrivonment
+        if not 'Scene_Script_Holder' in bpymorse.get_objects():
+            # Add the necessary objects
+            base = Component('props', 'basics')
+        self.set_blender_object(bpymorse.get_object('Scene_Script_Holder'))
+        # Write the name of the 'environment file'
+        self.set_camera_speed(2.0)
 
         # Default node name
         if name == None:
