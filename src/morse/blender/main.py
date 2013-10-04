@@ -65,35 +65,34 @@ def _associate_child_to_robot(obj, robot_instance, unset_default):
 
         robot_instance.components.append(child)
 
-        if not 'classpath' in child:
-            logger.error("No 'classpath' in child %s\n  Please make sure you "
-                         "are using the new builder classes"%str(child.name))
-            return False
-        # Create an instance of the component class
-        #  and add it to the component list of persistantstorage()
-        instance = create_instance_level(child['classpath'],
-                                         child.get('abstraction_level'),
-                                         child, robot_instance)
-        if instance:
-            persistantstorage.componentDict[child.name] = instance
-        else:
-            logger.error("INITIALIZATION ERROR: the component '%s'"
-                         " could not be properly initialized. Error when "
-                         "creating the class instance", obj.name)
-            return False
-
-        # Unset the default action of components of external robots
         if unset_default:
-            instance.default_action = no_op
+            persistantstorage.componentDict[child.name] = None
             logger.info("Component " + child.name + " disabled: parent "  \
                                      + obj.name + " is an External robot.")
         else:
+            if not 'classpath' in child:
+                logger.error("No 'classpath' in child %s\n  Please make sure you "
+                             "are using the new builder classes"%str(child.name))
+                return False
+            # Create an instance of the component class
+            #  and add it to the component list of persistantstorage()
+            instance = create_instance_level(child['classpath'],
+                                             child.get('abstraction_level'),
+                                             child, robot_instance)
+            if instance:
+                persistantstorage.componentDict[child.name] = instance
+            else:
+                logger.error("INITIALIZATION ERROR: the component '%s'"
+                             " could not be properly initialized. Error when "
+                             "creating the class instance", obj.name)
+                return False
+
             logger.info("Component %s %s added to %s" %
-                        (child.name, 
-                         "(level: %s)" % child.get("abstraction_level") \
-                                 if child.get("abstraction_level") else "",
-                         obj.name)
-                       )
+                    (child.name, 
+                        "(level: %s)" % child.get("abstraction_level") \
+                                if child.get("abstraction_level") else "",
+                                obj.name)
+                    )
 
     return True
 
@@ -318,13 +317,9 @@ def link_datastreams():
             return False
 
         # Do not configure middlewares for components that are external,
-        #  that is, they are handled by another node.
-        try:
-            instance.robot_parent.bge_object['Robot_Tag']
-            # If the robot is external, it will have the 'External_Robot_Tag'
-            #  instead, and this test will fail
-        except KeyError as detail:
-            # Skip the configuration of this component
+        # that is, they are handled by another node. The instance stored
+        # in componentDict is None is this case.
+        if not instance:
             continue
 
         # If the list contains only strings, insert the list inside another one.
@@ -735,7 +730,8 @@ def close_all(contr):
     # Force the deletion of the sensor objects
     if 'componentDict' in persistantstorage:
         for component_instance in persistantstorage.componentDict.values():
-            component_instance.finalize()
+            if component_instance:
+                component_instance.finalize()
 
     # Force the deletion of the robot objects
     if 'robotDict' in persistantstorage:
