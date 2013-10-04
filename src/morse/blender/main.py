@@ -411,6 +411,10 @@ def link_services():
                              "restart the simulation.")
                 return False
 
+        # Don't link service for component of external robots
+        if not instance:
+            continue
+
         for request_manager in request_manager_data:
             # Load required request managers
             if not persistantstorage.morse_services.add_request_manager(request_manager):
@@ -445,6 +449,10 @@ def load_overlays():
                 logger.error("Could not find the object to overlay: %s." %
                               overlaid_name)
                 return False
+
+            # Don't link service for component of external robots
+            if not overlaid_object:
+                continue
 
             # Instanciate the overlay, passing the overlaid object to
             # the constructor + any optional arguments
