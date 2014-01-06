@@ -37,11 +37,9 @@ class XYZRGBPublisher(ROSPublisherTF):
         pc2.fields = [PointField('x', 0, PointField.FLOAT32, 1),
                       PointField('y', 4, PointField.FLOAT32, 1),
                       PointField('z', 8, PointField.FLOAT32, 1),
-                      PointField('r', 12, PointField.UINT8, 1),
-                      PointField('g', 13, PointField.UINT8, 1),
-                      PointField('b', 14, PointField.UINT8, 1)]
-        pc2.point_step = 15 # XYZ * sizeof(float) + RGB
-        pc2.row_step = self.npixels * 15
+                      PointField('rgb', 12, PointField.FLOAT32, 1)]
+        pc2.point_step = 16 # XYZ * sizeof(float) + RGB(A)
+        pc2.row_step = self.npixels * 16
 
         pc2.data = bytes().join(merge_xyz_rgb(points, video, self.npixels))
         # bytes().join() because: object of type 'generator' has no len()
@@ -59,6 +57,6 @@ def merge_xyz_rgb(float32_xyz, uint8_rgba, npixels):
         # take 12 bytes from float32_xyz + 3 (RGB) from uint8_rgba (drop alpha)
         px_xyz = px_rgba * 3
         yield bytes(float32_xyz[px_xyz:px_xyz+12])
-        yield bytes(uint8_rgba_mv[px_rgba:px_rgba+3])
+        yield bytes(uint8_rgba_mv[px_rgba:px_rgba+4])
         #yield struct.pack('12B', *float32_xyz[px_xyz:px_xyz+12])
         #yield struct.pack('3B', *uint8_rgba_mv[px_rgba:px_rgba+3])
