@@ -1,8 +1,9 @@
 import logging; logger = logging.getLogger("morse." + __name__)
 from abc import ABCMeta, abstractmethod
 from morse.core import blenderapi
+import morse.core.object
 
-class AbstractModifier(object):
+class AbstractModifier(morse.core.object.Object):
     """
     The class is inherited by all modifiers.
     Concrete classes need to implement :py:meth:`modify`.

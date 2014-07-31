@@ -1,9 +1,9 @@
 import logging; logger = logging.getLogger("morse." + __name__)
-
-from morse.modifiers.abstract_modifier import AbstractModifier
 from math import cos, sin
+from morse.core.services import service
+from morse.modifiers.abstract_modifier import AbstractModifier
 
-class OdometryNoiseModifier(AbstractModifier):
+class OdometryNoise(AbstractModifier):
     """
     This modifier allows to simulate two common issues when calculating odometry :
 
@@ -79,3 +79,9 @@ class OdometryNoiseModifier(AbstractModifier):
                 self.data['dx'] = dx
                 self.data['dy'] = dy
                 self.data['dyaw'] += self._gyro_drift
+
+    @service
+    def reset(self):
+        self._drift_x = 0.0
+        self._drift_y = 0.0
+        self._drift_yaw = 0.0
