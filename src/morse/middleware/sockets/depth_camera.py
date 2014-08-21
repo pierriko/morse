@@ -29,6 +29,8 @@ class DepthCameraPublisher(SocketPublisher):
             'width':     self.component_instance.image_width,
             'points':    data,
             'intrinsic_matrix': intrinsic,
+            'nb_points': self.data['nb_points'],
+            'sensor_world': [list(vec) for vec in self.component_instance.bge_object.worldTransform],
         }
 
         return (json.dumps(res) + '\n').encode()
