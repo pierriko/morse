@@ -6,6 +6,7 @@ from morse.builder.morsebuilder import *
 from morse.builder.data import MORSE_DATASTREAM_MODULE
 from morse.builder.abstractcomponent import Configuration
 from morse.core.morse_time import TimeStrategies
+import morse.builder.setup
 
 class Environment(Component):
     """ Class to configure the general environment of the simulation
@@ -287,7 +288,7 @@ class Environment(Component):
         # define 'Scene_Script_Holder' as the blender object of Enrivonment
         if not 'Scene_Script_Holder' in bpymorse.get_objects():
             # Add the necessary objects
-            base = Component('props', 'basics')
+            morse.builder.setup.init_morse()
 
         # Set Scene_Script_Holder as core Environment object
         self.set_blender_object(bpymorse.get_object('Scene_Script_Holder'))
