@@ -1,6 +1,9 @@
 import logging; logger = logging.getLogger("morse." + __name__)
 from math import sqrt, cos, sin, tan, atan, radians, degrees
 from morse.core import blenderapi
+
+# avoid numpy.core.multiarray missmatch
+import sys; sys.path.insert(0, sys.exec_prefix+'/lib/python3.4/site-packages')
 import numpy
 
 class CoordinateConverter:
@@ -15,7 +18,7 @@ class CoordinateConverter:
     ECC4 = ECC**4
 
     _instance = None
-    
+
     def __init__(self, latitude, longitude, altitude):
         P = [radians(longitude), radians(latitude), altitude]
         self.origin_ecef = self.geodetic_to_ecef(numpy.matrix(P))
@@ -59,7 +62,7 @@ class CoordinateConverter:
         converts point in LTP(Blender) to ECEF-r coordinates
         """
         return  self.origin_ecef + xt * self._rot_ltp_ecef   #transformed xt -> xe
-    
+
     def ecef_to_ltp(self, xt):
         """
         converts point in ECEF-r coordinates to LTP(Blender)
