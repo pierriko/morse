@@ -9,13 +9,14 @@ height = data['height']
 # data['image'] is RGBA base64 encoded
 buff = base64.b64decode( data['image'] )
 
-# using scipy and numpy
-import numpy
-import scipy.misc
-image = numpy.ndarray(shape=(width, height, 4), buffer=buff, dtype='uint8')
-scipy.misc.imsave('scipy.png', image)
+buff_rgb = [[r,g,b] for r,g,b in zip(buff[0::4], buff[1::4], buff[2::4])]
 
-# using Python Imaging Library (PIL)
-from PIL import Image
-image = Image.frombuffer('RGBA', (width, height), buff, 'raw', 'RGBA', 0, 1)
-image.save('pil.png')
+def ppm_ascii(image, width, height):
+    #assert(len(image) == width * height * 3)
+    yield 'P3\n%i %i\n255\n'%(width, height)
+    for r,g,b in image:
+        yield '%i %i %i'%(r,g,b)
+
+with open('image.ppm', 'w') as f:
+    for txt in ppm_ascii(buff_rgb, width, height):
+        f.write( txt )
