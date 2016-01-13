@@ -34,3 +34,13 @@ You can use to following command to re-encode properly::
 Or, if you use sound::
 
     avconv -i out.ogv -vcodec libx264 -acodec libfaac -s hd720 -b 5000k -ab 320k out.mp4
+
+
+
+Soon, you will find some tips here on `Recording to Keyframes
+<http://web.archive.org/web/20150323032635/http://wiki.blender.org/index.php/Doc:2.6/Manual/Game_Engine/Physics#Recording_to_Keyframes>`_
+option available in ``morse.builder.Environment.set_animation_record``.
+
+For now, you can see the tutorial: `Recording Game Physics to Keyframes
+<https://vimeo.com/23562207>`_ for more information about this particular
+setting.
