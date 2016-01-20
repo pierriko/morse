@@ -109,6 +109,8 @@ class VideoCamera(morse.sensors.camera.Camera):
 
             # Call the action of the parent class
             morse.sensors.camera.Camera.default_action(self)
+            if not self._texture_ok:
+                return
 
             # NOTE: Blender returns the image as a binary string
             #  encoded as RGBA

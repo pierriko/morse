@@ -37,6 +37,8 @@ class AbstractDepthCamera(VideoCamera):
 
             # Call the action of the Camera class
             Camera.default_action(self)
+            if not self._texture_ok:
+                return
 
             self.process_image(morse.core.blenderapi.cameras()[self.name()].source)
 

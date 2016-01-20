@@ -87,7 +87,6 @@ class Camera(morse.core.sensor.Sensor):
         """ Update the texture image. """
         # Configure the texture settings the first time the sensor is called
         if not self._texture_ok:
-            self._texture_ok = True
             if blenderapi.isfastmode():
                 logger.warning("Running in fastmode! No camera support!")
             else:
@@ -96,11 +95,11 @@ class Camera(morse.core.sensor.Sensor):
 
                 # Exit if the cameras could not be prepared
                 if not blenderapi.hascameras():
-                    logger.warning("Blender's bge.logic does not have the 'cameras' variable, \
-                            something must have failed when configuring the cameras")
+                    logger.warning("Blender's bge.logic does not have the "
+                        "'cameras' variable, something must have failed when "
+                        "configuring the cameras")
                 else:
                     self._camera_running = True
-
 
         if self._camera_running:
             # Update all objects pose/orientation before to refresh the image
@@ -120,6 +119,11 @@ class Camera(morse.core.sensor.Sensor):
         Extract the references to the Blender camera and material where
         the images will be rendered.
         """
+        # Get the reference to the scene
+        scene_map = blenderapi.get_scene_map()
+        if self.scene_name not in scene_map:
+            return # camera scene not in map at first tick
+        logger.info("Scene %s from %s"% (self.scene_name, repr(scene_map.keys()) ) )
         for child in self.bge_object.children:
             # The camera object that will produce the image in Blender
             if 'CameraRobot' in child.name:
@@ -146,9 +150,6 @@ class Camera(morse.core.sensor.Sensor):
                          "Best solution is to re-link the camera.")
             return False
 
-        # Get the reference to the scene
-        scene_map = blenderapi.get_scene_map()
-        logger.info("Scene %s from %s"% (self.scene_name, repr(scene_map.keys()) ) )
         self._scene = scene_map[self.scene_name]
         self._morse_scene = scene_map['S.MORSE_LOGIC']
 
@@ -236,3 +237,4 @@ class Camera(morse.core.sensor.Sensor):
                         detail)
 
         blenderapi.cameras()[self.name()] = vt_camera
+        self._texture_ok = True
